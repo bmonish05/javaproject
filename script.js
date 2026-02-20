@@ -3,12 +3,14 @@ const questionBox = document.querySelector('.question');
 const choicesBox = document.querySelector('.choices');
 const nextBtn = document.querySelector('.nextBtn');
 const scoreCard = document.querySelector('.scoreCard');
-const alertBox = document.querySelector('.alert');
 const startBtn = document.querySelector('.startBtn');
 const timer = document.querySelector('.timer');
 const progressBar = document.getElementById('progressBar');
 const progressText = document.getElementById('progressText');
 const timerValue = document.getElementById('timerValue');
+const warningModal = document.getElementById('warningModal');
+const returnBtn = document.getElementById('returnBtn');
+const quitTabBtn = document.getElementById('quitTabBtn');
 
 // Comprehensive Quiz Database - 25 Questions
 const quiz = [
@@ -182,10 +184,135 @@ const quiz = [
 // State Variables
 let currentQuestionIndex = 0;
 let score = 0;
-let timeLeft = 15;
-let totalTime = 15;
+let timeLeft = 20;
+let totalTime = 20;
 let timerID = null;
 let answered = false;
+let quizStarted = false;
+let isQuizActive = false;
+let tabSwitchAttempted = false;
+
+// ==================== TAB/WINDOW SWITCH DETECTION ====================
+let isPageVisible = true;
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // User switched tabs/windows
+        isPageVisible = false;
+        if (quizStarted && isQuizActive) {
+            tabSwitchAttempted = true;
+            showWarningModal();
+            stopTimer();
+        }
+    } else {
+        // User returned to the page
+        isPageVisible = true;
+    }
+});
+
+// Detect focus loss (switching apps/windows)
+window.addEventListener('blur', () => {
+    if (quizStarted && isQuizActive) {
+        tabSwitchAttempted = true;
+        showWarningModal();
+        stopTimer();
+    }
+});
+
+window.addEventListener('focus', () => {
+    if (quizStarted && isQuizActive && tabSwitchAttempted) {
+        // Keep the warning modal open
+        showWarningModal();
+    }
+});
+
+// Prevent keyboard shortcuts for new tabs/windows
+document.addEventListener('keydown', (e) => {
+    if (quizStarted && isQuizActive) {
+        // Ctrl+T (new tab), Ctrl+N (new window), Ctrl+W (close tab)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 't' || e.key === 'n' || e.key === 'w')) {
+            e.preventDefault();
+            tabSwitchAttempted = true;
+            showWarningModal();
+            return false;
+        }
+        // Alt+Tab alternative detection
+        if (e.altKey && e.key === 'Tab') {
+            e.preventDefault();
+            tabSwitchAttempted = true;
+            showWarningModal();
+            return false;
+        }
+    }
+});
+
+// ==================== SHOW WARNING MODAL ====================
+const showWarningModal = () => {
+    warningModal.classList.add('show');
+};
+
+const hideWarningModal = () => {
+    warningModal.classList.remove('show');
+};
+
+// ==================== RETURN BUTTON ====================
+returnBtn.addEventListener('click', () => {
+    tabSwitchAttempted = false;
+    hideWarningModal();
+    if (quizStarted && isQuizActive && !answered) {
+        startTimer();
+    }
+    window.focus();
+});
+
+// ==================== QUIT BUTTON ====================
+quitTabBtn.addEventListener('click', () => {
+    endQuizDueToTabSwitch();
+});
+
+// ==================== END QUIZ DUE TO TAB SWITCH ====================
+const endQuizDueToTabSwitch = () => {
+    quizStarted = false;
+    isQuizActive = false;
+    answered = false;
+    tabSwitchAttempted = false;
+    stopTimer();
+    hideWarningModal();
+    
+    currentQuestionIndex = 0;
+    score = 0;
+    timeLeft = totalTime;
+    
+    scoreCard.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+            <div style="font-size: 60px; color: #dc3545; margin-bottom: 20px;">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h2 style="font-size: 28px; color: #333; margin-bottom: 15px; font-weight: 700;">Quiz Ended</h2>
+            <p style="font-size: 16px; color: #666; margin-bottom: 30px;">You attempted to switch tabs or applications. Your quiz has been terminated.</p>
+            <button class="btn tryAgainBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 100%; max-width: 300px;">
+                <i class="fas fa-redo"></i> Start New Assessment
+            </button>
+        </div>
+    `;
+    
+    choicesBox.innerHTML = "";
+    nextBtn.style.display = "none";
+    timer.style.display = "none";
+    container.classList.remove('show');
+    startBtn.style.display = "block";
+    questionBox.textContent = "";
+    
+    // Reset progress
+    progressBar.style.width = "4%";
+    progressText.textContent = "Question 1 of 25";
+    updateNavScore();
+    
+    document.querySelector(".tryAgainBtn").addEventListener("click", () => {
+        scoreCard.innerHTML = "";
+        startQuiz();
+    });
+};
 
 // ==================== SHOW QUESTIONS ====================
 const showQuestions = () => {
@@ -193,6 +320,7 @@ const showQuestions = () => {
     const questionDetails = quiz[currentQuestionIndex];
     questionBox.textContent = questionDetails.question;
     choicesBox.innerHTML = "";
+    nextBtn.style.display = "none";
 
     updateProgress();
 
@@ -202,7 +330,9 @@ const showQuestions = () => {
         choiceDiv.classList.add("choice");
         choicesBox.appendChild(choiceDiv);
 
-        choiceDiv.addEventListener("click", () => handleChoiceClick(choiceDiv, choice, questionDetails.answer));
+        choiceDiv.addEventListener("click", () => {
+            handleChoiceClick(choiceDiv, choice, questionDetails.answer);
+        });
     });
 
     startTimer();
@@ -221,11 +351,9 @@ const handleChoiceClick = (choiceDiv, selectedChoice, correctAnswer) => {
     if (isCorrect) {
         choiceDiv.classList.add("correct");
         score++;
-        showAlert("✓ Correct!", "success");
         playSound('correct');
     } else {
         choiceDiv.classList.add("wrong");
-        showAlert("✗ Incorrect", "error");
         playSound('wrong');
 
         document.querySelectorAll(".choice").forEach(c => {
@@ -236,23 +364,27 @@ const handleChoiceClick = (choiceDiv, selectedChoice, correctAnswer) => {
     }
 
     updateNavScore();
-
-    setTimeout(() => {
-        currentQuestionIndex++;
-        timeLeft = totalTime;
-
-        if (currentQuestionIndex < quiz.length) {
-            showQuestions();
-        } else {
-            showScore();
-        }
-    }, 1500);
+    nextBtn.style.display = "block";
 };
+
+// ==================== NEXT BUTTON HANDLER ====================
+nextBtn.addEventListener("click", () => {
+    currentQuestionIndex++;
+    timeLeft = totalTime;
+
+    if (currentQuestionIndex < quiz.length) {
+        showQuestions();
+    } else {
+        showScore();
+    }
+});
 
 // ==================== DISABLE ALL CHOICES ====================
 const disableAllChoices = () => {
     document.querySelectorAll(".choice").forEach(choice => {
         choice.classList.add("disabled");
+        choice.style.pointerEvents = "none";
+        choice.style.opacity = "0.9";
     });
 };
 
@@ -271,6 +403,9 @@ const updateNavScore = () => {
 
 // ==================== SHOW SCORE ====================
 const showScore = () => {
+    quizStarted = false;
+    isQuizActive = false;
+    
     const percentage = (score / quiz.length) * 100;
     const message = getScoreMessage(percentage);
     const gradePoints = Math.round((score / quiz.length) * 100);
@@ -297,12 +432,48 @@ const showScore = () => {
                 <div class="score-item-value">${quiz.length - score}</div>
             </div>
         </div>
-        <button class="btn tryAgainBtn"><i class="fas fa-redo"></i> Retake Assessment</button>
+        <div class="score-buttons">
+            <button class="btn tryAgainBtn">
+                <i class="fas fa-redo"></i> Retake Assessment
+            </button>
+            <button class="btn endQuizBtn">
+                <i class="fas fa-sign-out-alt"></i> End Quiz
+            </button>
+        </div>
     `;
 
     document.querySelector(".tryAgainBtn").addEventListener("click", startQuiz);
+    document.querySelector(".endQuizBtn").addEventListener("click", () => {
+        endQuizFinal();
+    });
+    
     triggerConfetti();
     playSound('success');
+};
+
+// ==================== END QUIZ FINAL ====================
+const endQuizFinal = () => {
+    quizStarted = false;
+    isQuizActive = false;
+    answered = false;
+    stopTimer();
+    
+    currentQuestionIndex = 0;
+    score = 0;
+    timeLeft = totalTime;
+    
+    scoreCard.innerHTML = "";
+    choicesBox.innerHTML = "";
+    nextBtn.style.display = "none";
+    timer.style.display = "none";
+    container.classList.remove('show');
+    startBtn.style.display = "block";
+    questionBox.textContent = "";
+    
+    // Reset progress
+    progressBar.style.width = "4%";
+    progressText.textContent = "Question 1 of 25";
+    updateNavScore();
 };
 
 // ==================== GET SCORE MESSAGE ====================
@@ -317,6 +488,9 @@ const getScoreMessage = (percentage) => {
 
 // ==================== SHOW TIMEOUT ====================
 const showTimeout = () => {
+    if (answered) return;
+
+    answered = true;
     questionBox.textContent = "⏰ Time Expired";
     choicesBox.innerHTML = "";
     scoreCard.innerHTML = `
@@ -325,7 +499,6 @@ const showTimeout = () => {
     nextBtn.style.display = "none";
     timer.style.display = "none";
 
-    showAlert("Time's up for this question!", "error");
     playSound('timeout');
 
     document.querySelector(".tryAgainBtn").addEventListener("click", startQuiz);
@@ -344,7 +517,6 @@ const startTimer = () => {
 
         if (timeLeft <= 0) {
             stopTimer();
-            answered = true;
             showTimeout();
         }
     }, 1000);
@@ -366,6 +538,9 @@ const stopTimer = () => {
 
 // ==================== START QUIZ ====================
 const startQuiz = () => {
+    quizStarted = true;
+    isQuizActive = true;
+    tabSwitchAttempted = false;
     score = 0;
     currentQuestionIndex = 0;
     timeLeft = totalTime;
@@ -387,50 +562,43 @@ startBtn.addEventListener("click", () => {
     startQuiz();
 });
 
-// ==================== SHOW ALERT ====================
-const showAlert = (message) => {
-    const alertText = document.getElementById('alertText');
-    alertText.textContent = message;
-    alertBox.classList.add('show');
-
-    setTimeout(() => {
-        alertBox.classList.remove('show');
-    }, 2000);
-};
-
 // ==================== SOUND EFFECTS ====================
 const playSound = (type) => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
 
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
 
-    switch(type) {
-        case 'correct':
-            oscillator.frequency.value = 800;
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-            break;
-        case 'wrong':
-            oscillator.frequency.value = 400;
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
-            break;
-        case 'success':
-            oscillator.frequency.value = 1000;
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-            break;
-        case 'timeout':
-            oscillator.frequency.value = 300;
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.4);
-            break;
+        switch(type) {
+            case 'correct':
+                oscillator.frequency.value = 800;
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+            case 'wrong':
+                oscillator.frequency.value = 400;
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                break;
+            case 'success':
+                oscillator.frequency.value = 1000;
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+            case 'timeout':
+                oscillator.frequency.value = 300;
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                break;
+        }
+    } catch (e) {
+        // Audio context not available
     }
 };
 
