@@ -9,7 +9,6 @@ const progressBar = document.getElementById('progressBar');
 const progressText = document.getElementById('progressText');
 const timerValue = document.getElementById('timerValue');
 const warningModal = document.getElementById('warningModal');
-const returnBtn = document.getElementById('returnBtn');
 const quitTabBtn = document.getElementById('quitTabBtn');
 
 // Comprehensive Quiz Database - 25 Questions
@@ -254,16 +253,6 @@ const showWarningModal = () => {
 const hideWarningModal = () => {
     warningModal.classList.remove('show');
 };
-
-// ==================== RETURN BUTTON ====================
-returnBtn.addEventListener('click', () => {
-    tabSwitchAttempted = false;
-    hideWarningModal();
-    if (quizStarted && isQuizActive && !answered) {
-        startTimer();
-    }
-    window.focus();
-});
 
 // ==================== QUIT BUTTON ====================
 quitTabBtn.addEventListener('click', () => {
