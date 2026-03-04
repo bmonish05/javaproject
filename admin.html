@@ -6,128 +6,2118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Admin Dashboard - QuizMaster Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <title>Admin Portal - QuizMaster Pro</title>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-content">
-            <h2 class="nav-title"><i class="fas fa-graduation-cap"></i> QuizMaster Pro</h2>
-            <div class="nav-stats">
-                <span class="nav-user"><i class="fas fa-user-circle"></i> <span id="userNameDisplay"></span> (Admin)</span>
-                <button class="nav-btn logout-btn" onclick="logout()" style="padding: 8px 16px; font-size: 13px;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-blur"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+    </div>
+
+    <!-- Admin Login Section -->
+    <div id="loginSection" class="login-section active">
+        <div class="login-wrapper">
+            <!-- Left Side - Login Form -->
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="logo-animation">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h1>Admin Portal</h1>
+                    <p>QuizMaster Pro Administration</p>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="adminEmail">
+                            <i class="fas fa-envelope"></i> Admin Email
+                        </label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="email" 
+                                id="adminEmail" 
+                                placeholder="admin@gmail.com" 
+                                required
+                            >
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adminPassword">
+                            <i class="fas fa-key"></i> Password
+                        </label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="password" 
+                                id="adminPassword" 
+                                placeholder="Enter your password" 
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                class="password-toggle" 
+                                onclick="toggleAdminPassword()"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <span class="btn-text">Login to Dashboard</span>
+                        <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
+                        <span class="btn-loader">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </form>
+
+                <div class="login-features">
+                    <div class="feature">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-download"></i>
+                        <span>Data Export</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Illustration -->
+            <div class="login-illustration">
+                <div class="illustration-container">
+                    <div class="shield-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h2>Secure Admin Access</h2>
+                    <p>Manage your entire quiz platform with ease</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div>
+                                <h4>Real-time Analytics</h4>
+                                <p>Monitor student performance instantly</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-lock-open"></i>
+                            </div>
+                            <div>
+                                <h4>Access Control</h4>
+                                <p>Manage user permissions securely</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-file-export"></i>
+                            </div>
+                            <div>
+                                <h4>Data Export</h4>
+                                <p>Export credentials and reports easily</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Section -->
+    <div id="dashboardSection" class="dashboard-section">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <h2 class="nav-title">
+                        <i class="fas fa-graduation-cap"></i> QuizMaster Pro
+                    </h2>
+                    <span class="admin-badge">
+                        <i class="fas fa-crown"></i> Admin Portal
+                    </span>
+                </div>
+                <div class="nav-right">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-details">
+                            <p class="user-name" id="navUserName">Admin</p>
+                            <p class="user-status">Administrator</p>
+                        </div>
+                    </div>
+                    <button class="btn-nav" onclick="goToManageUsers()">
+                        <i class="fas fa-users"></i> Manage Users
+                    </button>
+                    <button class="btn-logout" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-container">
+            <!-- Header with Export Button -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+                    <p>Real-time Student Analytics & Performance Metrics</p>
+                </div>
+                <button class="btn-export" id="exportBtn">
+                    <i class="fas fa-download"></i> Export Credentials
                 </button>
-                <!-- Add this in your admin page navigation or dashboard -->
-<button class="btn" onclick="location.href='admin-users.html'" style="width: auto; padding: 12px 24px; margin-right: 10px;">
-    <i class="fas fa-users"></i> Manage Users
-</button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" data-stat="1">
+                    <div class="stat-header">
+                        <div class="stat-icon users-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Students</h3>
+                            <p class="stat-value" id="totalUsers">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span><i class="fas fa-arrow-up"></i> Active accounts</span>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-stat="2">
+                    <div class="stat-header">
+                        <div class="stat-icon attempts-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Quiz Attempts</h3>
+                            <p class="stat-value" id="totalAttempts">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span><i class="fas fa-arrow-up"></i> Completed quizzes</span>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-stat="3">
+                    <div class="stat-header">
+                        <div class="stat-icon accuracy-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Accuracy</h3>
+                            <p class="stat-value" id="avgAccuracy">0%</p>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span><i class="fas fa-chart-pie"></i> Overall performance</span>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-stat="4">
+                    <div class="stat-header">
+                        <div class="stat-icon score-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Score</h3>
+                            <p class="stat-value" id="avgScore">0/25</p>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span><i class="fas fa-crown"></i> Average correct</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2><i class="fas fa-chart-bar"></i> Performance Distribution</h2>
+                        <p>Student score ranges</p>
+                    </div>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2><i class="fas fa-pie-chart"></i> Accuracy Breakdown</h2>
+                        <p>Correct vs Incorrect answers</p>
+                    </div>
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Students Performance Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h2><i class="fas fa-table"></i> Student Performance Details</h2>
+                    <div class="table-controls">
+                        <input type="text" id="searchInput" class="search-box" placeholder="Search students...">
+                        <select id="filterSelect" class="filter-select">
+                            <option value="all">All Students</option>
+                            <option value="high">High Performers</option>
+                            <option value="low">Needs Improvement</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="performance-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Attempts</th>
+                                <th>Correct</th>
+                                <th>Incorrect</th>
+                                <th>Best Score</th>
+                                <th>Accuracy</th>
+                                <th>Last Attempt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="8" class="no-data">
+                                    <div class="loader">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading data...
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Admin Container -->
-    <div class="admin-container">
-        <!-- Header -->
-        <div class="admin-header">
-            <div>
-                <h1><i class="fas fa-chart-line"></i> Admin Dashboard</h1>
-                <p>Monitor quiz performance and student analytics</p>
-            </div>
-        </div>
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-card-icon users-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-card-content">
-                    <h3>Total Students</h3>
-                    <p class="stat-value" id="totalUsers">0</p>
-                    <span class="stat-subtitle">Registered students</span>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-card-icon attempts-icon">
-                    <i class="fas fa-clipboard"></i>
-                </div>
-                <div class="stat-card-content">
-                    <h3>Quiz Attempts</h3>
-                    <p class="stat-value" id="totalAttempts">0</p>
-                    <span class="stat-subtitle">Total completed</span>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-card-icon accuracy-icon">
-                    <i class="fas fa-bullseye"></i>
-                </div>
-                <div class="stat-card-content">
-                    <h3>Avg. Accuracy</h3>
-                    <p class="stat-value" id="avgAccuracy">0%</p>
-                    <span class="stat-subtitle">Overall performance</span>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-card-icon score-icon">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="stat-card-content">
-                    <h3>Avg. Score</h3>
-                    <p class="stat-value" id="avgScore">0/25</p>
-                    <span class="stat-subtitle">Questions correct</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Section -->
-        <div class="charts-section">
-            <div class="chart-container">
-                <h2><i class="fas fa-chart-bar"></i> Performance Distribution</h2>
-                <canvas id="performanceChart"></canvas>
-            </div>
-
-            <div class="chart-container">
-                <h2><i class="fas fa-pie-chart"></i> Accuracy Breakdown</h2>
-                <canvas id="accuracyChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="users-section">
-            <h2><i class="fas fa-table"></i> Student Performance Details</h2>
-            <div class="table-wrapper">
-                <table class="users-table">
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Email</th>
-                            <th>Attempts</th>
-                            <th>Correct</th>
-                            <th>Incorrect</th>
-                            <th>Best Score</th>
-                            <th>Accuracy</th>
-                            <th>Last Attempt</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                        <tr>
-                            <td colspan="8" style="text-align: center; color: #999; padding: 40px 0;">
-                                <i class="fas fa-inbox" style="font-size: 36px; margin-bottom: 10px; display: block;"></i>
-                                No quiz attempts yet
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Authenticating...</p>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="auth.js"></script>
-    <script src="admin.js"></script>
+    <script>
+        // ==================== CHART VARIABLES ====================
+        let performanceChart = null;
+        let accuracyChart = null;
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            setupLoginForm();
+            checkAdminSession();
+            setupExportButton();
+        });
+
+        // ==================== CHECK ADMIN SESSION ====================
+        function checkAdminSession() {
+            const currentUser = getCurrentUser();
+            if (currentUser && currentUser.isAdmin) {
+                showDashboard();
+            }
+        }
+
+        // ==================== SETUP LOGIN FORM ====================
+        function setupLoginForm() {
+            const form = document.getElementById('loginForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleAdminLogin();
+            });
+
+            // Add real-time validation
+            document.getElementById('adminEmail').addEventListener('input', function() {
+                document.getElementById('emailError').textContent = '';
+            });
+
+            document.getElementById('adminPassword').addEventListener('input', function() {
+                document.getElementById('passwordError').textContent = '';
+            });
+        }
+
+        // ==================== HANDLE ADMIN LOGIN ====================
+        async function handleAdminLogin() {
+            const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+            const password = document.getElementById('adminPassword').value;
+
+            // Clear errors
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+
+            // Validation
+            if (!email) {
+                document.getElementById('emailError').textContent = 'Email is required';
+                shakeElement('adminEmail');
+                return;
+            }
+
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Password is required';
+                shakeElement('adminPassword');
+                return;
+            }
+
+            // Show loading
+            showLoadingOverlay();
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            try {
+                // Get users
+                const users = getStoredUsers();
+                const user = users.find(u => u.email.toLowerCase() === email);
+
+                if (!user) {
+                    hideLoadingOverlay();
+                    document.getElementById('emailError').textContent = 'Admin account not found';
+                    shakeElement('adminEmail');
+                    showNotification('❌ Invalid credentials', 'error');
+                    return;
+                }
+
+                if (!user.isAdmin) {
+                    hideLoadingOverlay();
+                    document.getElementById('emailError').textContent = 'This account does not have admin privileges';
+                    shakeElement('adminEmail');
+                    showNotification('❌ Access denied - Not an admin account', 'error');
+                    return;
+                }
+
+                if (user.password !== password) {
+                    hideLoadingOverlay();
+                    document.getElementById('passwordError').textContent = 'Invalid password';
+                    shakeElement('adminPassword');
+                    showNotification('❌ Incorrect password', 'error');
+                    return;
+                }
+
+                // Login successful
+                setCurrentUser(user);
+                showNotification(`✅ Welcome back, ${user.name}!`, 'success');
+                
+                hideLoadingOverlay();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                transitionToDashboard();
+
+            } catch (error) {
+                hideLoadingOverlay();
+                showNotification('❌ An error occurred', 'error');
+            }
+        }
+
+        // ==================== TRANSITION TO DASHBOARD ====================
+        function transitionToDashboard() {
+            const loginSection = document.getElementById('loginSection');
+            const dashboardSection = document.getElementById('dashboardSection');
+
+            loginSection.style.opacity = '0';
+            loginSection.style.transform = 'scale(0.95) translateY(20px)';
+            loginSection.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                loginSection.style.display = 'none';
+                dashboardSection.style.display = 'block';
+                
+                setTimeout(() => {
+                    dashboardSection.style.opacity = '1';
+                    dashboardSection.style.transform = 'translateY(0)';
+                    showDashboard();
+                }, 50);
+            }, 600);
+        }
+
+        // ==================== SHOW DASHBOARD ====================
+        function showDashboard() {
+            const currentUser = getCurrentUser();
+            document.getElementById('navUserName').textContent = currentUser.name;
+
+            loadDashboardData();
+            initializeCharts();
+            setupTableSearch();
+        }
+
+        // ==================== LOAD DASHBOARD DATA ====================
+        function loadDashboardData() {
+            const users = getStoredUsers();
+            const results = getStoredQuizResults();
+
+            const students = users.filter(u => !u.isAdmin);
+            const studentIds = new Set(students.map(u => u.id));
+            const studentResults = results.filter(r => studentIds.has(r.userId));
+
+            const totalStudents = students.length;
+            const totalAttempts = studentResults.length;
+            
+            let totalCorrect = 0;
+            let totalQuestions = 0;
+
+            studentResults.forEach(result => {
+                totalCorrect += result.correct;
+                totalQuestions += result.correct + result.incorrect;
+            });
+
+            const avgAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+            const avgScore = totalAttempts > 0 ? Math.round(totalCorrect / totalAttempts) : 0;
+
+            // Animate stat values
+            animateCounter('totalUsers', totalStudents, 1500);
+            animateCounter('totalAttempts', totalAttempts, 1500);
+            animateCounter('avgScore', avgScore, 1500);
+            
+            document.getElementById('avgAccuracy').textContent = avgAccuracy + '%';
+
+            buildStudentTable(students, studentResults);
+        }
+
+        // ==================== ANIMATE COUNTER ====================
+        function animateCounter(elementId, endValue, duration) {
+            const element = document.getElementById(elementId);
+            let currentValue = 0;
+            const increment = endValue / (duration / 16);
+
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= endValue) {
+                    element.textContent = endValue;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(currentValue);
+                }
+            }, 16);
+        }
+
+        // ==================== BUILD STUDENT TABLE ====================
+        function buildStudentTable(students, results) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            if (results.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="no-data">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No quiz attempts yet</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const userResultsMap = {};
+            results.forEach(result => {
+                if (!userResultsMap[result.userId]) {
+                    userResultsMap[result.userId] = [];
+                }
+                userResultsMap[result.userId].push(result);
+            });
+
+            let rowCount = 0;
+            students.forEach(student => {
+                const userResults = userResultsMap[student.id] || [];
+                if (userResults.length === 0) return;
+
+                const totalCorrect = userResults.reduce((sum, r) => sum + r.correct, 0);
+                const totalIncorrect = userResults.reduce((sum, r) => sum + r.incorrect, 0);
+                const bestScore = Math.max(...userResults.map(r => r.score));
+                const accuracy = Math.round((totalCorrect / (totalCorrect + totalIncorrect)) * 100);
+                
+                const lastAttempt = new Date(userResults[userResults.length - 1].timestamp);
+                const lastAttemptStr = lastAttempt.toLocaleDateString() + ' ' + lastAttempt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const row = document.createElement('tr');
+                row.style.animation = `slideInRow 0.4s ease-out ${rowCount * 0.05}s both`;
+                row.innerHTML = `
+                    <td class="student-name">
+                        <div class="name-badge">
+                            <i class="fas fa-user-circle"></i> ${student.name}
+                        </div>
+                    </td>
+                    <td>${student.email}</td>
+                    <td><span class="badge badge-blue">${userResults.length}</span></td>
+                    <td><span class="badge badge-green">${totalCorrect}</span></td>
+                    <td><span class="badge badge-red">${totalIncorrect}</span></td>
+                    <td><span class="badge badge-purple">${bestScore}/25</span></td>
+                    <td>
+                        <div class="accuracy-bar">
+                            <div class="accuracy-fill" style="width: ${accuracy}%; background: ${getAccuracyColor(accuracy)};"></div>
+                            <span class="accuracy-text">${accuracy}%</span>
+                        </div>
+                    </td>
+                    <td class="timestamp">${lastAttemptStr}</td>
+                `;
+                tableBody.appendChild(row);
+                rowCount++;
+            });
+        }
+
+        // ==================== GET ACCURACY COLOR ====================
+        function getAccuracyColor(accuracy) {
+            if (accuracy >= 80) return '#28a745';
+            if (accuracy >= 60) return '#ffc107';
+            return '#dc3545';
+        }
+
+        // ==================== INITIALIZE CHARTS ====================
+        function initializeCharts() {
+            const users = getStoredUsers();
+            const results = getStoredQuizResults();
+
+            const students = users.filter(u => !u.isAdmin);
+            const studentIds = new Set(students.map(u => u.id));
+            const studentResults = results.filter(r => studentIds.has(r.userId));
+
+            createPerformanceChart(studentResults);
+            createAccuracyChart(studentResults);
+        }
+
+        // ==================== CREATE PERFORMANCE CHART ====================
+        function createPerformanceChart(results) {
+            const distribution = [0, 0, 0, 0, 0];
+            
+            results.forEach(result => {
+                if (result.score <= 5) distribution[0]++;
+                else if (result.score <= 10) distribution[1]++;
+                else if (result.score <= 15) distribution[2]++;
+                else if (result.score <= 20) distribution[3]++;
+                else distribution[4]++;
+            });
+
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            if (performanceChart) performanceChart.destroy();
+
+            performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-5', '6-10', '11-15', '16-20', '21-25'],
+                    datasets: [{
+                        label: 'Number of Students',
+                        data: distribution,
+                        backgroundColor: [
+                            'rgba(220, 53, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(23, 162, 184, 0.8)',
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(40, 167, 69, 0.8)'
+                        ],
+                        borderColor: [
+                            '#dc3545',
+                            '#ffc107',
+                            '#17a2b8',
+                            '#667eea',
+                            '#28a745'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        hoverBackgroundColor: [
+                            'rgba(220, 53, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(40, 167, 69, 1)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 13, weight: 'bold' },
+                                color: '#333',
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#666',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#666',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==================== CREATE ACCURACY CHART ====================
+        function createAccuracyChart(results) {
+            let correct = 0;
+            let incorrect = 0;
+
+            results.forEach(result => {
+                correct += result.correct;
+                incorrect += result.incorrect;
+            });
+
+            const ctx = document.getElementById('accuracyChart').getContext('2d');
+            
+            if (accuracyChart) accuracyChart.destroy();
+
+            accuracyChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct Answers', 'Incorrect Answers'],
+                    datasets: [{
+                        data: [correct, incorrect],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ],
+                        borderColor: [
+                            '#28a745',
+                            '#dc3545'
+                        ],
+                        borderWidth: 2,
+                        hoverBackgroundColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 13, weight: 'bold' },
+                                color: '#333',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==================== SETUP TABLE SEARCH ====================
+        function setupTableSearch() {
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('filterSelect').addEventListener('change', filterTable);
+        }
+
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterValue = document.getElementById('filterSelect').value;
+            const rows = document.querySelectorAll('#tableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const accuracy = parseAccuracy(row);
+                
+                let showRow = text.includes(searchTerm);
+                
+                if (filterValue === 'high') {
+                    showRow = showRow && accuracy >= 80;
+                } else if (filterValue === 'low') {
+                    showRow = showRow && accuracy < 60;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+                if (showRow) {
+                    row.style.animation = 'slideInRow 0.3s ease-out';
+                }
+            });
+        }
+
+        function parseAccuracy(row) {
+            const accuracyCell = row.querySelector('.accuracy-text');
+            if (accuracyCell) {
+                return parseInt(accuracyCell.textContent);
+            }
+            return 0;
+        }
+
+        // ==================== EXPORT CREDENTIALS ====================
+        function setupExportButton() {
+            document.getElementById('exportBtn').addEventListener('click', exportAllCredentials);
+        }
+
+        function exportAllCredentials() {
+            const users = getStoredUsers();
+            const students = users.filter(u => !u.isAdmin);
+
+            if (students.length === 0) {
+                showNotification('❌ No students to export', 'error');
+                return;
+            }
+
+            const data = [
+                ['QuizMaster Pro - Student Credentials Export'],
+                ['Generated on: ' + new Date().toLocaleString()],
+                [''],
+                ['#', 'Student Name', 'Email Address', 'Password', 'Account Created']
+            ];
+
+            students.forEach((student, idx) => {
+                const createdDate = new Date(student.createdAt).toLocaleDateString();
+                data.push([
+                    idx + 1,
+                    student.name,
+                    student.email,
+                    student.password,
+                    createdDate
+                ]);
+            });
+
+            data.push(['']);
+            data.push(['Total Students', students.length]);
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [
+                { wch: 5 },
+                { wch: 25 },
+                { wch: 30 },
+                { wch: 25 },
+                { wch: 20 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Credentials');
+
+            const fileName = `QuizMaster_Credentials_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            
+            showNotification(`✅ Exported ${students.length} student credentials!`, 'success');
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function toggleAdminPassword() {
+            const input = document.getElementById('adminPassword');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function shakeElement(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.animation = 'shake 0.4s ease';
+            setTimeout(() => {
+                element.style.animation = '';
+            }, 400);
+        }
+
+        function showLoadingOverlay() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = message;
+            notification.className = `notification notification-${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function goToManageUsers() {
+            window.location.href = 'admin-users.html';
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                location.reload();
+            }
+        }
+    </script>
+
+    <style>
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRow {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes floatingShapes {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+            100% { transform: translateY(0px) rotate(360deg); }
+        }
+
+        /* ==================== ANIMATED BACKGROUND ==================== */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            z-index: -1;
+        }
+
+        .gradient-blur {
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #667eea);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatingShapes 10s infinite ease-in-out;
+            opacity: 0.1;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: white;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .shape-3 {
+            width: 180px;
+            height: 180px;
+            background: white;
+            bottom: 10%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .shape-4 {
+            width: 120px;
+            height: 120px;
+            background: white;
+            top: 30%;
+            right: 15%;
+            animation-delay: 6s;
+        }
+
+        /* ==================== LOGIN SECTION ==================== */
+        .login-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .login-section.active {
+            animation: fadeInScale 0.8s ease;
+        }
+
+        .login-wrapper {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            flex: 1;
+            max-width: 450px;
+            animation: slideInLeft 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideInDown 0.6s ease 0.2s both;
+        }
+
+        .logo-animation {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-header h1 {
+            color: #333;
+            font-size: 32px;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .login-form {
+            animation: slideInUp 0.8s ease 0.3s both;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: #f8f9fa;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            padding-right: 40px;
+        }
+
+        .input-focus-border {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .input-wrapper input:focus ~ .input-focus-border {
+            width: 100%;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            padding: 8px;
+        }
+
+        .password-toggle:hover {
+            color: #764ba2;
+            transform: scale(1.2);
+        }
+
+        .error-message {
+            display: block;
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 6px;
+            font-weight: 600;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s ease 0.4s both;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-text {
+            display: inline;
+        }
+
+        .btn-icon {
+            display: inline;
+            font-size: 16px;
+        }
+
+        .btn-loader {
+            display: none;
+        }
+
+        .btn-login.loading .btn-text,
+        .btn-login.loading .btn-icon {
+            display: none;
+        }
+
+        .btn-login.loading .btn-loader {
+            display: inline;
+        }
+
+        .login-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+            animation: slideInUp 0.8s ease 0.5s both;
+        }
+
+        .feature {
+            text-align: center;
+            animation: fadeInScale 0.6s ease forwards;
+        }
+
+        .feature:nth-child(1) { animation-delay: 0.6s; }
+        .feature:nth-child(2) { animation-delay: 0.65s; }
+        .feature:nth-child(3) { animation-delay: 0.7s; }
+
+        .feature i {
+            font-size: 24px;
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .feature span {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            display: block;
+        }
+
+        .login-illustration {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: slideInRight 0.8s ease;
+        }
+
+        .illustration-container {
+            text-align: center;
+            color: white;
+        }
+
+        .shield-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .illustration-container h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .illustration-container p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .feature-list {
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            animation: slideInUp 0.6s ease backwards;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 0.5s; }
+        .feature-item:nth-child(2) { animation-delay: 0.6s; }
+        .feature-item:nth-child(3) { animation-delay: 0.7s; }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .feature-item h4 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .feature-item p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* ==================== LOADING OVERLAY ==================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loader-content p {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* ==================== DASHBOARD SECTION ==================== */
+        .dashboard-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            z-index: 10;
+            position: relative;
+        }
+
+        .dashboard-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideInDown 0.6s ease;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-title {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .user-details p {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            color: #333 !important;
+        }
+
+        .user-status {
+            color: #666 !important;
+            font-weight: 500;
+        }
+
+        .btn-nav,
+        .btn-logout {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            animation: slideInUp 0.6s ease;
+        }
+
+        .header-left h1 {
+            margin: 0 0 5px 0;
+            font-size: 32px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .header-left p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-export {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+            animation: slideInDown 0.6s ease;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            animation: slideInUp 0.6s ease backwards;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card[data-stat="1"] { animation-delay: 0.1s; }
+        .stat-card[data-stat="2"] { animation-delay: 0.2s; }
+        .stat-card[data-stat="3"] { animation-delay: 0.3s; }
+        .stat-card[data-stat="4"] { animation-delay: 0.4s; }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-header {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .users-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .attempts-icon {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+
+        .accuracy-icon {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        }
+
+        .score-icon {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .stat-info h3 {
+            margin: 0 0 5px 0;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            margin: 0;
+            font-size: 32px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .stat-footer {
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-footer i {
+            color: #28a745;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+            animation: slideInUp 0.8s ease 0.2s both;
+        }
+
+        .chart-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .chart-header {
+            margin-bottom: 25px;
+        }
+
+        .chart-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            color: #333;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-header h2 i {
+            color: #667eea;
+        }
+
+        .chart-header p {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Table Section */
+        .table-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: slideInUp 1s ease 0.3s both;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-header h2 i {
+            color: #667eea;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .performance-table thead {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9f0f7 100%);
+        }
+
+        .performance-table th {
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 700;
+            color: #333;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .performance-table td {
+            padding: 18px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .performance-table tbody tr {
+            transition: all 0.3s ease;
+            animation: slideInRow 0.4s ease-out backwards;
+        }
+
+        .performance-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .student-name {
+            font-weight: 600;
+        }
+
+        .name-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+        }
+
+        .name-badge i {
+            color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .badge-blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .badge-green { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+        .badge-red { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+        .badge-purple { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); }
+
+        .accuracy-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .accuracy-fill {
+            height: 8px;
+            border-radius: 4px;
+            flex: 1;
+            min-width: 80px;
+            background: #e0e0e0;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .accuracy-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .accuracy-text {
+            font-weight: 700;
+            color: #333;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .timestamp {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .no-data {
+            text-align: center !important;
+            padding: 60px 20px !important;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+        }
+
+        .empty-state p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+            animation: slideInRight 0.4s ease;
+        }
+
+        .notification-success {
+            border-left: 4px solid #28a745;
+            color: #28a745;
+        }
+
+        .notification-error {
+            border-left: 4px solid #dc3545;
+            color: #dc3545;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .login-wrapper {
+                gap: 40px;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .login-illustration {
+                display: none;
+            }
+
+            .login-card {
+                max-width: 100%;
+                padding: 40px 25px;
+            }
+
+            .nav-content {
+                flex-direction: column;
+                gap: 20px;
+                padding: 15px 20px;
+            }
+
+            .nav-right {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .table-controls {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .search-box,
+            .filter-select {
+                width: 100%;
+            }
+
+            .performance-table {
+                font-size: 12px;
+            }
+
+            .performance-table th,
+            .performance-table td {
+                padding: 12px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .nav-title {
+                font-size: 18px;
+            }
+
+            .dashboard-container {
+                padding: 20px 15px;
+            }
+
+            .header-left h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+        }
+    </style>
 </body>
 </html>
