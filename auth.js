@@ -62,12 +62,12 @@ const switchForm = (formType) => {
     const signUpForm = document.getElementById('signUpForm');
 
     if (formType === 'signUp') {
-        signInForm.classList.add('hidden');
-        signUpForm.classList.remove('hidden');
+        if (signInForm) signInForm.classList.add('hidden');
+        if (signUpForm) signUpForm.classList.remove('hidden');
         clearErrors();
     } else {
-        signUpForm.classList.add('hidden');
-        signInForm.classList.remove('hidden');
+        if (signUpForm) signUpForm.classList.add('hidden');
+        if (signInForm) signInForm.classList.remove('hidden');
         clearErrors();
     }
 };
@@ -75,8 +75,10 @@ const switchForm = (formType) => {
 // ==================== PASSWORD TOGGLE ====================
 const togglePassword = (inputId) => {
     const input = document.getElementById(inputId);
-    const isPassword = input.type === 'password';
-    input.type = isPassword ? 'text' : 'password';
+    if (input) {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+    }
 };
 
 // ==================== EMAIL VALIDATION ====================
