@@ -175,12 +175,12 @@
                 <div class="content-card">
                     <h2><i class="fas fa-trophy"></i> Global Rankings</h2>
                     <div class="ranking-container">
-                        <div class="my-rank-card">
+                        <div class="my-rank-card" id="userRankCard">
                             <div class="rank-badge" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);">
                                 <i class="fas fa-medal"></i>
                                 <span id="myRankPosition">--</span>
                             </div>
-                            <h3>Your Rank</h3>
+                            <h3 id="myRankName">Your Rank</h3>
                             <p id="myRankText">Loading...</p>
                             <div class="rank-score" id="myRankScore">0 points</div>
                         </div>
@@ -267,13 +267,14 @@
         let progressChartObj = null;
         let timeChartObj = null;
 
-        // Random student names
-        const firstNames = ['James', 'Mary', 'Robert', 'Patricia', 'Michael', 'Jennifer', 'William', 'Linda', 'David', 'Barbara', 'Richard', 'Elizabeth', 'Joseph', 'Susan', 'Thomas', 'Jessica', 'Charles', 'Sarah', 'Christopher', 'Karen', 'Daniel', 'Nancy', 'Matthew', 'Lisa', 'Mark', 'Betty', 'Donald', 'Margaret', 'Steven', 'Sandra', 'Paul', 'Ashley', 'Andrew', 'Kimberly', 'Joshua', 'Emily', 'Kenneth', 'Donna', 'Kevin', 'Michelle', 'Brian', 'Carol', 'George', 'Amanda', 'Edward', 'Melissa', 'Ronald', 'Deborah', 'Timothy', 'Stephanie', 'Jason', 'Rebecca'];
-        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Peterson', 'Phillips', 'Campbell', 'Parker', 'Evans', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook', 'Rogers'];
+        // Indian Names
+        const indianFirstNames = ['Aarav', 'Vivaan', 'Arjun', 'Aditya', 'Siddharth', 'Rohan', 'Aryan', 'Nikhil', 'Karan', 'Rahul', 'Ananya', 'Priya', 'Diya', 'Pooja', 'Neha', 'Zara', 'Sakshi', 'Isha', 'Riya', 'Sneha', 'Harshita', 'Divya', 'Kavya', 'Nisha', 'Anjali', 'Deepika', 'Isha', 'Mahesh', 'Vikram', 'Suresh', 'Rajesh', 'Amit', 'Ashok', 'Sanjay', 'Ravi', 'Sandeep', 'Naveen', 'Dharmendra', 'Govind', 'Prakash', 'Vishal', 'Ritesh', 'Varun', 'Harsh', 'Jaideep'];
 
-        function getRandomStudent() {
-            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const indianLastNames = ['Sharma', 'Singh', 'Patel', 'Khan', 'Gupta', 'Kumar', 'Malik', 'Verma', 'Chopra', 'Kapoor', 'Iyer', 'Menon', 'Nair', 'Desai', 'Mishra', 'Rao', 'Yadav', 'Tiwari', 'Saxena', 'Bhat', 'Nambiar', 'Pillai', 'Reddy', 'Krishnan', 'Murthy', 'Dubey', 'Pandey', 'Tripathi', 'Shukla', 'Joshi', 'Sinha', 'Bansal', 'Arora', 'Bhatnagar', 'Nigam', 'Saxena', 'Varma', 'Thakur', 'Dutta', 'Roy', 'Mukherjee', 'Chatterjee', 'Sengupta', 'Bose', 'Das'];
+
+        function getRandomIndianStudent() {
+            const firstName = indianFirstNames[Math.floor(Math.random() * indianFirstNames.length)];
+            const lastName = indianLastNames[Math.floor(Math.random() * indianLastNames.length)];
             return `${firstName} ${lastName}`;
         }
 
@@ -552,25 +553,64 @@
         }
 
         function loadRankings(user) {
-            const students = [];
-            for (let i = 0; i < 15; i++) {
-                students.push({
-                    name: getRandomStudent(),
+            const results = JSON.parse(localStorage.getItem('quizResults')) || [];
+            const userResults = results.filter(r => r.userId === user.id);
+            
+            // Calculate user score and stats
+            const userQuizzes = userResults.length;
+            const userScore = userQuizzes * 80 + Math.round(Math.random() * 200);
+            const userAvgAccuracy = userResults.length > 0 ? Math.round(userResults.reduce((s, r) => s + r.percentage, 0) / userResults.length) : 0;
+
+            // Create list of all students including current user
+            const allStudents = [];
+            
+            // Add other students
+            for (let i = 0; i < 14; i++) {
+                allStudents.push({
+                    name: getRandomIndianStudent(),
                     score: 2450 - (i * 85),
                     accuracy: 96 - (i * 2),
-                    quizzes: 15 + i
+                    quizzes: 15 + i,
+                    isCurrentUser: false
                 });
             }
 
-            let html = students.map((student, i) => {
+            // Add current user
+            allStudents.push({
+                name: user.name,
+                score: userScore,
+                accuracy: userAvgAccuracy,
+                quizzes: userQuizzes,
+                isCurrentUser: true
+            });
+
+            // Sort by score (descending)
+            allStudents.sort((a, b) => b.score - a.score);
+
+            // Find user's rank
+            let userRank = 1;
+            let userIndex = 0;
+            allStudents.forEach((student, idx) => {
+                if (student.isCurrentUser) {
+                    userRank = idx + 1;
+                    userIndex = idx;
+                }
+            });
+
+            // Create ranking table (show all students)
+            let html = allStudents.map((student, i) => {
                 let medal = i === 0 ? '<i class="fas fa-medal" style="color: #FFD700;"></i>' : 
                            i === 1 ? '<i class="fas fa-medal" style="color: #C0C0C0;"></i>' : 
                            i === 2 ? '<i class="fas fa-medal" style="color: #CD7F32;"></i>' : 
                            '<span style="color: #667eea; font-weight: 700; font-size: 16px;">#' + (i + 1) + '</span>';
+                
+                let rowStyle = student.isCurrentUser ? 'background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);' : '';
+                let nameStyle = student.isCurrentUser ? 'color: #667eea; font-weight: 700;' : '';
+                
                 return `
-                    <tr>
+                    <tr style="${rowStyle}">
                         <td><span class="rank-medal">${medal}</span></td>
-                        <td><strong style="color: #333; font-size: 14px;">${student.name}</strong></td>
+                        <td><strong style="${nameStyle}">${student.name} ${student.isCurrentUser ? '⭐' : ''}</strong></td>
                         <td><span class="score-badge">${student.score}</span></td>
                         <td><span class="accuracy-badge">${student.accuracy}%</span></td>
                         <td><span class="quizzes-badge">${student.quizzes}</span></td>
@@ -580,13 +620,10 @@
 
             document.getElementById('rankingTableBody').innerHTML = html;
 
-            const results = JSON.parse(localStorage.getItem('quizResults')) || [];
-            const userQuizzes = results.filter(r => r.userId === user.id).length;
-            const userScore = userQuizzes * 80 + Math.round(Math.random() * 200);
-            const userRank = Math.min(Math.floor(userScore / 150) + 1, 50);
-
+            // Update user rank card
+            document.getElementById('myRankName').textContent = user.name;
             document.getElementById('myRankPosition').textContent = userRank;
-            document.getElementById('myRankText').textContent = `You are ranked #${userRank}`;
+            document.getElementById('myRankText').textContent = `You are ranked #${userRank} out of ${allStudents.length} students`;
             document.getElementById('myRankScore').textContent = userScore + ' points';
         }
 

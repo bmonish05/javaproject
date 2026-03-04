@@ -281,8 +281,10 @@ function initializeRankings(currentUser) {
     }
     
     const students = [
-        'Alex Johnson', 'Sarah Smith', 'Michael Chen', 'Emma Davis', 'James Wilson',
-        'Olivia Brown', 'Ethan Miller', 'Sophia Taylor', 'Noah Anderson', 'Ava Martinez'
+        'Aarav', 'Vivaan', 'Arjun', 'Aditya', 'Siddharth', 'Rohan', 'Aryan', 'Nikhil', 'Karan', 'Rahul', 'Ananya', 'Priya', 'Diya', 
+        'Pooja', 'Neha', 'Zara', 'Sakshi', 'Isha', 'Riya', 'Sneha', 'Harshita', 'Divya', 'Kavya', 'Nisha', 'Anjali', 'Deepika', 'Isha', 
+        'Mahesh', 'Vikram', 'Suresh', 'Rajesh', 'Amit', 'Ashok','Sanjay', 'Ravi', 'Sandeep', 'Naveen', 'Dharmendra', 'Govind', 'Prakash', 
+        'Vishal', 'Ritesh', 'Varun', 'Harsh', 'Jaideep'
     ];
 
     const rankings = students.map((name, idx) => ({
