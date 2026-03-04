@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Professional Quiz Master</title>
+    <title>QuizMaster Pro - Online Quiz Platform</title>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -24,92 +24,44 @@
         </div>
     </nav>
 
-    <!-- Warning Modal for Tab/App Switch -->
-    <div class="modal-overlay" id="warningModal">
-        <div class="modal-content">
-            <div class="modal-icon warning-icon">
-                <i class="fas fa-ban"></i>
-            </div>
-            <h2 class="modal-title">Switching Tabs & Applications Is Restricted!</h2>
-            <p class="modal-message">You cannot switch to other browser tabs or leave this application while taking the quiz. This is a secure assessment environment.</p>
-            <div class="modal-alert-box">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>Switching tabs/applications will end your quiz automatically</span>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn quit-btn" id="quitTabBtn">
-                    <i class="fas fa-sign-out-alt"></i> End Quiz Now
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Start Button -->
-    <button class="btn startBtn" id="startBtn">
-        <span><i class="fas fa-play"></i> Start Assessment</span>
-    </button>
-
-    <!-- Main Container -->
-    <div class="container" id="quizContainer">
-        <!-- Welcome Section -->
+    <!-- Welcome Section -->
+    <div class="container">
         <div class="welcome-section">
-            <h1 class="welcomeTitle">
-                <i class="fas fa-brain"></i> Professional Knowledge Assessment
-            </h1>
-            <p class="welcome-subtitle">Evaluate your expertise across Web Development fundamentals. Answer all questions carefully.</p>
+            <h1 class="welcomeTitle">Welcome to QuizMaster Pro</h1>
+            <p class="welcome-subtitle">Challenge yourself with our comprehensive quiz platform and track your progress</p>
+            
             <div class="welcome-info">
                 <div class="info-box">
                     <i class="fas fa-info-circle"></i>
-                    <span>⚠️ Important: Do not switch tabs or applications during the quiz. Switching will restrict your access.</span>
+                    <span>This quiz has 25 questions. Answer all questions before submitting. Good luck!</span>
                 </div>
             </div>
+
             <div class="welcome-stats">
                 <div class="stat-item">
-                    <span class="stat-number">25</span>
-                    <span class="stat-label">Questions</span>
+                    <div class="stat-number">25</div>
+                    <div class="stat-label">Total Questions</div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">20</span>
-                    <span class="stat-label">Seconds Each</span>
+                    <div class="stat-number">60</div>
+                    <div class="stat-label">Minutes</div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">100</span>
-                    <span class="stat-label">Points Max</span>
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Attempts</div>
                 </div>
             </div>
         </div>
 
-        <div class="quiz-wrapper">
-            <!-- Progress Bar -->
-            <div class="progress-section">
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <span class="progress-text" id="progressText">Question 1 of 25</span>
-            </div>
+        <!-- Start Button -->
+        <button class="btn startBtn" id="startBtn">
+            <i class="fas fa-play"></i> Start Quiz
+        </button>
 
-            <!-- Question Card -->
-            <div class="question-card">
-                <h2 class="question" id="questionBox"></h2>
-            </div>
-
-            <!-- Choices Container -->
-            <div class="choices-container">
-                <div class="choices" id="choicesBox"></div>
-            </div>
-
-            <!-- Score Card -->
-            <div class="scoreCard" id="scoreCard"></div>
-
-            <!-- Action Buttons -->
-            <div class="button-group">
-                <button class="btn nextBtn" id="nextBtn" style="display: none;">Next Question <i class="fas fa-arrow-right"></i></button>
-            </div>
-        </div>
-
-        <!-- Timer -->
-        <div class="timer-wrapper">
-            <div class="timer" id="timer">
+        <!-- Quiz Section (Hidden) -->
+        <div class="quiz-wrapper" id="quizWrapper" style="display: none;">
+            <!-- Timer -->
+            <div class="timer-wrapper">
                 <svg class="timer-circle" viewBox="0 0 100 100">
                     <defs>
                         <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -117,21 +69,525 @@
                             <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
                         </linearGradient>
                     </defs>
-                    <circle cx="50" cy="50" r="45" class="timer-bg"></circle>
-                    <circle cx="50" cy="50" r="45" class="timer-progress" style="stroke-dasharray: 282.7; stroke-dashoffset: 0;"></circle>
+                    <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="timer-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 282.7; stroke-dashoffset: 0;"></circle>
                 </svg>
                 <div class="timer-text">
-                    <span class="timer-value" id="timerValue">20</span>
-                    <span class="timer-label">s</span>
+                    <div class="timer-value" id="timerValue">60:00</div>
+                    <div class="timer-label">Time Left</div>
                 </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-bar-shimmer"></div>
+                </div>
+                <span class="progress-text" id="progressText">Question 0 of 25</span>
+            </div>
+
+            <!-- Question Card -->
+            <div class="question-card">
+                <h2 class="question" id="questionText">Question will appear here</h2>
+            </div>
+
+            <!-- Choices -->
+            <div class="choices-container">
+                <div class="choices" id="choicesContainer"></div>
+            </div>
+
+            <!-- Next Button -->
+            <div class="button-group">
+                <button class="btn nextBtn" id="nextBtn" style="display: none;">
+                    Next Question <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn nextBtn" id="submitBtn" style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    Submit Quiz <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Score Section (Hidden) -->
+        <div class="quiz-wrapper" id="scoreSection" style="display: none;">
+            <div class="scoreCard">
+                <div class="score-result" id="scoreResult">0/25</div>
+                <h2 class="score-title">Quiz Completed!</h2>
+                <p style="color: #666; font-size: 16px; margin-bottom: 30px;" id="scoreMessage">Great job completing the quiz!</p>
+
+                <div class="score-details">
+                    <div class="score-item">
+                        <div class="score-item-label">Score</div>
+                        <div class="score-item-value" id="correctCount">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-item-label">Correct</div>
+                        <div class="score-item-value" id="correctAnswers">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-item-label">Incorrect</div>
+                        <div class="score-item-value" id="incorrectAnswers">0</div>
+                    </div>
+                </div>
+
+                <div class="score-buttons">
+                    <button class="btn tryAgainBtn" id="tryAgainBtn">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                    <button class="btn endQuizBtn" id="endQuizBtn">
+                        <i class="fas fa-home"></i> Go to Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </container>
+
+    <!-- Modal for Quit Confirmation -->
+    <div class="modal-overlay" id="quitModal">
+        <div class="modal-content">
+            <div class="modal-icon warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title">Quit Quiz?</h2>
+            <p class="modal-message">Are you sure you want to quit this quiz? Your progress will not be saved.</p>
+            <div class="modal-alert-box">
+                <i class="fas fa-info-circle"></i>
+                You have answered <span id="answeredCount">0</span> out of 25 questions.
+            </div>
+            <div class="modal-buttons">
+                <button class="btn quit-btn" id="confirmQuitBtn">
+                    <i class="fas fa-sign-out-alt"></i> Yes, Quit Quiz
+                </button>
+                <button class="btn" id="cancelQuitBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-arrow-left"></i> Continue Quiz
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Confetti Canvas -->
+    <!-- Confetti Container -->
     <canvas id="confetti"></canvas>
 
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
     <script src="auth.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // ==================== VARIABLES ====================
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = {};
+        let quizStarted = false;
+        let quizEnded = false;
+        let timeLeft = 3600; // 60 minutes
+        let timerInterval;
+        let currentUser = null;
+
+        // Sample Quiz Questions
+        const quizQuestions = [
+            {
+                question: "What is the capital of France?",
+                choices: ["London", "Berlin", "Paris", "Madrid"],
+                correct: 2
+            },
+            {
+                question: "Which planet is closest to the Sun?",
+                choices: ["Venus", "Mercury", "Earth", "Mars"],
+                correct: 1
+            },
+            {
+                question: "What is 15 + 27?",
+                choices: ["42", "44", "40", "48"],
+                correct: 0
+            },
+            {
+                question: "Who wrote 'Romeo and Juliet'?",
+                choices: ["Jane Austen", "William Shakespeare", "Mark Twain", "Oscar Wilde"],
+                correct: 1
+            },
+            {
+                question: "What is the largest ocean on Earth?",
+                choices: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                correct: 3
+            },
+            {
+                question: "Which element has the chemical symbol 'Au'?",
+                choices: ["Silver", "Gold", "Aluminum", "Argon"],
+                correct: 1
+            },
+            {
+                question: "What is the smallest prime number?",
+                choices: ["1", "2", "3", "5"],
+                correct: 1
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                choices: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
+                correct: 1
+            },
+            {
+                question: "What is the capital of Japan?",
+                choices: ["Kyoto", "Osaka", "Tokyo", "Hiroshima"],
+                correct: 2
+            },
+            {
+                question: "Which country is home to the kangaroo?",
+                choices: ["New Zealand", "Australia", "South Africa", "Brazil"],
+                correct: 1
+            },
+            {
+                question: "What does HTTP stand for?",
+                choices: ["Hyper Text Transfer Protocol", "High Transfer Text Protocol", "Hyper Transfer Text Process", "Home Text Transfer Protocol"],
+                correct: 0
+            },
+            {
+                question: "Which is the longest river in the world?",
+                choices: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+                correct: 1
+            },
+            {
+                question: "What is the boiling point of water?",
+                choices: ["90°C", "100°C", "110°C", "120°C"],
+                correct: 1
+            },
+            {
+                question: "Who is the founder of Microsoft?",
+                choices: ["Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"],
+                correct: 1
+            },
+            {
+                question: "What is the hardest natural substance on Earth?",
+                choices: ["Gold", "Platinum", "Diamond", "Iron"],
+                correct: 2
+            },
+            {
+                question: "Which gas do plants absorb from the atmosphere?",
+                choices: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+                correct: 2
+            },
+            {
+                question: "What is the speed of light?",
+                choices: ["300,000 km/s", "150,000 km/s", "450,000 km/s", "600,000 km/s"],
+                correct: 0
+            },
+            {
+                question: "Who was the first President of the United States?",
+                choices: ["Thomas Jefferson", "George Washington", "John Adams", "Benjamin Franklin"],
+                correct: 1
+            },
+            {
+                question: "What is the chemical formula for salt?",
+                choices: ["NaCl", "KCl", "CaCl", "MgCl"],
+                correct: 0
+            },
+            {
+                question: "Which continent is the largest?",
+                choices: ["Africa", "Europe", "Asia", "North America"],
+                correct: 2
+            },
+            {
+                question: "What is the square root of 144?",
+                choices: ["10", "11", "12", "13"],
+                correct: 2
+            },
+            {
+                question: "Who wrote 'To Kill a Mockingbird'?",
+                choices: ["Harper Lee", "Mark Twain", "F. Scott Fitzgerald", "Ernest Hemingway"],
+                correct: 0
+            },
+            {
+                question: "What is the smallest country in the world?",
+                choices: ["Monaco", "Liechtenstein", "Vatican City", "San Marino"],
+                correct: 2
+            },
+            {
+                question: "How many sides does a hexagon have?",
+                choices: ["4", "5", "6", "8"],
+                correct: 2
+            },
+            {
+                question: "What is the main ingredient in guacamole?",
+                choices: ["Tomato", "Avocado", "Lime", "Cilantro"],
+                correct: 1
+            }
+        ];
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Display user info
+            document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${currentUser.name}`;
+            
+            // Check if admin
+            if (currentUser.isAdmin) {
+                document.getElementById('userInfo').innerHTML += ' (Admin)';
+            }
+
+            // Event Listeners
+            document.getElementById('startBtn').addEventListener('click', startQuiz);
+            document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+            document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+            document.getElementById('tryAgainBtn').addEventListener('click', resetQuiz);
+            document.getElementById('endQuizBtn').addEventListener('click', goToProfile);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('userInfo').addEventListener('click', goToProfile);
+        });
+
+        // ==================== START QUIZ ====================
+        function startQuiz() {
+            quizStarted = true;
+            document.querySelector('.welcome-section').style.display = 'none';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('quizWrapper').style.display = 'block';
+            
+            startTimer();
+            displayQuestion();
+        }
+
+        // ==================== DISPLAY QUESTION ====================
+        function displayQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                return;
+            }
+
+            const question = quizQuestions[currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            
+            const choicesContainer = document.getElementById('choicesContainer');
+            choicesContainer.innerHTML = '';
+
+            question.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice';
+                btn.textContent = choice;
+                
+                if (answers[currentQuestion] === index) {
+                    btn.classList.add('selected');
+                }
+
+                btn.addEventListener('click', function() {
+                    selectAnswer(index);
+                });
+                
+                choicesContainer.appendChild(btn);
+            });
+
+            // Update progress
+            document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${quizQuestions.length}`;
+            const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Show/hide buttons
+            if (currentQuestion === quizQuestions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+
+        // ==================== SELECT ANSWER ====================
+        function selectAnswer(index) {
+            answers[currentQuestion] = index;
+            
+            // Update UI
+            document.querySelectorAll('.choice').forEach((choice, idx) => {
+                choice.classList.remove('selected');
+                if (idx === index) {
+                    choice.classList.add('selected');
+                }
+            });
+        }
+
+        // ==================== NEXT QUESTION ====================
+        function nextQuestion() {
+            if (answers[currentQuestion] === undefined) {
+                showNotification('Please select an answer!', 'error');
+                return;
+            }
+            currentQuestion++;
+            displayQuestion();
+        }
+
+        // ==================== SUBMIT QUIZ ====================
+        function submitQuiz() {
+            if (answers[currentQuestion] === undefined) {
+                showNotification('Please select an answer for the last question!', 'error');
+                return;
+            }
+
+            clearInterval(timerInterval);
+            calculateScore();
+        }
+
+        // ==================== CALCULATE SCORE ====================
+        function calculateScore() {
+            let correct = 0;
+            let incorrect = 0;
+
+            quizQuestions.forEach((question, index) => {
+                if (answers[index] === question.correct) {
+                    correct++;
+                } else {
+                    incorrect++;
+                }
+            });
+
+            const percentage = Math.round((correct / quizQuestions.length) * 100);
+
+            // Save to localStorage
+            const result = {
+                userId: currentUser.id,
+                score: correct,
+                correct: correct,
+                incorrect: incorrect,
+                percentage: percentage,
+                timestamp: new Date().toISOString()
+            };
+
+            let results = JSON.parse(localStorage.getItem('quizResults')) || [];
+            results.push(result);
+            localStorage.setItem('quizResults', JSON.stringify(results));
+
+            // Display score
+            showScore(correct, incorrect, percentage);
+        }
+
+        // ==================== SHOW SCORE ====================
+        function showScore(correct, incorrect, percentage) {
+            quizEnded = true;
+            document.getElementById('quizWrapper').style.display = 'none';
+            document.getElementById('scoreSection').style.display = 'block';
+
+            document.getElementById('scoreResult').textContent = `${correct}/25`;
+            document.getElementById('correctCount').textContent = percentage + '%';
+            document.getElementById('correctAnswers').textContent = correct;
+            document.getElementById('incorrectAnswers').textContent = incorrect;
+
+            let message = '';
+            if (percentage >= 80) {
+                message = '🎉 Excellent! You scored above 80%!';
+            } else if (percentage >= 60) {
+                message = '👍 Good job! Keep practicing!';
+            } else {
+                message = '💪 Keep trying! You\'ll do better next time!';
+            }
+
+            document.getElementById('scoreMessage').textContent = message;
+            playConfetti();
+        }
+
+        // ==================== RESET QUIZ ====================
+        function resetQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = {};
+            quizStarted = false;
+            quizEnded = false;
+            timeLeft = 3600;
+
+            document.querySelector('.welcome-section').style.display = 'block';
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('quizWrapper').style.display = 'none';
+            document.getElementById('scoreSection').style.display = 'none';
+        }
+
+        // ==================== GO TO PROFILE ====================
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        // ==================== TIMER ====================
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                updateTimer();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerValue').textContent = 
+                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+            // Update progress circle
+            const totalSeconds = 3600;
+            const progress = (timeLeft / totalSeconds) * 282.7;
+            document.querySelector('.timer-progress').style.strokeDashoffset = progress;
+        }
+
+        // ==================== LOGOUT ====================
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // ==================== NOTIFICATION ====================
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification notification-${type} show`;
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== CONFETTI ====================
+        function playConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: Math.random() * 5 + 5,
+                    life: 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles = particles.filter(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.2; // gravity
+                    p.life -= 0.01;
+
+                    if (p.life > 0) {
+                        ctx.fillStyle = `hsla(${Math.random() * 360}, 100%, 50%, ${p.life})`;
+                        ctx.fillRect(p.x, p.y, 10, 10);
+                        return true;
+                    }
+                    return false;
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            animate();
+        }
+    </script>
 </body>
 </html>

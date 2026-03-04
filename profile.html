@@ -170,7 +170,7 @@
                 </section>
             </div>
 
-            <!-- RANKING -->
+                        <!-- RANKING -->
             <div id="ranking-section" class="section-content" style="display: none;">
                 <div class="content-card">
                     <h2><i class="fas fa-trophy"></i> Global Rankings</h2>
@@ -185,17 +185,27 @@
                             <div class="rank-score" id="myRankScore">0 points</div>
                         </div>
                         <div class="leaderboard">
-                            <h3>Top 15 Students</h3>
-                            <table class="ranking-table">
-                                <thead>
-                                    <tr>
-                                        <th>Rank</th><th>Student Name</th><th>Score</th><th>Accuracy</th><th>Quizzes</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rankingTableBody">
-                                    <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading rankings...</td></tr>
-                                </tbody>
-                            </table>
+                            <h3>🏆 Top Rankings</h3>
+                            <div class="table-responsive">
+                                <table class="ranking-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 8%;">Rank</th>
+                                            <th style="width: 40%;">Student Name</th>
+                                            <th style="width: 17%;">Score</th>
+                                            <th style="width: 17%;">Accuracy</th>
+                                            <th style="width: 18%;">Quizzes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rankingTableBody">
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
+                                                <i class="fas fa-spinner fa-spin"></i> Loading rankings...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
