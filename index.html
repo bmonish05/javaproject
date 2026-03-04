@@ -7,6 +7,47 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>QuizMaster Pro - Online Quiz Platform</title>
+    <style>
+        .nav-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .profile-btn, .logout-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -16,9 +57,12 @@
             <div class="nav-stats">
                 <span class="nav-stat" id="navScore">Score: 0</span>
                 <span class="nav-stat" id="navProgress">0/25</span>
-                <span class="nav-stat user-info clickable" id="userInfo" style="cursor: pointer;"></span>
-                <button class="btn logout-btn" id="logoutBtn" style="padding: 8px 16px; font-size: 13px;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <span class="nav-stat user-info" id="userInfo" style="cursor: default;"></span>
+                <button class="profile-btn" id="profileBtn" onclick="goToProfile()">
+                    <i class="fas fa-user"></i> Profile
+                </button>
+                <button class="logout-btn" id="logoutBtn" onclick="directLogout()">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
                 </button>
             </div>
         </div>
@@ -148,135 +192,49 @@
     <!-- Notification -->
     <div class="notification" id="notification"></div>
 
-    <script src="auth.js"></script>
     <script>
+        // ==================== GLOBAL FUNCTIONS ====================
+        function getCurrentUser() {
+            const user = localStorage.getItem('currentUser');
+            return user ? JSON.parse(user) : null;
+        }
+
+        function getStoredQuizResults() {
+            const results = localStorage.getItem('quizResults');
+            return results ? JSON.parse(results) : [];
+        }
+
+        function saveQuizResults(results) {
+            localStorage.setItem('quizResults', JSON.stringify(results));
+        }
+
         // ==================== QUIZ QUESTIONS ====================
         const quizQuestions = [
-            {
-                question: "What is the capital of France?",
-                choices: ["London", "Berlin", "Paris", "Madrid"],
-                correct: 2
-            },
-            {
-                question: "Which planet is closest to the Sun?",
-                choices: ["Venus", "Mercury", "Earth", "Mars"],
-                correct: 1
-            },
-            {
-                question: "What is 15 + 27?",
-                choices: ["42", "44", "40", "48"],
-                correct: 0
-            },
-            {
-                question: "Who wrote 'Romeo and Juliet'?",
-                choices: ["Jane Austen", "William Shakespeare", "Mark Twain", "Oscar Wilde"],
-                correct: 1
-            },
-            {
-                question: "What is the largest ocean on Earth?",
-                choices: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-                correct: 3
-            },
-            {
-                question: "Which element has the chemical symbol 'Au'?",
-                choices: ["Silver", "Gold", "Aluminum", "Argon"],
-                correct: 1
-            },
-            {
-                question: "What is the smallest prime number?",
-                choices: ["1", "2", "3", "5"],
-                correct: 1
-            },
-            {
-                question: "Who painted the Mona Lisa?",
-                choices: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
-                correct: 1
-            },
-            {
-                question: "What is the capital of Japan?",
-                choices: ["Kyoto", "Osaka", "Tokyo", "Hiroshima"],
-                correct: 2
-            },
-            {
-                question: "Which country is home to the kangaroo?",
-                choices: ["New Zealand", "Australia", "South Africa", "Brazil"],
-                correct: 1
-            },
-            {
-                question: "What does HTTP stand for?",
-                choices: ["Hyper Text Transfer Protocol", "High Transfer Text Protocol", "Hyper Transfer Text Process", "Home Text Transfer Protocol"],
-                correct: 0
-            },
-            {
-                question: "Which is the longest river in the world?",
-                choices: ["Amazon", "Nile", "Yangtze", "Mississippi"],
-                correct: 1
-            },
-            {
-                question: "What is the boiling point of water?",
-                choices: ["90°C", "100°C", "110°C", "120°C"],
-                correct: 1
-            },
-            {
-                question: "Who is the founder of Microsoft?",
-                choices: ["Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"],
-                correct: 1
-            },
-            {
-                question: "What is the hardest natural substance on Earth?",
-                choices: ["Gold", "Platinum", "Diamond", "Iron"],
-                correct: 2
-            },
-            {
-                question: "Which gas do plants absorb from the atmosphere?",
-                choices: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
-                correct: 2
-            },
-            {
-                question: "What is the speed of light?",
-                choices: ["300,000 km/s", "150,000 km/s", "450,000 km/s", "600,000 km/s"],
-                correct: 0
-            },
-            {
-                question: "Who was the first President of the United States?",
-                choices: ["Thomas Jefferson", "George Washington", "John Adams", "Benjamin Franklin"],
-                correct: 1
-            },
-            {
-                question: "What is the chemical formula for salt?",
-                choices: ["NaCl", "KCl", "CaCl", "MgCl"],
-                correct: 0
-            },
-            {
-                question: "Which continent is the largest?",
-                choices: ["Africa", "Europe", "Asia", "North America"],
-                correct: 2
-            },
-            {
-                question: "What is the square root of 144?",
-                choices: ["10", "11", "12", "13"],
-                correct: 2
-            },
-            {
-                question: "Who wrote 'To Kill a Mockingbird'?",
-                choices: ["Harper Lee", "Mark Twain", "F. Scott Fitzgerald", "Ernest Hemingway"],
-                correct: 0
-            },
-            {
-                question: "What is the smallest country in the world?",
-                choices: ["Monaco", "Liechtenstein", "Vatican City", "San Marino"],
-                correct: 2
-            },
-            {
-                question: "How many sides does a hexagon have?",
-                choices: ["4", "5", "6", "8"],
-                correct: 2
-            },
-            {
-                question: "What is the main ingredient in guacamole?",
-                choices: ["Tomato", "Avocado", "Lime", "Cilantro"],
-                correct: 1
-            }
+            { question: "What is the capital of France?", choices: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
+            { question: "Which planet is closest to the Sun?", choices: ["Venus", "Mercury", "Earth", "Mars"], correct: 1 },
+            { question: "What is 15 + 27?", choices: ["42", "44", "40", "48"], correct: 0 },
+            { question: "Who wrote 'Romeo and Juliet'?", choices: ["Jane Austen", "William Shakespeare", "Mark Twain", "Oscar Wilde"], correct: 1 },
+            { question: "What is the largest ocean on Earth?", choices: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"], correct: 3 },
+            { question: "Which element has the chemical symbol 'Au'?", choices: ["Silver", "Gold", "Aluminum", "Argon"], correct: 1 },
+            { question: "What is the smallest prime number?", choices: ["1", "2", "3", "5"], correct: 1 },
+            { question: "Who painted the Mona Lisa?", choices: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], correct: 1 },
+            { question: "What is the capital of Japan?", choices: ["Kyoto", "Osaka", "Tokyo", "Hiroshima"], correct: 2 },
+            { question: "Which country is home to the kangaroo?", choices: ["New Zealand", "Australia", "South Africa", "Brazil"], correct: 1 },
+            { question: "What does HTTP stand for?", choices: ["Hyper Text Transfer Protocol", "High Transfer Text Protocol", "Hyper Transfer Text Process", "Home Text Transfer Protocol"], correct: 0 },
+            { question: "Which is the longest river in the world?", choices: ["Amazon", "Nile", "Yangtze", "Mississippi"], correct: 1 },
+            { question: "What is the boiling point of water?", choices: ["90°C", "100°C", "110°C", "120°C"], correct: 1 },
+            { question: "Who is the founder of Microsoft?", choices: ["Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"], correct: 1 },
+            { question: "What is the hardest natural substance on Earth?", choices: ["Gold", "Platinum", "Diamond", "Iron"], correct: 2 },
+            { question: "Which gas do plants absorb from the atmosphere?", choices: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], correct: 2 },
+            { question: "What is the speed of light?", choices: ["300,000 km/s", "150,000 km/s", "450,000 km/s", "600,000 km/s"], correct: 0 },
+            { question: "Who was the first President of the United States?", choices: ["Thomas Jefferson", "George Washington", "John Adams", "Benjamin Franklin"], correct: 1 },
+            { question: "What is the chemical formula for salt?", choices: ["NaCl", "KCl", "CaCl", "MgCl"], correct: 0 },
+            { question: "Which continent is the largest?", choices: ["Africa", "Europe", "Asia", "North America"], correct: 2 },
+            { question: "What is the square root of 144?", choices: ["10", "11", "12", "13"], correct: 2 },
+            { question: "Who wrote 'To Kill a Mockingbird'?", choices: ["Harper Lee", "Mark Twain", "F. Scott Fitzgerald", "Ernest Hemingway"], correct: 0 },
+            { question: "What is the smallest country in the world?", choices: ["Monaco", "Liechtenstein", "Vatican City", "San Marino"], correct: 2 },
+            { question: "How many sides does a hexagon have?", choices: ["4", "5", "6", "8"], correct: 2 },
+            { question: "What is the main ingredient in guacamole?", choices: ["Tomato", "Avocado", "Lime", "Cilantro"], correct: 1 }
         ];
 
         // ==================== VARIABLES ====================
@@ -291,37 +249,25 @@
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Loaded - Checking user...');
             currentUser = getCurrentUser();
-            console.log('Current user:', currentUser);
             
             if (!currentUser) {
-                console.log('No user found - redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
 
-            document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${currentUser.name}`;
-            
-            if (currentUser.isAdmin) {
-                document.getElementById('userInfo').innerHTML += ' (Admin)';
-            }
+            document.getElementById('userInfo').innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.name}`;
 
-            // Event Listeners
+            // Setup event listeners
             document.getElementById('startBtn').addEventListener('click', startQuiz);
             document.getElementById('nextBtn').addEventListener('click', nextQuestion);
             document.getElementById('submitBtn').addEventListener('click', submitQuiz);
             document.getElementById('tryAgainBtn').addEventListener('click', resetQuiz);
             document.getElementById('endQuizBtn').addEventListener('click', goToProfile);
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('userInfo').addEventListener('click', goToProfile);
-
-            console.log('Event listeners attached');
         });
 
         // ==================== START QUIZ ====================
         function startQuiz() {
-            console.log('Quiz started');
             quizStarted = true;
             document.getElementById('welcomeSection').style.display = 'none';
             document.getElementById('startBtn').style.display = 'none';
@@ -338,8 +284,6 @@
 
         // ==================== DISPLAY QUESTION ====================
         function displayQuestion() {
-            console.log('Displaying question:', currentQuestion);
-            
             if (currentQuestion >= quizQuestions.length) {
                 submitQuiz();
                 return;
@@ -379,7 +323,7 @@
                 document.getElementById('submitBtn').style.display = 'none';
             }
 
-            document.getElementById('navProgress').textContent = `${currentQuestion + 1}/${quizQuestions.length}`;
+            document.getElementById('navProgress').textContent = `${currentQuestion + 1}/25`;
         }
 
         // ==================== SELECT ANSWER ====================
@@ -397,7 +341,7 @@
         // ==================== NEXT QUESTION ====================
         function nextQuestion() {
             if (answers[currentQuestion] === undefined) {
-                showNotification('Please select an answer!', 'error');
+                alert('Please select an answer!');
                 return;
             }
             currentQuestion++;
@@ -407,7 +351,7 @@
         // ==================== SUBMIT QUIZ ====================
         function submitQuiz() {
             if (answers[currentQuestion] === undefined) {
-                showNotification('Please select an answer for the last question!', 'error');
+                alert('Please answer all questions!');
                 return;
             }
 
@@ -490,6 +434,14 @@
             window.location.href = 'profile.html';
         }
 
+        // ==================== DIRECT LOGOUT (NO CONFIRMATION) ====================
+        function directLogout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('quizUsers');
+            localStorage.removeItem('quizResults');
+            window.location.href = 'login.html';
+        }
+
         // ==================== TIMER ====================
         function startTimer() {
             timerInterval = setInterval(function() {
@@ -512,26 +464,6 @@
             const totalSeconds = 3600;
             const progress = (timeLeft / totalSeconds) * 282.7;
             document.querySelector('.timer-progress').style.strokeDashoffset = progress;
-        }
-
-        // ==================== LOGOUT ====================
-        function logout() {
-            console.log('Logout clicked');
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('currentUser');
-                console.log('Current user removed from localStorage');
-                window.location.href = 'login.html';
-            }
-        }
-
-        // ==================== NOTIFICATION ====================
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification notification-${type} show`;
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
         }
 
         // ==================== CONFETTI ====================
