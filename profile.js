@@ -12,21 +12,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    console.log('User loaded:', currentUser.name);
+    console.log('Loading profile for:', currentUser.name);
 
-    // Set user info
-    document.getElementById('greetingText').textContent = `Hello ${currentUser.name}!`;
-    document.getElementById('userNameMini').textContent = currentUser.name;
+    // Set user info immediately
+    const greeting = document.getElementById('greetingText');
+    const userName = document.getElementById('userNameMini');
+    
+    if (greeting) greeting.textContent = `Hello ${currentUser.name}!`;
+    if (userName) userName.textContent = currentUser.name;
 
-    // Initialize all sections
-    initializeDashboard(currentUser);
-    initializeFavorites();
-    initializeResources();
-    initializeRankings(currentUser);
-    initializeProfileSection(currentUser);
-
-    // Setup navigation
-    setupNavigation();
+    // Initialize all sections with a slight delay to ensure DOM is ready
+    setTimeout(() => {
+        initializeDashboard(currentUser);
+        initializeFavorites();
+        initializeResources();
+        initializeRankings(currentUser);
+        initializeProfileSection(currentUser);
+        setupNavigation();
+    }, 100);
 
     // Setup logout
     setupLogout();
@@ -71,7 +74,6 @@ function setupNavigation() {
             const sectionElement = document.getElementById(`${section}-section`);
             if (sectionElement) {
                 sectionElement.style.display = 'block';
-                sectionElement.style.animation = 'slideUp 0.6s ease';
             }
         });
     });
@@ -79,17 +81,36 @@ function setupNavigation() {
 
 // ==================== INITIALIZE DASHBOARD ====================
 function initializeDashboard(currentUser) {
+    console.log('Initializing dashboard...');
+    
     const results = JSON.parse(localStorage.getItem('quizResults')) || [];
     const userResults = results.filter(r => r.userId === currentUser.id);
 
     console.log('User results:', userResults);
 
+    // Initialize empty cards
+    for (let i = 1; i <= 4; i++) {
+        const circle = document.getElementById(`circle${i}`);
+        const percentEl = document.getElementById(`percent${i}`);
+        const titleEl = document.getElementById(`quizTitle${i}`);
+        const dateEl = document.getElementById(`quizDate${i}`);
+        
+        if (circle) {
+            circle.style.strokeDasharray = '282.7';
+            circle.style.strokeDashoffset = '282.7';
+        }
+    }
+
     if (userResults.length === 0) {
-        console.log('No results found');
-        document.getElementById('weakAreasList').innerHTML = '<p class="no-data">No data available yet. Take more quizzes!</p>';
+        console.log('No results, showing empty state');
+        const weakAreasList = document.getElementById('weakAreasList');
+        if (weakAreasList) {
+            weakAreasList.innerHTML = '<p class="no-data">No data available yet. Take more quizzes!</p>';
+        }
         return;
     }
 
+    // Update cards with recent quizzes
     const recentQuizzes = userResults.slice(-4).reverse();
     
     recentQuizzes.forEach((result, index) => {
@@ -98,10 +119,9 @@ function initializeDashboard(currentUser) {
         const date = new Date(result.timestamp);
         const dateStr = date.toLocaleDateString();
 
-        // Update circle
         const circle = document.getElementById(`circle${cardNum}`);
         if (circle) {
-            const circumference = 2 * Math.PI * 45;
+            const circumference = 282.7;
             const strokeDashoffset = circumference - (percent / 100) * circumference;
             circle.style.strokeDasharray = circumference;
             circle.style.strokeDashoffset = strokeDashoffset;
@@ -120,68 +140,78 @@ function initializeDashboard(currentUser) {
 
     // Build history table
     const historyTableBody = document.getElementById('historyTableBody');
-    historyTableBody.innerHTML = [...userResults].reverse().map((result, idx) => {
-        const date = new Date(result.timestamp);
-        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const color = getColorByPercentage(result.percentage);
+    if (historyTableBody) {
+        historyTableBody.innerHTML = [...userResults].reverse().map((result, idx) => {
+            const date = new Date(result.timestamp);
+            const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const color = getColorByPercentage(result.percentage);
 
-        return `
-            <tr style="animation: fadeInRow 0.5s ease ${idx * 0.05}s both;">
-                <td><strong>Quiz Attempt ${userResults.length - idx}</strong></td>
-                <td><span class="badge" style="background: ${color};">${result.score}/25</span></td>
-                <td><span class="badge" style="background: #28a745;">${result.correct}</span></td>
-                <td><span class="badge" style="background: #dc3545;">${result.incorrect}</span></td>
-                <td>
-                    <div class="accuracy-meter">
-                        <div class="meter-fill" style="width: ${result.percentage}%; background: ${color};"></div>
-                    </div>
-                    <span class="accuracy-text">${result.percentage}%</span>
-                </td>
-                <td>${dateStr}</td>
-            </tr>
-        `;
-    }).join('');
+            return `
+                <tr>
+                    <td><strong>Quiz Attempt ${userResults.length - idx}</strong></td>
+                    <td><span class="badge" style="background: ${color};">${result.score}/25</span></td>
+                    <td><span class="badge" style="background: #28a745;">${result.correct}</span></td>
+                    <td><span class="badge" style="background: #dc3545;">${result.incorrect}</span></td>
+                    <td>
+                        <div class="accuracy-meter">
+                            <div class="meter-fill" style="width: ${result.percentage}%; background: ${color};"></div>
+                        </div>
+                        <span class="accuracy-text">${result.percentage}%</span>
+                    </td>
+                    <td>${dateStr}</td>
+                </tr>
+            `;
+        }).join('');
+    }
 
     // Weak areas
     const weakAttempts = userResults.filter(r => r.percentage < 70).sort((a, b) => a.percentage - b.percentage);
     const weakAreasList = document.getElementById('weakAreasList');
     
-    if (weakAttempts.length === 0) {
-        weakAreasList.innerHTML = '<p class="no-data" style="color: #28a745;"><i class="fas fa-check-circle"></i> Excellent! All quizzes completed with good scores!</p>';
-    } else {
-        weakAreasList.innerHTML = weakAttempts.slice(0, 3).map((attempt, idx) => {
-            const attemptNum = userResults.indexOf(attempt) + 1;
-            const color = getColorByPercentage(attempt.percentage);
-            return `
-                <div class="weak-area-row" style="animation: slideInLeft 0.5s ease ${idx * 0.1}s both;">
-                    <div class="weak-area-left">
-                        <span class="area-name">Attempt #${attemptNum}</span>
-                        <span class="area-score" style="color: ${color};">${attempt.percentage}%</span>
+    if (weakAreasList) {
+        if (weakAttempts.length === 0) {
+            weakAreasList.innerHTML = '<p class="no-data" style="color: #28a745;"><i class="fas fa-check-circle"></i> Excellent! All quizzes completed with good scores!</p>';
+        } else {
+            weakAreasList.innerHTML = weakAttempts.slice(0, 3).map((attempt, idx) => {
+                const attemptNum = userResults.indexOf(attempt) + 1;
+                const color = getColorByPercentage(attempt.percentage);
+                return `
+                    <div class="weak-area-row">
+                        <div class="weak-area-left">
+                            <span class="area-name">Attempt #${attemptNum}</span>
+                            <span class="area-score" style="color: ${color};">${attempt.percentage}%</span>
+                        </div>
+                        <a href="index.html" class="btn-improve">
+                            <i class="fas fa-redo"></i> Retake
+                        </a>
                     </div>
-                    <a href="index.html" class="btn-improve">
-                        <i class="fas fa-redo"></i> Retake
-                    </a>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        }
     }
 }
 
 // ==================== INITIALIZE FAVORITES ====================
 function initializeFavorites() {
+    console.log('Initializing favorites...');
     const favoritesGrid = document.getElementById('favoritesGrid');
     
+    if (!favoritesGrid) {
+        console.log('Favorites grid not found');
+        return;
+    }
+    
     const favorites = [
-        { icon: 'fa-code', title: 'JavaScript Basics', desc: 'Master fundamentals', rating: '4.8/5', students: '1.2K' },
-        { icon: 'fa-palette', title: 'CSS Styling', desc: 'Advanced techniques', rating: '4.6/5', students: '890' },
-        { icon: 'fa-globe', title: 'Web Development', desc: 'Full course coverage', rating: '4.9/5', students: '2.1K' },
-        { icon: 'fa-database', title: 'Database Design', desc: 'SQL essentials', rating: '4.7/5', students: '756' },
-        { icon: 'fa-react', title: 'React Framework', desc: 'Modern UIs', rating: '4.85/5', students: '1.5K' },
-        { icon: 'fa-node', title: 'Node.js Backend', desc: 'Server development', rating: '4.75/5', students: '980' }
+        { icon: 'fa-code', title: 'JavaScript Basics', desc: 'Master fundamentals of JavaScript', rating: '4.8/5', students: '1.2K' },
+        { icon: 'fa-palette', title: 'CSS Styling', desc: 'Learn advanced CSS techniques', rating: '4.6/5', students: '890' },
+        { icon: 'fa-globe', title: 'Web Development', desc: 'Complete web development course', rating: '4.9/5', students: '2.1K' },
+        { icon: 'fa-database', title: 'Database Design', desc: 'SQL and database management', rating: '4.7/5', students: '756' },
+        { icon: 'fa-react', title: 'React Framework', desc: 'Build modern UIs with React', rating: '4.85/5', students: '1.5K' },
+        { icon: 'fa-node', title: 'Node.js Backend', desc: 'Server-side development', rating: '4.75/5', students: '980' }
     ];
 
     favoritesGrid.innerHTML = favorites.map((fav, idx) => `
-        <div class="favorite-item" style="animation-delay: ${idx * 0.1}s;">
+        <div class="favorite-item">
             <div class="fav-icon">
                 <i class="fas ${fav.icon}"></i>
             </div>
@@ -196,23 +226,31 @@ function initializeFavorites() {
             </button>
         </div>
     `).join('');
+
+    console.log('Favorites loaded');
 }
 
 // ==================== INITIALIZE RESOURCES ====================
 function initializeResources() {
+    console.log('Initializing resources...');
     const resourcesGrid = document.getElementById('resourcesGrid');
     
+    if (!resourcesGrid) {
+        console.log('Resources grid not found');
+        return;
+    }
+    
     const resources = [
-        { icon: 'fa-video', type: 'Video', title: 'JavaScript ES6', desc: 'Modern features', meta1: '2h 30m', meta2: 'Beginner' },
-        { icon: 'fa-file-pdf', type: 'PDF', title: 'CSS Grid Guide', desc: 'Grid layout', meta1: '45 pages', meta2: 'Intermediate' },
-        { icon: 'fa-link', type: 'Article', title: 'React Hooks', desc: 'State management', meta1: '15 min read', meta2: 'Advanced' },
-        { icon: 'fa-code-branch', type: 'Code', title: 'Node Boilerplate', desc: 'Ready template', meta1: 'GitHub', meta2: '2.5K stars' },
-        { icon: 'fa-play-circle', type: 'Course', title: 'Web Dev Course', desc: 'Full bootcamp', meta1: '40h 00m', meta2: 'All Levels' },
-        { icon: 'fa-comments', type: 'Forum', title: 'Dev Community', desc: 'Active members', meta1: '5K+ members', meta2: '10K+ posts' }
+        { icon: 'fa-video', type: 'Video', title: 'JavaScript ES6 Tutorial', desc: 'Learn modern JavaScript features', meta1: '2h 30m', meta2: 'Beginner' },
+        { icon: 'fa-file-pdf', type: 'PDF', title: 'CSS Grid Mastery', desc: 'Complete CSS Grid guide', meta1: '45 pages', meta2: 'Intermediate' },
+        { icon: 'fa-link', type: 'Article', title: 'React Hooks Deep Dive', desc: 'Understanding React Hooks', meta1: '15 min read', meta2: 'Advanced' },
+        { icon: 'fa-code-branch', type: 'Code', title: 'Node.js Boilerplate', desc: 'Ready project template', meta1: 'GitHub', meta2: '2.5K stars' },
+        { icon: 'fa-play-circle', type: 'Course', title: 'Web Dev Bootcamp', desc: 'Complete web development', meta1: '40h 00m', meta2: 'All Levels' },
+        { icon: 'fa-comments', type: 'Forum', title: 'Dev Community', desc: 'Active coding community', meta1: '5K+ members', meta2: '10K+ posts' }
     ];
 
     resourcesGrid.innerHTML = resources.map((res, idx) => `
-        <div class="resource-item" style="animation-delay: ${idx * 0.1}s;">
+        <div class="resource-item">
             <div class="resource-header">
                 <i class="fas ${res.icon}"></i>
                 <span class="resource-type">${res.type}</span>
@@ -223,16 +261,24 @@ function initializeResources() {
                 <span><i class="fas fa-clock"></i> ${res.meta1}</span>
                 <span><i class="fas fa-graduation-cap"></i> ${res.meta2}</span>
             </div>
-            <a href="#" class="btn-resource">
+            <a href="#" class="btn-resource" onclick="alert('Opening: ${res.title}'); return false;">
                 <i class="fas fa-arrow-right"></i> View More
             </a>
         </div>
     `).join('');
+
+    console.log('Resources loaded');
 }
 
 // ==================== INITIALIZE RANKINGS ====================
 function initializeRankings(currentUser) {
+    console.log('Initializing rankings...');
     const rankingTableBody = document.getElementById('rankingTableBody');
+    
+    if (!rankingTableBody) {
+        console.log('Ranking table not found');
+        return;
+    }
     
     const students = [
         'Alex Johnson', 'Sarah Smith', 'Michael Chen', 'Emma Davis', 'James Wilson',
@@ -252,10 +298,10 @@ function initializeRankings(currentUser) {
         if (item.rank === 1) medalIcon = '<i class="fas fa-medal" style="color: #FFD700;"></i>';
         else if (item.rank === 2) medalIcon = '<i class="fas fa-medal" style="color: #C0C0C0;"></i>';
         else if (item.rank === 3) medalIcon = '<i class="fas fa-medal" style="color: #CD7F32;"></i>';
-        else medalIcon = '<span style="color: #667eea; font-weight: 700;">#' + item.rank + '</span>';
+        else medalIcon = '#' + item.rank;
 
         return `
-            <tr style="animation: slideUp 0.6s ease ${idx * 0.05}s both;">
+            <tr>
                 <td><span class="rank-medal">${medalIcon}</span></td>
                 <td><strong>${item.name}</strong></td>
                 <td><span class="score-badge">${item.score}</span></td>
@@ -271,30 +317,48 @@ function initializeRankings(currentUser) {
     const userScore = userQuizzes * 80 + Math.round(Math.random() * 200);
     const userRank = Math.min(Math.floor(userScore / 150) + 1, 50);
 
-    document.getElementById('myRankPosition').textContent = userRank;
-    document.getElementById('myRankText').textContent = `You are ranked #${userRank}`;
-    document.getElementById('myRankScore').textContent = userScore + ' points';
+    const myRankPosition = document.getElementById('myRankPosition');
+    const myRankText = document.getElementById('myRankText');
+    const myRankScore = document.getElementById('myRankScore');
+
+    if (myRankPosition) myRankPosition.textContent = userRank;
+    if (myRankText) myRankText.textContent = `You are ranked #${userRank}`;
+    if (myRankScore) myRankScore.textContent = userScore + ' points';
+
+    console.log('Rankings loaded');
 }
 
 // ==================== INITIALIZE PROFILE SECTION ====================
 function initializeProfileSection(currentUser) {
+    console.log('Initializing profile section...');
+    
     const results = JSON.parse(localStorage.getItem('quizResults')) || [];
     const userResults = results.filter(r => r.userId === currentUser.id);
 
-    document.getElementById('profileFullName').textContent = currentUser.name;
-    document.getElementById('profileEmail').textContent = currentUser.email;
-    document.getElementById('profileMemberSince').textContent = new Date().toLocaleDateString();
-    document.getElementById('profileQuizzesTaken').textContent = userResults.length;
+    const profileFullName = document.getElementById('profileFullName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileMemberSince = document.getElementById('profileMemberSince');
+    const profileQuizzesTaken = document.getElementById('profileQuizzesTaken');
+    const profileBestScore = document.getElementById('profileBestScore');
+    const profileAvgAccuracy = document.getElementById('profileAvgAccuracy');
+    const profileTotalCorrect = document.getElementById('profileTotalCorrect');
+
+    if (profileFullName) profileFullName.textContent = currentUser.name;
+    if (profileEmail) profileEmail.textContent = currentUser.email;
+    if (profileMemberSince) profileMemberSince.textContent = new Date().toLocaleDateString();
+    if (profileQuizzesTaken) profileQuizzesTaken.textContent = userResults.length;
 
     if (userResults.length > 0) {
         const bestScore = Math.max(...userResults.map(r => r.percentage));
         const avgAccuracy = Math.round(userResults.reduce((sum, r) => sum + r.percentage, 0) / userResults.length);
         const totalCorrect = userResults.reduce((sum, r) => sum + r.correct, 0);
         
-        document.getElementById('profileBestScore').textContent = bestScore + '%';
-        document.getElementById('profileAvgAccuracy').textContent = avgAccuracy + '%';
-        document.getElementById('profileTotalCorrect').textContent = totalCorrect;
+        if (profileBestScore) profileBestScore.textContent = bestScore + '%';
+        if (profileAvgAccuracy) profileAvgAccuracy.textContent = avgAccuracy + '%';
+        if (profileTotalCorrect) profileTotalCorrect.textContent = totalCorrect;
     }
+
+    console.log('Profile section loaded');
 }
 
 // ==================== HELPER FUNCTIONS ====================
