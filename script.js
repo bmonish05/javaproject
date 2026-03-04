@@ -1,349 +1,141 @@
-const container = document.querySelector('.container');
-const questionBox = document.querySelector('.question');
-const choicesBox = document.querySelector('.choices');
-const nextBtn = document.querySelector('.nextBtn');
-const scoreCard = document.querySelector('.scoreCard');
-const startBtn = document.querySelector('.startBtn');
-const timer = document.querySelector('.timer');
+// ==================== QUIZ DATA ====================
+const quiz = [
+    { question: "Which of the following is NOT a CSS box model property?", choices: ["margin", "padding", "border-radius", "border-collapse"], answer: "border-collapse" },
+    { question: "Which is NOT a valid JavaScript function declaration?", choices: ["function test() {}", "let test = function() {};", "test: function() {}", "const test = () => {};"], answer: "test: function() {}" },
+    { question: "Which is NOT a JavaScript primitive data type?", choices: ["string", "boolean", "object", "float"], answer: "float" },
+    { question: "What does 'this' keyword refer to in JavaScript?", choices: ["Current function", "Current object", "Parent object", "Global comment"], answer: "Current object" },
+    { question: "Which HTML tag is used to link external JavaScript files?", choices: ["<script>", "<js>", "<link>", "<style>"], answer: "<script>" },
+    { question: "Which CSS property controls text color?", choices: ["font-color", "color", "text-color", "text-style"], answer: "color" },
+    { question: "Which JSON method converts a JSON string to a JavaScript object?", choices: ["JSON.parse()", "JSON.stringify()", "JSON.convert()", "JSON.object()"], answer: "JSON.parse()" },
+    { question: "What is the correct syntax for a single-line comment in JavaScript?", choices: ["//", "##", "**", "<!-- -->"], answer: "//" },
+    { question: "Which array method adds items to the end of an array?", choices: ["push()", "pop()", "shift()", "slice()"], answer: "push()" },
+    { question: "Which CSS property is used to create flexible layouts?", choices: ["display: flex", "position: flex", "float: flex", "flex: center"], answer: "display: flex" },
+    { question: "What will console.log(typeof null) return?", choices: ["null", "undefined", "object", "NullType"], answer: "object" },
+    { question: "Which method removes the last element from an array?", choices: ["remove()", "pop()", "push()", "shift()"], answer: "pop()" },
+    { question: "What is the correct way to create a JavaScript object?", choices: ["var obj = {};", "var obj = new Object();", "var obj = Object.create();", "All of the above"], answer: "All of the above" },
+    { question: "Which CSS property is used to add space inside an element's border?", choices: ["margin", "padding", "border-spacing", "gap"], answer: "padding" },
+    { question: "What is the result of 5 + '5' in JavaScript?", choices: ["10", "'55'", "55", "undefined"], answer: "'55'" },
+    { question: "Which keyword is used to declare variables with block scope?", choices: ["var", "let", "const", "local"], answer: "let" },
+    { question: "What does the CSS 'position: absolute' property do?", choices: ["Positions element relative to parent", "Positions element relative to viewport", "Positions element relative to nearest positioned ancestor", "Positions element relative to document"], answer: "Positions element relative to nearest positioned ancestor" },
+    { question: "Which HTTP method is typically used to submit form data?", choices: ["GET", "POST", "PUT", "DELETE"], answer: "POST" },
+    { question: "What is the purpose of the 'async' keyword in JavaScript?", choices: ["Makes function asynchronous", "Makes function return a Promise", "Allows using await inside function", "All of the above"], answer: "All of the above" },
+    { question: "Which CSS property creates shadow effects around text?", choices: ["box-shadow", "text-shadow", "shadow", "text-effect"], answer: "text-shadow" },
+    { question: "What is the correct way to write a for loop in JavaScript?", choices: ["for (let i = 0; i < 10; i++)", "for (i = 0; i < 10; i++)", "for (let i = 0 to 10)", "for i in 0 to 10"], answer: "for (let i = 0; i < 10; i++)" },
+    { question: "Which CSS unit is relative to the viewport width?", choices: ["px", "em", "vw", "rem"], answer: "vw" },
+    { question: "How do you check if a variable is an array in JavaScript?", choices: ["typeof arr === 'array'", "Array.isArray(arr)", "arr instanceof Array", "Both B and C"], answer: "Both B and C" },
+    { question: "Which property is used to change the styling of an HTML element in JavaScript?", choices: ["style", "css", "className", "attribute"], answer: "style" },
+    { question: "What is the main difference between 'let' and 'var' in JavaScript?", choices: ["No difference", "'let' has block scope, 'var' has function scope", "'var' is newer than 'let'", "'let' can only be used in loops"], answer: "'let' has block scope, 'var' has function scope" }
+];
+
+// ==================== VARIABLES ====================
+let currentIndex = 0;
+let score = 0;
+let time = 20;
+let timerInt = null;
+let isAnswered = false;
+let quizOn = false;
+
+// ==================== GET ELEMENTS ====================
+const startBtn = document.getElementById('startBtn');
+const quizContainer = document.getElementById('quizContainer');
+const questionBox = document.getElementById('questionBox');
+const choicesBox = document.getElementById('choicesBox');
+const nextBtn = document.getElementById('nextBtn');
+const scoreCard = document.getElementById('scoreCard');
+const timer = document.getElementById('timer');
 const progressBar = document.getElementById('progressBar');
 const progressText = document.getElementById('progressText');
 const timerValue = document.getElementById('timerValue');
 const warningModal = document.getElementById('warningModal');
 const quitTabBtn = document.getElementById('quitTabBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const userInfo = document.getElementById('userInfo');
 
-// ==================== CHECK LOGIN AND PERMISSIONS ====================
-let currentUserLoaded = false;
-
-window.addEventListener('load', () => {
-    const currentUser = getCurrentUser();
+// ==================== CHECK LOGIN ====================
+window.addEventListener('load', function() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
     
-    // Redirect to login if not logged in
-    if (!currentUser) {
+    if (!user) {
         window.location.href = 'login.html';
         return;
     }
 
-    // If user is admin, redirect to admin panel
-    if (currentUser.isAdmin) {
+    if (user.isAdmin) {
         window.location.href = 'admin.html';
         return;
     }
 
-    currentUserLoaded = true;
+    userInfo.textContent = user.name;
 
-    // Setup user info and logout
-    const userInfo = document.getElementById('userInfo');
+    // User profile click
     if (userInfo) {
-        userInfo.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.name}`;
-    }
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-            }
+        userInfo.addEventListener('click', function() {
+            window.location.href = 'profile.html';
         });
     }
-});
 
-// Add these functions at the beginning
-const getCurrentUser = () => {
-    const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
-};
-
-const getStoredQuizResults = () => {
-    const results = localStorage.getItem('quizResults');
-    return results ? JSON.parse(results) : [];
-};
-
-const saveQuizResults = (results) => {
-    localStorage.setItem('quizResults', JSON.stringify(results));
-};
-
-// Function to save quiz result
-const saveQuizResult = (score, correct, incorrect) => {
-    const currentUser = getCurrentUser();
-    if (!currentUser) return;
-
-    const results = getStoredQuizResults();
-    const newResult = {
-        userId: currentUser.id,
-        userName: currentUser.name,
-        userEmail: currentUser.email,
-        score: score,
-        correct: correct,
-        incorrect: incorrect,
-        percentage: Math.round((score / quiz.length) * 100),
-        timestamp: new Date().toISOString()
-    };
-
-    results.push(newResult);
-    saveQuizResults(results);
-};
-
-// ==================== COMPREHENSIVE QUIZ DATABASE - 25 QUESTIONS ====================
-const quiz = [
-    {
-        question: "Which of the following is NOT a CSS box model property?",
-        choices: ["margin", "padding", "border-radius", "border-collapse"],
-        answer: "border-collapse"
-    },
-    {
-        question: "Which is NOT a valid JavaScript function declaration?",
-        choices: [
-            "function test() {}",
-            "let test = function() {};",
-            "test: function() {}",
-            "const test = () => {};"
-        ],
-        answer: "test: function() {}"
-    },
-    {
-        question: "Which is NOT a JavaScript primitive data type?",
-        choices: ["string", "boolean", "object", "float"],
-        answer: "float"
-    },
-    {
-        question: "What does 'this' keyword refer to in JavaScript?",
-        choices: [
-            "Current function",
-            "Current object",
-            "Parent object",
-            "Global comment"
-        ],
-        answer: "Current object"
-    },
-    {
-        question: "Which HTML tag is used to link external JavaScript files?",
-        choices: ["<script>", "<js>", "<link>", "<style>"],
-        answer: "<script>"
-    },
-    {
-        question: "Which CSS property controls text color?",
-        choices: ["font-color", "color", "text-color", "text-style"],
-        answer: "color"
-    },
-    {
-        question: "Which JSON method converts a JSON string to a JavaScript object?",
-        choices: ["JSON.parse()", "JSON.stringify()", "JSON.convert()", "JSON.object()"],
-        answer: "JSON.parse()"
-    },
-    {
-        question: "What is the correct syntax for a single-line comment in JavaScript?",
-        choices: ["//", "##", "**", "<!-- -->"],
-        answer: "//"
-    },
-    {
-        question: "Which array method adds items to the end of an array?",
-        choices: ["push()", "pop()", "shift()", "slice()"],
-        answer: "push()"
-    },
-    {
-        question: "Which CSS property is used to create flexible layouts?",
-        choices: ["display: flex", "position: flex", "float: flex", "flex: center"],
-        answer: "display: flex"
-    },
-    {
-        question: "What will console.log(typeof null) return?",
-        choices: ["null", "undefined", "object", "NullType"],
-        answer: "object"
-    },
-    {
-        question: "Which method removes the last element from an array?",
-        choices: ["remove()", "pop()", "push()", "shift()"],
-        answer: "pop()"
-    },
-    {
-        question: "What is the correct way to create a JavaScript object?",
-        choices: [
-            "var obj = {};",
-            "var obj = new Object();",
-            "var obj = Object.create();",
-            "All of the above"
-        ],
-        answer: "All of the above"
-    },
-    {
-        question: "Which CSS property is used to add space inside an element's border?",
-        choices: ["margin", "padding", "border-spacing", "gap"],
-        answer: "padding"
-    },
-    {
-        question: "What is the result of 5 + '5' in JavaScript?",
-        choices: ["10", "'55'", "55", "undefined"],
-        answer: "'55'"
-    },
-    {
-        question: "Which keyword is used to declare variables with block scope?",
-        choices: ["var", "let", "const", "local"],
-        answer: "let"
-    },
-    {
-        question: "What does the CSS 'position: absolute' property do?",
-        choices: [
-            "Positions element relative to parent",
-            "Positions element relative to viewport",
-            "Positions element relative to nearest positioned ancestor",
-            "Positions element relative to document"
-        ],
-        answer: "Positions element relative to nearest positioned ancestor"
-    },
-    {
-        question: "Which HTTP method is typically used to submit form data?",
-        choices: ["GET", "POST", "PUT", "DELETE"],
-        answer: "POST"
-    },
-    {
-        question: "What is the purpose of the 'async' keyword in JavaScript?",
-        choices: [
-            "Makes function asynchronous",
-            "Makes function return a Promise",
-            "Allows using await inside function",
-            "All of the above"
-        ],
-        answer: "All of the above"
-    },
-    {
-        question: "Which CSS property creates shadow effects around text?",
-        choices: ["box-shadow", "text-shadow", "shadow", "text-effect"],
-        answer: "text-shadow"
-    },
-    {
-        question: "What is the correct way to write a for loop in JavaScript?",
-        choices: [
-            "for (let i = 0; i < 10; i++)",
-            "for (i = 0; i < 10; i++)",
-            "for (let i = 0 to 10)",
-            "for i in 0 to 10"
-        ],
-        answer: "for (let i = 0; i < 10; i++)"
-    },
-    {
-        question: "Which CSS unit is relative to the viewport width?",
-        choices: ["px", "em", "vw", "rem"],
-        answer: "vw"
-    },
-    {
-        question: "How do you check if a variable is an array in JavaScript?",
-        choices: [
-            "typeof arr === 'array'",
-            "Array.isArray(arr)",
-            "arr instanceof Array",
-            "Both B and C"
-        ],
-        answer: "Both B and C"
-    },
-    {
-        question: "Which property is used to change the styling of an HTML element in JavaScript?",
-        choices: ["style", "css", "className", "attribute"],
-        answer: "style"
-    },
-    {
-        question: "What is the main difference between 'let' and 'var' in JavaScript?",
-        choices: [
-            "No difference",
-            "'let' has block scope, 'var' has function scope",
-            "'var' is newer than 'let'",
-            "'let' can only be used in loops"
-        ],
-        answer: "'let' has block scope, 'var' has function scope"
+    // Logout button
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        });
     }
-];
 
-// State Variables
-let currentQuestionIndex = 0;
-let score = 0;
-let timeLeft = 20;
-let totalTime = 20;
-let timerID = null;
-let answered = false;
-let quizStarted = false;
-let isQuizActive = false;
-let tabSwitchAttempted = false;
+    // Start button
+    if (startBtn) {
+        startBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            startBtn.style.display = 'none';
+            quizContainer.classList.add('show');
+            quizOn = true;
+            currentIndex = 0;
+            score = 0;
+            time = 20;
+            isAnswered = false;
+            showQuestion();
+        });
+    }
 
-// ==================== TAB/WINDOW SWITCH DETECTION ====================
-let isPageVisible = true;
+    // Quit button
+    if (quitTabBtn) {
+        quitTabBtn.addEventListener('click', endQuizDueToTabSwitch);
+    }
 
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // User switched tabs/windows
-        isPageVisible = false;
-        if (quizStarted && isQuizActive) {
-            tabSwitchAttempted = true;
-            showWarningModal();
-            stopTimer();
-        }
-    } else {
-        // User returned to the page
-        isPageVisible = true;
+    // Next button
+    if (nextBtn) {
+        nextBtn.addEventListener('click', goToNextQuestion);
     }
 });
 
-// Detect focus loss (switching apps/windows)
-window.addEventListener('blur', () => {
-    if (quizStarted && isQuizActive) {
-        tabSwitchAttempted = true;
-        showWarningModal();
-        stopTimer();
-    }
-});
-
-window.addEventListener('focus', () => {
-    if (quizStarted && isQuizActive && tabSwitchAttempted) {
-        // Keep the warning modal open
+// ==================== TAB SWITCH DETECTION ====================
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && quizOn && isAnswered === false) {
         showWarningModal();
     }
 });
 
-// Prevent keyboard shortcuts for new tabs/windows
-document.addEventListener('keydown', (e) => {
-    if (quizStarted && isQuizActive) {
-        // Ctrl+T (new tab), Ctrl+N (new window), Ctrl+W (close tab)
-        if ((e.ctrlKey || e.metaKey) && (e.key === 't' || e.key === 'n' || e.key === 'w')) {
-            e.preventDefault();
-            tabSwitchAttempted = true;
-            showWarningModal();
-            return false;
-        }
-        // Alt+Tab alternative detection
-        if (e.altKey && e.key === 'Tab') {
-            e.preventDefault();
-            tabSwitchAttempted = true;
-            showWarningModal();
-            return false;
-        }
-    }
-});
-
-// ==================== SHOW WARNING MODAL ====================
-const showWarningModal = () => {
+// ==================== MODAL FUNCTIONS ====================
+function showWarningModal() {
     warningModal.classList.add('show');
-};
+}
 
-const hideWarningModal = () => {
+function hideWarningModal() {
     warningModal.classList.remove('show');
-};
-
-// ==================== QUIT BUTTON ====================
-quitTabBtn.addEventListener('click', () => {
-    endQuizDueToTabSwitch();
-});
+}
 
 // ==================== END QUIZ DUE TO TAB SWITCH ====================
-const endQuizDueToTabSwitch = () => {
-    quizStarted = false;
-    isQuizActive = false;
-    answered = false;
-    tabSwitchAttempted = false;
-    stopTimer();
+function endQuizDueToTabSwitch() {
+    quizOn = false;
+    isAnswered = true;
+    clearInterval(timerInt);
     hideWarningModal();
     
-    currentQuestionIndex = 0;
+    currentIndex = 0;
     score = 0;
-    timeLeft = totalTime;
+    time = 20;
     
     scoreCard.innerHTML = `
         <div style="text-align: center; padding: 40px;">
@@ -361,323 +153,205 @@ const endQuizDueToTabSwitch = () => {
     choicesBox.innerHTML = "";
     nextBtn.style.display = "none";
     timer.style.display = "none";
-    container.classList.remove('show');
+    quizContainer.classList.remove('show');
     startBtn.style.display = "block";
     questionBox.textContent = "";
-    
-    // Reset progress
     progressBar.style.width = "4%";
     progressText.textContent = "Question 1 of 25";
     updateNavScore();
     
-    document.querySelector(".tryAgainBtn").addEventListener("click", () => {
-        scoreCard.innerHTML = "";
-        startQuiz();
+    document.querySelector(".tryAgainBtn").addEventListener("click", function() {
+        location.reload();
     });
-};
+}
 
-// ==================== SHOW QUESTIONS ====================
-const showQuestions = () => {
-    answered = false;
-    const questionDetails = quiz[currentQuestionIndex];
-    questionBox.textContent = questionDetails.question;
-    choicesBox.innerHTML = "";
-    nextBtn.style.display = "none";
+// ==================== SHOW QUESTION ====================
+function showQuestion() {
+    if (currentIndex >= quiz.length) {
+        endQuiz();
+        return;
+    }
 
+    const q = quiz[currentIndex];
+    isAnswered = false;
+    
+    questionBox.textContent = q.question;
+    choicesBox.innerHTML = '';
+    nextBtn.style.display = 'none';
+    
     updateProgress();
-
-    questionDetails.choices.forEach((choice) => {
-        const choiceDiv = document.createElement("div");
-        choiceDiv.textContent = choice;
-        choiceDiv.classList.add("choice");
-        choicesBox.appendChild(choiceDiv);
-
-        choiceDiv.addEventListener("click", () => {
-            handleChoiceClick(choiceDiv, choice, questionDetails.answer);
-        });
-    });
-
-    startTimer();
-};
-
-// ==================== HANDLE CHOICE CLICK ====================
-const handleChoiceClick = (choiceDiv, selectedChoice, correctAnswer) => {
-    if (answered) return;
-
-    answered = true;
-    stopTimer();
-    disableAllChoices();
-
-    const isCorrect = selectedChoice === correctAnswer;
-
-    if (isCorrect) {
-        choiceDiv.classList.add("correct");
-        score++;
-        playSound('correct');
-    } else {
-        choiceDiv.classList.add("wrong");
-        playSound('wrong');
-
-        document.querySelectorAll(".choice").forEach(c => {
-            if (c.textContent === correctAnswer) {
-                c.classList.add("correct");
+    
+    q.choices.forEach((choice, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'choice';
+        btn.textContent = choice;
+        btn.onclick = function() {
+            if (!isAnswered) {
+                isAnswered = true;
+                clearInterval(timerInt);
+                
+                const isCorrect = choice === q.answer;
+                
+                if (isCorrect) {
+                    btn.classList.add('correct');
+                    score++;
+                    playSound('correct');
+                } else {
+                    btn.classList.add('wrong');
+                    playSound('wrong');
+                    
+                    const allChoices = choicesBox.querySelectorAll('.choice');
+                    allChoices.forEach(choiceBtn => {
+                        if (choiceBtn.textContent === q.answer) {
+                            choiceBtn.classList.add('correct');
+                        }
+                    });
+                }
+                
+                document.querySelectorAll('.choice').forEach(b => {
+                    b.style.pointerEvents = 'none';
+                    b.style.opacity = '0.9';
+                });
+                
+                nextBtn.style.display = 'block';
+                updateScore();
             }
-        });
-    }
-
-    updateNavScore();
-    nextBtn.style.display = "block";
-};
-
-// ==================== NEXT BUTTON HANDLER ====================
-nextBtn.addEventListener("click", () => {
-    currentQuestionIndex++;
-    timeLeft = totalTime;
-
-    if (currentQuestionIndex < quiz.length) {
-        showQuestions();
-    } else {
-        showScore();
-    }
-});
-
-// ==================== DISABLE ALL CHOICES ====================
-const disableAllChoices = () => {
-    document.querySelectorAll(".choice").forEach(choice => {
-        choice.classList.add("disabled");
-        choice.style.pointerEvents = "none";
-        choice.style.opacity = "0.9";
+        };
+        choicesBox.appendChild(btn);
     });
-};
+    
+    startTimer();
+}
 
 // ==================== UPDATE PROGRESS ====================
-const updateProgress = () => {
-    const progress = ((currentQuestionIndex + 1) / quiz.length) * 100;
-    progressBar.style.width = progress + "%";
-    progressText.textContent = `Question ${currentQuestionIndex + 1} of ${quiz.length}`;
-};
+function updateProgress() {
+    const percent = ((currentIndex + 1) / quiz.length) * 100;
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `Question ${currentIndex + 1} of ${quiz.length}`;
+}
 
-// ==================== UPDATE NAVBAR SCORE ====================
-const updateNavScore = () => {
-    document.getElementById('navScore').textContent = `Score: ${score}`;
-    document.getElementById('navProgress').textContent = `${currentQuestionIndex + 1}/${quiz.length}`;
-};
+// ==================== UPDATE SCORE ====================
+function updateScore() {
+    document.getElementById('navScore').textContent = 'Score: ' + score;
+    document.getElementById('navProgress').textContent = (currentIndex + 1) + '/' + quiz.length;
+}
 
-// ==================== SHOW SCORE ====================
-const showScore = () => {
-    quizStarted = false;
-    isQuizActive = false;
+// ==================== TIMER ====================
+function startTimer() {
+    time = 20;
+    timerValue.textContent = time;
     
-    // SAVE THE QUIZ RESULT
-    saveQuizResult(score, score, quiz.length - score);
+    timerInt = setInterval(function() {
+        time--;
+        timerValue.textContent = time;
+        
+        if (time <= 0) {
+            clearInterval(timerInt);
+            if (!isAnswered) {
+                isAnswered = true;
+                questionBox.textContent = '⏰ Time Up!';
+                choicesBox.innerHTML = '';
+                nextBtn.style.display = 'block';
+            }
+        }
+    }, 1000);
+}
+
+// ==================== GO TO NEXT QUESTION ====================
+function goToNextQuestion() {
+    currentIndex++;
+    clearInterval(timerInt);
+    showQuestion();
+}
+
+// ==================== END QUIZ ====================
+function endQuiz() {
+    quizOn = false;
+    clearInterval(timerInt);
+    timer.style.display = 'none';
+    nextBtn.style.display = 'none';
+    choicesBox.innerHTML = '';
+    questionBox.textContent = 'Quiz Complete!';
     
-    const percentage = (score / quiz.length) * 100;
-    const message = getScoreMessage(percentage);
-    const gradePoints = Math.round((score / quiz.length) * 100);
-
-    questionBox.textContent = "Assessment Complete";
-    choicesBox.innerHTML = "";
-    timer.style.display = "none";
-    nextBtn.style.display = "none";
-
+    const percentage = Math.round((score / quiz.length) * 100);
+    
     scoreCard.innerHTML = `
-        <div class="score-title">${message}</div>
-        <div class="score-result">${score} / ${quiz.length}</div>
-        <div class="score-details">
-            <div class="score-item">
-                <div class="score-item-label">Grade</div>
-                <div class="score-item-value">${gradePoints}%</div>
-            </div>
-            <div class="score-item">
-                <div class="score-item-label">Correct</div>
-                <div class="score-item-value">${score}</div>
-            </div>
-            <div class="score-item">
-                <div class="score-item-label">Incorrect</div>
-                <div class="score-item-value">${quiz.length - score}</div>
-            </div>
-        </div>
+        <div class="score-title">Your Score: ${score}/${quiz.length}</div>
+        <div class="score-result">${percentage}%</div>
         <div class="score-buttons">
             <button class="btn tryAgainBtn">
-                <i class="fas fa-redo"></i> Retake Assessment
-            </button>
-            <button class="btn endQuizBtn">
-                <i class="fas fa-sign-out-alt"></i> End Quiz
+                <i class="fas fa-redo"></i> Try Again
             </button>
         </div>
     `;
-
-    document.querySelector(".tryAgainBtn").addEventListener("click", startQuiz);
-    document.querySelector(".endQuizBtn").addEventListener("click", () => {
-        endQuizFinal();
-    });
     
     triggerConfetti();
     playSound('success');
-};
-
-// ==================== END QUIZ FINAL ====================
-const endQuizFinal = () => {
-    quizStarted = false;
-    isQuizActive = false;
-    answered = false;
-    stopTimer();
     
-    currentQuestionIndex = 0;
-    score = 0;
-    timeLeft = totalTime;
-    
-    scoreCard.innerHTML = "";
-    choicesBox.innerHTML = "";
-    nextBtn.style.display = "none";
-    timer.style.display = "none";
-    container.classList.remove('show');
-    startBtn.style.display = "block";
-    questionBox.textContent = "";
-    
-    // Reset progress
-    progressBar.style.width = "4%";
-    progressText.textContent = "Question 1 of 25";
-    updateNavScore();
-};
-
-// ==================== GET SCORE MESSAGE ====================
-const getScoreMessage = (percentage) => {
-    if (percentage === 100) return "🌟 Perfect Score! Exceptional!";
-    if (percentage >= 90) return "🎯 Outstanding! Excellent Performance!";
-    if (percentage >= 80) return "👍 Great Job! Strong Knowledge!";
-    if (percentage >= 70) return "📚 Good Work! Keep Practicing!";
-    if (percentage >= 60) return "💡 Decent Effort! Review Key Topics!";
-    return "💪 Keep Learning! Try Again!";
-};
-
-// ==================== SHOW TIMEOUT ====================
-const showTimeout = () => {
-    if (answered) return;
-
-    answered = true;
-    questionBox.textContent = "⏰ Time Expired";
-    choicesBox.innerHTML = "";
-    scoreCard.innerHTML = `
-        <button class="btn tryAgainBtn"><i class="fas fa-redo"></i> Retake Assessment</button>
-    `;
-    nextBtn.style.display = "none";
-    timer.style.display = "none";
-
-    playSound('timeout');
-
-    document.querySelector(".tryAgainBtn").addEventListener("click", startQuiz);
-};
-
-// ==================== TIMER ====================
-const startTimer = () => {
-    clearInterval(timerID);
-    timer.style.display = "flex";
-    timeLeft = totalTime;
-    updateTimerDisplay();
-
-    timerID = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-
-        if (timeLeft <= 0) {
-            stopTimer();
-            showTimeout();
-        }
-    }, 1000);
-};
-
-const updateTimerDisplay = () => {
-    timerValue.textContent = timeLeft;
-    const circumference = 2 * Math.PI * 45;
-    const offset = circumference - (timeLeft / totalTime) * circumference;
-    const timerProgress = document.querySelector('.timer-progress');
-    if (timerProgress) {
-        timerProgress.style.strokeDashoffset = offset;
+    // Save result
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (user) {
+        let results = JSON.parse(localStorage.getItem('quizResults')) || [];
+        results.push({
+            userId: user.id,
+            userName: user.name,
+            userEmail: user.email,
+            score: score,
+            correct: score,
+            incorrect: quiz.length - score,
+            percentage: percentage,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('quizResults', JSON.stringify(results));
     }
-};
 
-const stopTimer = () => {
-    clearInterval(timerID);
-};
+    document.querySelector('.tryAgainBtn').addEventListener('click', function() {
+        location.reload();
+    });
+}
 
-// ==================== START QUIZ ====================
-const startQuiz = () => {
-    quizStarted = true;
-    isQuizActive = true;
-    tabSwitchAttempted = false;
-    score = 0;
-    currentQuestionIndex = 0;
-    timeLeft = totalTime;
-    answered = false;
+// ==================== UPDATE NAV SCORE ====================
+function updateNavScore() {
+    document.getElementById('navScore').textContent = 'Score: ' + score;
+    document.getElementById('navProgress').textContent = (currentIndex + 1) + '/' + quiz.length;
+}
 
-    scoreCard.innerHTML = "";
-    nextBtn.style.display = "none";
-    timer.style.display = "flex";
-    container.classList.add('show');
-    startBtn.style.display = "none";
-
-    updateNavScore();
-    updateProgress();
-    showQuestions();
-};
-
-// ==================== START BUTTON ====================
-startBtn.addEventListener("click", () => {
-    startBtn.style.display = "none";
-    startQuiz();
-});
-
-// ==================== SOUND EFFECTS ====================
-const playSound = (type) => {
+// ==================== SOUND ====================
+function playSound(type) {
     try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-        switch(type) {
-            case 'correct':
-                oscillator.frequency.value = 800;
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.2);
-                break;
-            case 'wrong':
-                oscillator.frequency.value = 400;
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-                break;
-            case 'success':
-                oscillator.frequency.value = 1000;
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.2);
-                break;
-            case 'timeout':
-                oscillator.frequency.value = 300;
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.4);
-                break;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        
+        if (type === 'correct') {
+            osc.frequency.value = 800;
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.2);
+        } else if (type === 'wrong') {
+            osc.frequency.value = 400;
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } else if (type === 'success') {
+            osc.frequency.value = 1000;
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.2);
         }
-    } catch (e) {
-        // Audio context not available
-    }
-};
+    } catch(e) {}
+}
 
-// ==================== CONFETTI ANIMATION ====================
-const triggerConfetti = () => {
+// ==================== CONFETTI ====================
+function triggerConfetti() {
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     const particles = [];
-
+    
     class Particle {
         constructor() {
             this.x = Math.random() * canvas.width;
@@ -707,25 +381,17 @@ const triggerConfetti = () => {
         particles.push(new Particle());
     }
 
-    const animate = () => {
+    function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.globalAlpha = 1;
-
-        particles.forEach(particle => {
-            particle.update();
-            particle.draw();
+        particles.forEach(p => {
+            p.update();
+            p.draw();
         });
-
+        
         if (particles.some(p => p.opacity > 0)) {
             requestAnimationFrame(animate);
         }
-    };
+    }
 
     animate();
-};
-
-window.addEventListener('resize', () => {
-    const canvas = document.getElementById('confetti');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
+}

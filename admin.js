@@ -309,10 +309,9 @@ const calculateAccuracyStats = (results) => {
 
 // ==================== LOGOUT ====================
 const logout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('currentUser');
-        window.location.href = 'login.html';
-    }
+    // No confirmation - direct logout
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
 };
 
 // ==================== LOCAL STORAGE FUNCTIONS ====================

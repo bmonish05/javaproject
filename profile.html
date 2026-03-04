@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>My Profile - QuizMaster Pro</title>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h2 class="nav-title"><i class="fas fa-graduation-cap"></i> QuizMaster Pro</h2>
+            <div class="nav-stats">
+                <button class="btn back-btn" id="backBtn">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button class="btn logout-btn" id="logoutBtn2">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Layout -->
+    <div class="profile-wrapper">
+        <!-- Left Sidebar -->
+        <aside class="profile-sidebar">
+            <div class="sidebar-logo">
+                <h2><i class="fas fa-graduation-cap"></i> QuizMaster</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-section="favorites">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Favorites</span>
+                </button>
+                <button class="nav-item" data-section="ranking">
+                    <i class="fas fa-trophy"></i>
+                    <span>Ranking</span>
+                </button>
+                <button class="nav-item" data-section="resources">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
+                </button>
+                <button class="nav-item" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="nav-item logout" id="logoutSidebarBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="profile-main">
+            <!-- Top Bar -->
+            <div class="profile-topbar">
+                <div class="topbar-left">
+                    <h1 id="greetingText">Hello!</h1>
+                    <p id="subtitleText">Recently Completed Quizzes</p>
+                </div>
+                <div class="topbar-right">
+                    <i class="fas fa-bell"></i>
+                    <div class="user-profile-mini">
+                        <div class="avatar-mini"><i class="fas fa-user"></i></div>
+                        <div>
+                            <p id="userNameMini">User</p>
+                            <small>Student</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD SECTION -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Quiz Cards Grid -->
+                <section class="quiz-cards-section">
+                    <div class="quiz-card-item">
+                        <div class="quiz-progress-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" class="circle-bg"></circle>
+                                <circle cx="50" cy="50" r="45" class="circle-progress" id="circle1"></circle>
+                            </svg>
+                            <div class="circle-text">
+                                <span class="circle-percent" id="percent1">0%</span>
+                                <span class="circle-label">Score</span>
+                            </div>
+                        </div>
+                        <h3 id="quizTitle1">No Quiz Yet</h3>
+                        <p class="quiz-date" id="quizDate1">-</p>
+                        <button class="btn-retake" onclick="location.href='index.html'">
+                            <i class="fas fa-redo"></i> Retake Quiz
+                        </button>
+                    </div>
+
+                    <div class="quiz-card-item">
+                        <div class="quiz-progress-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" class="circle-bg"></circle>
+                                <circle cx="50" cy="50" r="45" class="circle-progress" id="circle2"></circle>
+                            </svg>
+                            <div class="circle-text">
+                                <span class="circle-percent" id="percent2">0%</span>
+                                <span class="circle-label">Score</span>
+                            </div>
+                        </div>
+                        <h3 id="quizTitle2">No Quiz Yet</h3>
+                        <p class="quiz-date" id="quizDate2">-</p>
+                        <button class="btn-retake" onclick="location.href='index.html'">
+                            <i class="fas fa-redo"></i> Retake Quiz
+                        </button>
+                    </div>
+
+                    <div class="quiz-card-item">
+                        <div class="quiz-progress-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" class="circle-bg"></circle>
+                                <circle cx="50" cy="50" r="45" class="circle-progress" id="circle3"></circle>
+                            </svg>
+                            <div class="circle-text">
+                                <span class="circle-percent" id="percent3">0%</span>
+                                <span class="circle-label">Score</span>
+                            </div>
+                        </div>
+                        <h3 id="quizTitle3">No Quiz Yet</h3>
+                        <p class="quiz-date" id="quizDate3">-</p>
+                        <button class="btn-retake" onclick="location.href='index.html'">
+                            <i class="fas fa-redo"></i> Retake Quiz
+                        </button>
+                    </div>
+
+                    <div class="quiz-card-item">
+                        <div class="quiz-progress-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" class="circle-bg"></circle>
+                                <circle cx="50" cy="50" r="45" class="circle-progress" id="circle4"></circle>
+                            </svg>
+                            <div class="circle-text">
+                                <span class="circle-percent" id="percent4">0%</span>
+                                <span class="circle-label">Score</span>
+                            </div>
+                        </div>
+                        <h3 id="quizTitle4">No Quiz Yet</h3>
+                        <p class="quiz-date" id="quizDate4">-</p>
+                        <button class="btn-retake" onclick="location.href='index.html'">
+                            <i class="fas fa-redo"></i> Retake Quiz
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Bottom Section -->
+                <div class="profile-bottom">
+                    <!-- Today's Quiz -->
+                    <div class="todays-quiz">
+                        <div class="quiz-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Quiz of the Day</h3>
+                        <p>A new question every day to challenge and learn something new!</p>
+                        <button class="btn-quiz-day" onclick="location.href='index.html'">
+                            <i class="fas fa-play"></i> Take Quiz
+                        </button>
+                    </div>
+
+                    <!-- Weak Areas -->
+                    <div class="weak-areas">
+                        <h3><i class="fas fa-chart-line"></i> Areas to Improve</h3>
+                        <div class="weak-areas-list" id="weakAreasList">
+                            <p class="no-data">No data available yet. Take more quizzes!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Table -->
+                <section class="history-table-section">
+                    <h2><i class="fas fa-history"></i> Complete Quiz History</h2>
+                    <div class="table-responsive">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Quiz Name</th>
+                                    <th>Score</th>
+                                    <th>Correct</th>
+                                    <th>Incorrect</th>
+                                    <th>Accuracy</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                                        <i class="fas fa-inbox" style="font-size: 36px; display: block; margin-bottom: 10px;"></i>
+                                        No quiz attempts yet
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- FAVORITES SECTION -->
+            <div id="favorites-section" class="section-content" style="display: none;">
+                <div class="content-card">
+                    <h2><i class="fas fa-bookmark"></i> My Favorite Quizzes</h2>
+                    <div class="favorites-grid" id="favoritesGrid"></div>
+                </div>
+            </div>
+
+            <!-- RANKING SECTION -->
+            <div id="ranking-section" class="section-content" style="display: none;">
+                <div class="content-card">
+                    <h2><i class="fas fa-trophy"></i> Global Rankings</h2>
+                    <div class="ranking-container">
+                        <div class="my-rank-card">
+                            <div class="rank-badge" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);">
+                                <i class="fas fa-medal"></i>
+                                <span id="myRankPosition">--</span>
+                            </div>
+                            <h3>Your Rank</h3>
+                            <p id="myRankText">Login to see your ranking</p>
+                            <div class="rank-score" id="myRankScore">0 points</div>
+                        </div>
+
+                        <div class="leaderboard">
+                            <h3>Top 10 Students</h3>
+                            <table class="ranking-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Student</th>
+                                        <th>Score</th>
+                                        <th>Accuracy</th>
+                                        <th>Quizzes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rankingTableBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 30px;">Loading rankings...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESOURCES SECTION -->
+            <div id="resources-section" class="section-content" style="display: none;">
+                <div class="content-card">
+                    <h2><i class="fas fa-book"></i> Learning Resources</h2>
+                    <div class="resources-grid" id="resourcesGrid"></div>
+                </div>
+            </div>
+
+            <!-- PROFILE SECTION -->
+            <div id="profile-section" class="section-content" style="display: none;">
+                <div class="content-card">
+                    <h2><i class="fas fa-user"></i> My Profile</h2>
+                    <div class="profile-edit-container">
+                        <div class="profile-info-section">
+                            <h3>Personal Information</h3>
+                            <div class="info-group">
+                                <label>Full Name</label>
+                                <p id="profileFullName">-</p>
+                            </div>
+                            <div class="info-group">
+                                <label>Email Address</label>
+                                <p id="profileEmail">-</p>
+                            </div>
+                            <div class="info-group">
+                                <label>Member Since</label>
+                                <p id="profileMemberSince">-</p>
+                            </div>
+                        </div>
+
+                        <div class="profile-stats-section">
+                            <h3>Your Statistics</h3>
+                            <div class="stat-group">
+                                <div class="stat-box">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <div>
+                                        <label>Quizzes Taken</label>
+                                        <p id="profileQuizzesTaken">0</p>
+                                    </div>
+                                </div>
+                                <div class="stat-box">
+                                    <i class="fas fa-trophy"></i>
+                                    <div>
+                                        <label>Best Score</label>
+                                        <p id="profileBestScore">0%</p>
+                                    </div>
+                                </div>
+                                <div class="stat-box">
+                                    <i class="fas fa-bullseye"></i>
+                                    <div>
+                                        <label>Avg Accuracy</label>
+                                        <p id="profileAvgAccuracy">0%</p>
+                                    </div>
+                                </div>
+                                <div class="stat-box">
+                                    <i class="fas fa-check-double"></i>
+                                    <div>
+                                        <label>Total Correct</label>
+                                        <p id="profileTotalCorrect">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html>

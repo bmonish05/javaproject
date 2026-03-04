@@ -28,7 +28,6 @@ const saveQuizResults = (results) => {
 
 // ==================== NOTIFICATION SYSTEM ====================
 const showNotification = (message, type = 'success') => {
-    // Remove existing notification if any
     const existingNotif = document.querySelector('.notification');
     if (existingNotif) {
         existingNotif.remove();
@@ -45,12 +44,10 @@ const showNotification = (message, type = 'success') => {
 
     document.body.appendChild(notification);
 
-    // Show notification
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
 
-    // Auto hide after 2 seconds
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -119,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('signInEmail').value.trim().toLowerCase();
             const password = document.getElementById('signInPassword').value;
 
-            // Validation
             if (!email) {
                 showErrorMessage('signInEmailError', 'Email is required');
                 return;
@@ -135,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Find user
             const users = getStoredUsers();
             const user = users.find(u => u.email.toLowerCase() === email);
 
@@ -144,18 +139,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Check password
             if (user.password !== password) {
                 showErrorMessage('signInPasswordError', 'Invalid password');
                 return;
             }
 
-            // Login successful
             setCurrentUser(user);
             showNotification(`Welcome back, ${user.name}!`, 'success');
             
             setTimeout(() => {
-                // Redirect based on user role
                 if (user.isAdmin) {
                     window.location.href = 'admin.html';
                 } else {
@@ -179,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('signUpPassword').value;
             const confirmPassword = document.getElementById('signUpConfirmPassword').value;
 
-            // Validation
             if (!name) {
                 showErrorMessage('signUpNameError', 'Name is required');
                 return;
@@ -215,36 +206,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Check if email already exists
             const users = getStoredUsers();
             if (users.some(u => u.email.toLowerCase() === email)) {
                 showErrorMessage('signUpEmailError', 'Account already exists with this email');
                 return;
             }
 
-            // Create new user (NOT ADMIN)
             const newUser = {
                 id: Date.now(),
                 name,
                 email,
                 password,
                 createdAt: new Date().toISOString(),
-                isAdmin: false  // Students are NOT admins
+                isAdmin: false
             };
 
             users.push(newUser);
             saveUsers(users);
 
-            // Show success notification
             showNotification(`Account created successfully! Redirecting to login...`, 'success');
 
-            // Clear form
             document.getElementById('signUpFormElement').reset();
 
-            // Redirect to sign in form after 2 seconds
             setTimeout(() => {
                 switchForm('signIn');
-                // Clear sign in form as well
                 document.getElementById('signInFormElement').reset();
                 clearErrors();
             }, 2000);

@@ -16,7 +16,7 @@
             <div class="nav-stats">
                 <span class="nav-stat" id="navScore">Score: 0</span>
                 <span class="nav-stat" id="navProgress">0/25</span>
-                <span class="nav-stat user-info" id="userInfo"></span>
+                <span class="nav-stat user-info clickable" id="userInfo" style="cursor: pointer;"></span>
                 <button class="btn logout-btn" id="logoutBtn" style="padding: 8px 16px; font-size: 13px;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
@@ -45,13 +45,13 @@
     </div>
 
     <!-- Start Button -->
-    <button class="btn startBtn">
+    <button class="btn startBtn" id="startBtn">
         <span><i class="fas fa-play"></i> Start Assessment</span>
     </button>
 
     <!-- Main Container -->
-    <div class="container">
-        <!-- Welcome Section (Direct, No Box) -->
+    <div class="container" id="quizContainer">
+        <!-- Welcome Section -->
         <div class="welcome-section">
             <h1 class="welcomeTitle">
                 <i class="fas fa-brain"></i> Professional Knowledge Assessment
@@ -84,27 +84,26 @@
             <div class="progress-section">
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="progressBar"></div>
-                    <div class="progress-bar-shimmer"></div>
                 </div>
                 <span class="progress-text" id="progressText">Question 1 of 25</span>
             </div>
 
             <!-- Question Card -->
             <div class="question-card">
-                <h2 class="question"></h2>
+                <h2 class="question" id="questionBox"></h2>
             </div>
 
             <!-- Choices Container -->
             <div class="choices-container">
-                <div class="choices"></div>
+                <div class="choices" id="choicesBox"></div>
             </div>
 
             <!-- Score Card -->
-            <div class="scoreCard"></div>
+            <div class="scoreCard" id="scoreCard"></div>
 
             <!-- Action Buttons -->
             <div class="button-group">
-                <button class="btn nextBtn" style="display: none;">Next Question <i class="fas fa-arrow-right"></i></button>
+                <button class="btn nextBtn" id="nextBtn" style="display: none;">Next Question <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
 
