@@ -11,7 +11,80 @@ const timerValue = document.getElementById('timerValue');
 const warningModal = document.getElementById('warningModal');
 const quitTabBtn = document.getElementById('quitTabBtn');
 
-// Comprehensive Quiz Database - 25 Questions
+// ==================== CHECK LOGIN AND PERMISSIONS ====================
+let currentUserLoaded = false;
+
+window.addEventListener('load', () => {
+    const currentUser = getCurrentUser();
+    
+    // Redirect to login if not logged in
+    if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // If user is admin, redirect to admin panel
+    if (currentUser.isAdmin) {
+        window.location.href = 'admin.html';
+        return;
+    }
+
+    currentUserLoaded = true;
+
+    // Setup user info and logout
+    const userInfo = document.getElementById('userInfo');
+    if (userInfo) {
+        userInfo.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.name}`;
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+});
+
+// Add these functions at the beginning
+const getCurrentUser = () => {
+    const user = localStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+};
+
+const getStoredQuizResults = () => {
+    const results = localStorage.getItem('quizResults');
+    return results ? JSON.parse(results) : [];
+};
+
+const saveQuizResults = (results) => {
+    localStorage.setItem('quizResults', JSON.stringify(results));
+};
+
+// Function to save quiz result
+const saveQuizResult = (score, correct, incorrect) => {
+    const currentUser = getCurrentUser();
+    if (!currentUser) return;
+
+    const results = getStoredQuizResults();
+    const newResult = {
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmail: currentUser.email,
+        score: score,
+        correct: correct,
+        incorrect: incorrect,
+        percentage: Math.round((score / quiz.length) * 100),
+        timestamp: new Date().toISOString()
+    };
+
+    results.push(newResult);
+    saveQuizResults(results);
+};
+
+// ==================== COMPREHENSIVE QUIZ DATABASE - 25 QUESTIONS ====================
 const quiz = [
     {
         question: "Which of the following is NOT a CSS box model property?",
@@ -395,6 +468,9 @@ const showScore = () => {
     quizStarted = false;
     isQuizActive = false;
     
+    // SAVE THE QUIZ RESULT
+    saveQuizResult(score, score, quiz.length - score);
+    
     const percentage = (score / quiz.length) * 100;
     const message = getScoreMessage(percentage);
     const gradePoints = Math.round((score / quiz.length) * 100);
@@ -539,6 +615,7 @@ const startQuiz = () => {
     nextBtn.style.display = "none";
     timer.style.display = "flex";
     container.classList.add('show');
+    startBtn.style.display = "none";
 
     updateNavScore();
     updateProgress();

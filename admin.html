@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Admin Dashboard - QuizMaster Pro</title>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h2 class="nav-title"><i class="fas fa-graduation-cap"></i> QuizMaster Pro</h2>
+            <div class="nav-stats">
+                <span class="nav-user"><i class="fas fa-user-circle"></i> <span id="userNameDisplay"></span> (Admin)</span>
+                <button class="nav-btn logout-btn" onclick="logout()" style="padding: 8px 16px; font-size: 13px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Admin Container -->
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h1><i class="fas fa-chart-line"></i> Admin Dashboard</h1>
+                <p>Monitor quiz performance and student analytics</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-icon users-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-card-content">
+                    <h3>Total Students</h3>
+                    <p class="stat-value" id="totalUsers">0</p>
+                    <span class="stat-subtitle">Registered students</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon attempts-icon">
+                    <i class="fas fa-clipboard"></i>
+                </div>
+                <div class="stat-card-content">
+                    <h3>Quiz Attempts</h3>
+                    <p class="stat-value" id="totalAttempts">0</p>
+                    <span class="stat-subtitle">Total completed</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon accuracy-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="stat-card-content">
+                    <h3>Avg. Accuracy</h3>
+                    <p class="stat-value" id="avgAccuracy">0%</p>
+                    <span class="stat-subtitle">Overall performance</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon score-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-card-content">
+                    <h3>Avg. Score</h3>
+                    <p class="stat-value" id="avgScore">0/25</p>
+                    <span class="stat-subtitle">Questions correct</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h2><i class="fas fa-chart-bar"></i> Performance Distribution</h2>
+                <canvas id="performanceChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2><i class="fas fa-pie-chart"></i> Accuracy Breakdown</h2>
+                <canvas id="accuracyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="users-section">
+            <h2><i class="fas fa-table"></i> Student Performance Details</h2>
+            <div class="table-wrapper">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Email</th>
+                            <th>Attempts</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>Best Score</th>
+                            <th>Accuracy</th>
+                            <th>Last Attempt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: #999; padding: 40px 0;">
+                                <i class="fas fa-inbox" style="font-size: 36px; margin-bottom: 10px; display: block;"></i>
+                                No quiz attempts yet
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-content">
+            <i class="fas fa-spinner"></i>
+            <p>Loading analytics...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

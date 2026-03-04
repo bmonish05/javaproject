@@ -16,6 +16,10 @@
             <div class="nav-stats">
                 <span class="nav-stat" id="navScore">Score: 0</span>
                 <span class="nav-stat" id="navProgress">0/25</span>
+                <span class="nav-stat user-info" id="userInfo"></span>
+                <button class="btn logout-btn" id="logoutBtn" style="padding: 8px 16px; font-size: 13px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </div>
     </nav>
@@ -80,6 +84,7 @@
             <div class="progress-section">
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-bar-shimmer"></div>
                 </div>
                 <span class="progress-text" id="progressText">Question 1 of 25</span>
             </div>
@@ -107,8 +112,14 @@
         <div class="timer-wrapper">
             <div class="timer" id="timer">
                 <svg class="timer-circle" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
                     <circle cx="50" cy="50" r="45" class="timer-bg"></circle>
-                    <circle cx="50" cy="50" r="45" class="timer-progress"></circle>
+                    <circle cx="50" cy="50" r="45" class="timer-progress" style="stroke-dasharray: 282.7; stroke-dashoffset: 0;"></circle>
                 </svg>
                 <div class="timer-text">
                     <span class="timer-value" id="timerValue">20</span>
@@ -121,6 +132,7 @@
     <!-- Confetti Canvas -->
     <canvas id="confetti"></canvas>
 
+    <script src="auth.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
