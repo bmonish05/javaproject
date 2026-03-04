@@ -30,14 +30,8 @@
                 <button class="nav-item active" data-section="dashboard">
                     <i class="fas fa-th-large"></i><span>Dashboard</span>
                 </button>
-                <button class="nav-item" data-section="favorites">
-                    <i class="fas fa-bookmark"></i><span>Favorites</span>
-                </button>
                 <button class="nav-item" data-section="ranking">
                     <i class="fas fa-trophy"></i><span>Ranking</span>
-                </button>
-                <button class="nav-item" data-section="resources">
-                    <i class="fas fa-book"></i><span>Resources</span>
                 </button>
                 <button class="nav-item" data-section="profile">
                     <i class="fas fa-user"></i><span>Profile</span>
@@ -55,7 +49,7 @@
             <div class="profile-topbar">
                 <div class="topbar-left">
                     <h1 id="greetingText">Hello!</h1>
-                    <p id="subtitleText">Recently Completed Quizzes</p>
+                    <p id="subtitleText">Your Performance Dashboard</p>
                 </div>
                 <div class="topbar-right">
                     <i class="fas fa-bell"></i>
@@ -71,29 +65,6 @@
 
             <!-- DASHBOARD -->
             <div id="dashboard-section" class="section-content">
-                <!-- CHARTS SECTION -->
-                <div class="dashboard-charts">
-                    <div class="chart-card">
-                        <h3><i class="fas fa-chart-bar"></i> Performance Overview</h3>
-                        <canvas id="performanceChart"></canvas>
-                    </div>
-
-                    <div class="chart-card">
-                        <h3><i class="fas fa-pie-chart"></i> Accuracy Distribution</h3>
-                        <canvas id="accuracyChart"></canvas>
-                    </div>
-
-                    <div class="chart-card">
-                        <h3><i class="fas fa-line-chart"></i> Progress Trend</h3>
-                        <canvas id="progressChart"></canvas>
-                    </div>
-
-                    <div class="chart-card">
-                        <h3><i class="fas fa-clock"></i> Time Analytics</h3>
-                        <canvas id="timeChart"></canvas>
-                    </div>
-                </div>
-
                 <!-- QUIZ STATS -->
                 <div class="quiz-stats-section">
                     <div class="stat-card-dashboard">
@@ -137,6 +108,29 @@
                     </div>
                 </div>
 
+                <!-- CHARTS SECTION -->
+                <div class="dashboard-charts">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-bar"></i> Performance Overview</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3><i class="fas fa-pie-chart"></i> Accuracy Distribution</h3>
+                        <canvas id="accuracyChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3><i class="fas fa-line-chart"></i> Progress Trend</h3>
+                        <canvas id="progressChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3><i class="fas fa-clock"></i> Time Analytics</h3>
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+
                 <!-- QUIZ CARDS -->
                 <section class="quiz-cards-section" id="quizCardsSection"></section>
 
@@ -176,14 +170,6 @@
                 </section>
             </div>
 
-            <!-- FAVORITES -->
-            <div id="favorites-section" class="section-content" style="display: none;">
-                <div class="content-card">
-                    <h2><i class="fas fa-bookmark"></i> My Favorite Quizzes</h2>
-                    <div class="favorites-grid" id="favoritesGrid">Loading...</div>
-                </div>
-            </div>
-
             <!-- RANKING -->
             <div id="ranking-section" class="section-content" style="display: none;">
                 <div class="content-card">
@@ -199,27 +185,19 @@
                             <div class="rank-score" id="myRankScore">0 points</div>
                         </div>
                         <div class="leaderboard">
-                            <h3>Top 10 Students</h3>
+                            <h3>Top 15 Students</h3>
                             <table class="ranking-table">
                                 <thead>
                                     <tr>
-                                        <th>Rank</th><th>Student</th><th>Score</th><th>Accuracy</th><th>Quizzes</th>
+                                        <th>Rank</th><th>Student Name</th><th>Score</th><th>Accuracy</th><th>Quizzes</th>
                                     </tr>
                                 </thead>
                                 <tbody id="rankingTableBody">
-                                    <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading...</td></tr>
+                                    <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading rankings...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- RESOURCES -->
-            <div id="resources-section" class="section-content" style="display: none;">
-                <div class="content-card">
-                    <h2><i class="fas fa-book"></i> Learning Resources</h2>
-                    <div class="resources-grid" id="resourcesGrid">Loading...</div>
                 </div>
             </div>
 
@@ -289,6 +267,16 @@
         let progressChartObj = null;
         let timeChartObj = null;
 
+        // Random student names
+        const firstNames = ['James', 'Mary', 'Robert', 'Patricia', 'Michael', 'Jennifer', 'William', 'Linda', 'David', 'Barbara', 'Richard', 'Elizabeth', 'Joseph', 'Susan', 'Thomas', 'Jessica', 'Charles', 'Sarah', 'Christopher', 'Karen', 'Daniel', 'Nancy', 'Matthew', 'Lisa', 'Mark', 'Betty', 'Donald', 'Margaret', 'Steven', 'Sandra', 'Paul', 'Ashley', 'Andrew', 'Kimberly', 'Joshua', 'Emily', 'Kenneth', 'Donna', 'Kevin', 'Michelle', 'Brian', 'Carol', 'George', 'Amanda', 'Edward', 'Melissa', 'Ronald', 'Deborah', 'Timothy', 'Stephanie', 'Jason', 'Rebecca'];
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Peterson', 'Phillips', 'Campbell', 'Parker', 'Evans', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook', 'Rogers'];
+
+        function getRandomStudent() {
+            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            return `${firstName} ${lastName}`;
+        }
+
         document.addEventListener('DOMContentLoaded', initializeProfile);
 
         function initializeProfile() {
@@ -302,8 +290,6 @@
             document.getElementById('userNameMini').textContent = user.name;
 
             loadDashboard(user);
-            loadFavorites();
-            loadResources();
             loadRankings(user);
             loadProfileInfo(user);
             setupNavigation();
@@ -407,13 +393,16 @@
         function loadCharts(results) {
             if (results.length === 0) {
                 // Show empty state
-                const ctx1 = document.getElementById('performanceChart').getContext('2d');
-                ctx1.fillStyle = '#f0f0f0';
-                ctx1.fillRect(0, 0, ctx1.canvas.width, ctx1.canvas.height);
-                ctx1.fillStyle = '#999';
-                ctx1.font = '16px Arial';
-                ctx1.textAlign = 'center';
-                ctx1.fillText('No data yet. Take a quiz to see your performance!', ctx1.canvas.width / 2, ctx1.canvas.height / 2);
+                const canvases = ['performanceChart', 'accuracyChart', 'progressChart', 'timeChart'];
+                canvases.forEach(id => {
+                    const ctx = document.getElementById(id).getContext('2d');
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    ctx.fillStyle = '#999';
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No data yet. Take a quiz!', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                });
                 return;
             }
 
@@ -528,7 +517,6 @@
             // Time Analytics Chart
             const ctx4 = document.getElementById('timeChart').getContext('2d');
             if (timeChartObj) timeChartObj.destroy();
-            const avgTimes = results.map(r => Math.round(20)); // Average time per question is 20 seconds
             timeChartObj = new Chart(ctx4, {
                 type: 'radar',
                 data: {
@@ -563,69 +551,29 @@
             });
         }
 
-        function loadFavorites() {
-            const favs = [
-                { icon: 'fa-code', title: 'JavaScript Basics', desc: 'Master fundamentals', rating: '4.8/5', students: '1.2K' },
-                { icon: 'fa-palette', title: 'CSS Styling', desc: 'Advanced techniques', rating: '4.6/5', students: '890' },
-                { icon: 'fa-globe', title: 'Web Development', desc: 'Full course', rating: '4.9/5', students: '2.1K' },
-                { icon: 'fa-database', title: 'Database Design', desc: 'SQL essentials', rating: '4.7/5', students: '756' },
-                { icon: 'fa-react', title: 'React Framework', desc: 'Modern UIs', rating: '4.85/5', students: '1.5K' },
-                { icon: 'fa-node', title: 'Node.js Backend', desc: 'Server dev', rating: '4.75/5', students: '980' }
-            ];
-
-            document.getElementById('favoritesGrid').innerHTML = favs.map(f => `
-                <div class="favorite-item">
-                    <div class="fav-icon"><i class="fas ${f.icon}"></i></div>
-                    <h3>${f.title}</h3>
-                    <p>${f.desc}</p>
-                    <div class="fav-stats">
-                        <span><i class="fas fa-star"></i> ${f.rating}</span>
-                        <span><i class="fas fa-users"></i> ${f.students}</span>
-                    </div>
-                    <button class="btn-start-fav" onclick="location.href='index.html'"><i class="fas fa-play"></i> Start</button>
-                </div>
-            `).join('');
-        }
-
-        function loadResources() {
-            const res = [
-                { icon: 'fa-video', type: 'Video', title: 'JavaScript ES6', desc: 'Modern features', meta1: '2h 30m', meta2: 'Beginner' },
-                { icon: 'fa-file-pdf', type: 'PDF', title: 'CSS Grid', desc: 'Grid layout', meta1: '45 pages', meta2: 'Intermediate' },
-                { icon: 'fa-link', type: 'Article', title: 'React Hooks', desc: 'State management', meta1: '15 min', meta2: 'Advanced' },
-                { icon: 'fa-code-branch', type: 'Code', title: 'Node Boilerplate', desc: 'Template', meta1: 'GitHub', meta2: '2.5K stars' },
-                { icon: 'fa-play-circle', type: 'Course', title: 'Web Dev', desc: 'Full bootcamp', meta1: '40h', meta2: 'All' },
-                { icon: 'fa-comments', type: 'Forum', title: 'Community', desc: 'Developers', meta1: '5K+', meta2: '10K+' }
-            ];
-
-            document.getElementById('resourcesGrid').innerHTML = res.map(r => `
-                <div class="resource-item">
-                    <div class="resource-header">
-                        <i class="fas ${r.icon}"></i>
-                        <span class="resource-type">${r.type}</span>
-                    </div>
-                    <h3>${r.title}</h3>
-                    <p>${r.desc}</p>
-                    <div class="resource-meta">
-                        <span><i class="fas fa-clock"></i> ${r.meta1}</span>
-                        <span><i class="fas fa-graduation-cap"></i> ${r.meta2}</span>
-                    </div>
-                    <a href="#" class="btn-resource" onclick="return false;"><i class="fas fa-arrow-right"></i> View</a>
-                </div>
-            `).join('');
-        }
-
         function loadRankings(user) {
-            const students = ['Alex Johnson', 'Sarah Smith', 'Michael Chen', 'Emma Davis', 'James Wilson', 'Olivia Brown', 'Ethan Miller', 'Sophia Taylor', 'Noah Anderson', 'Ava Martinez'];
+            const students = [];
+            for (let i = 0; i < 15; i++) {
+                students.push({
+                    name: getRandomStudent(),
+                    score: 2450 - (i * 85),
+                    accuracy: 96 - (i * 2),
+                    quizzes: 15 + i
+                });
+            }
 
-            let html = students.map((name, i) => {
-                let medal = i === 0 ? '<i class="fas fa-medal" style="color: #FFD700;"></i>' : i === 1 ? '<i class="fas fa-medal" style="color: #C0C0C0;"></i>' : i === 2 ? '<i class="fas fa-medal" style="color: #CD7F32;"></i>' : '#' + (i + 1);
+            let html = students.map((student, i) => {
+                let medal = i === 0 ? '<i class="fas fa-medal" style="color: #FFD700;"></i>' : 
+                           i === 1 ? '<i class="fas fa-medal" style="color: #C0C0C0;"></i>' : 
+                           i === 2 ? '<i class="fas fa-medal" style="color: #CD7F32;"></i>' : 
+                           '<span style="color: #667eea; font-weight: 700; font-size: 16px;">#' + (i + 1) + '</span>';
                 return `
                     <tr>
                         <td><span class="rank-medal">${medal}</span></td>
-                        <td><strong>${name}</strong></td>
-                        <td><span class="score-badge">${2450 - i * 85}</span></td>
-                        <td><span class="accuracy-badge">${96 - i * 2}%</span></td>
-                        <td><span class="quizzes-badge">${15 + i}</span></td>
+                        <td><strong style="color: #333; font-size: 14px;">${student.name}</strong></td>
+                        <td><span class="score-badge">${student.score}</span></td>
+                        <td><span class="accuracy-badge">${student.accuracy}%</span></td>
+                        <td><span class="quizzes-badge">${student.quizzes}</span></td>
                     </tr>
                 `;
             }).join('');
