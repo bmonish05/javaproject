@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-box">
+            <div class="form-header">
+                <h1>Student Portal</h1>
+                <a href="index.html" class="back-btn">← Back</a>
+            </div>
+
+            <!-- Login Form -->
+            <form id="studentLoginForm" class="form active-form">
+                <h2>Student Login</h2>
+                
+                <div class="form-group">
+                    <label for="studentLoginId">Student ID</label>
+                    <input 
+                        type="text" 
+                        id="studentLoginId" 
+                        placeholder="Enter your Student ID"
+                        required
+                    >
+                    <span class="error-msg" id="loginIdError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentLoginPassword">Password</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="studentLoginPassword" 
+                            placeholder="Enter your password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('studentLoginPassword')">👁️</button>
+                    </div>
+                    <span class="error-msg" id="loginPasswordError"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Login</button>
+
+                <div class="form-footer">
+                    <p>Don't have an account? 
+                        <a href="javascript:void(0)" onclick="switchToSignup()">Sign up here</a>
+                    </p>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="studentSignupForm" class="form">
+                <h2>Create Student Account</h2>
+                
+                <div class="form-group">
+                    <label for="studentSignupId">Student ID</label>
+                    <input 
+                        type="text" 
+                        id="studentSignupId" 
+                        placeholder="Enter your Student ID"
+                        required
+                    >
+                    <span class="error-msg" id="signupIdError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentEmail">Email</label>
+                    <input 
+                        type="email" 
+                        id="studentEmail" 
+                        placeholder="Enter your email"
+                        required
+                    >
+                    <span class="error-msg" id="signupEmailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentSignupPassword">Password</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="studentSignupPassword" 
+                            placeholder="Enter a strong password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('studentSignupPassword')">👁️</button>
+                    </div>
+                    <span class="error-msg" id="signupPasswordError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentConfirmPassword">Confirm Password</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="studentConfirmPassword" 
+                            placeholder="Confirm your password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('studentConfirmPassword')">👁️</button>
+                    </div>
+                    <span class="error-msg" id="signupConfirmError"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Account</button>
+
+                <div class="form-footer">
+                    <p>Already have an account? 
+                        <a href="javascript:void(0)" onclick="switchToLogin()">Login here</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function switchToLogin() {
+            document.getElementById('studentSignupForm').classList.remove('active-form');
+            document.getElementById('studentLoginForm').classList.add('active-form');
+        }
+
+        function switchToSignup() {
+            document.getElementById('studentLoginForm').classList.remove('active-form');
+            document.getElementById('studentSignupForm').classList.add('active-form');
+        }
+
+        document.getElementById('studentLoginForm').addEventListener('submit', handleStudentLogin);
+        document.getElementById('studentSignupForm').addEventListener('submit', handleStudentSignup);
+    </script>
+</body>
+</html>

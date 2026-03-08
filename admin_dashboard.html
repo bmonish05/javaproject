@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>⚙️ Admin Panel</h2>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="javascript:void(0)" class="menu-item active" onclick="showSection('home')">🏠 Home</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('subjects')">📚 Subjects</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('reports')">📊 Reports</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('settings')">⚙️ Settings</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="nav-content">
+                    <h1 id="pageTitle">Home</h1>
+                    <div class="user-menu">
+                        <span id="userName">Admin</span>
+                        <button class="btn btn-logout" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Home Section -->
+                <section id="home-section" class="section active-section">
+                    <div class="welcome-card">
+                        <h2>Welcome back, <span id="adminName">Admin</span>! 👋</h2>
+                        <p>Manage courses, students, and view performance analytics</p>
+                    </div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-icon">📚</div>
+                            <h3>Active Subjects</h3>
+                            <p class="card-number">4</p>
+                            <a href="javascript:void(0)" onclick="showSection('subjects')" class="card-link">View Subjects →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">👥</div>
+                            <h3>Total Students</h3>
+                            <p class="card-number">16</p>
+                            <a href="javascript:void(0)" onclick="showSection('subjects')" class="card-link">View Students →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">✅</div>
+                            <h3>Quizzes Taken</h3>
+                            <p class="card-number">42</p>
+                            <a href="javascript:void(0)" onclick="showSection('reports')" class="card-link">View Reports →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">📈</div>
+                            <h3>Avg Performance</h3>
+                            <p class="card-number">82%</p>
+                            <a href="javascript:void(0)" onclick="showSection('reports')" class="card-link">View Analytics →</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Subjects Section -->
+                <section id="subjects-section" class="section">
+                    <h2>Subjects Management</h2>
+                    <div class="subjects-grid" id="subjectsGrid">
+                        <!-- Subjects will be populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Subject Details Section -->
+                <section id="subject-details-section" class="section">
+                    <div class="subject-header">
+                        <button class="btn btn-back" onclick="backToSubjects()">← Back to Subjects</button>
+                        <h2 id="subjectTitle">Subject Details</h2>
+                    </div>
+
+                    <div class="subject-stats">
+                        <div class="stat-card">
+                            <h3>Total Students</h3>
+                            <p id="totalStudents">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Quizzes Taken</h3>
+                            <p id="quizzesTaken">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Average Score</h3>
+                            <p id="averageScore">0%</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Present</h3>
+                            <p id="presentCount">0</p>
+                        </div>
+                    </div>
+
+                    <div class="students-section">
+                        <h3>Student Performance & Attendance</h3>
+                        <div class="action-bar">
+                            <input type="text" id="searchStudent" placeholder="Search by name or ID..." onkeyup="filterStudents()">
+                            <button class="btn btn-primary" onclick="downloadPerformanceReport()">📥 Download Report</button>
+                        </div>
+                        <div class="students-table-container">
+                            <table class="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>Roll No</th>
+                                        <th>Student Name</th>
+                                        <th>Student ID</th>
+                                        <th>Quiz Status</th>
+                                        <th>Score</th>
+                                        <th>Correct/Total</th>
+                                        <th>Attendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsList">
+                                    <!-- Students will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports-section" class="section">
+                    <h2>Performance Reports</h2>
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h3>Class Performance Overview</h3>
+                            <p>Average Score: <strong id="overallAvg">82%</strong></p>
+                            <p>Total Quizzes Taken: <strong id="totalQuizzes">42</strong></p>
+                            <p>Overall Attendance: <strong id="overallAttendance">94%</strong></p>
+                        </div>
+
+                        <div class="report-card">
+                            <h3>Top Performers</h3>
+                            <div id="topPerformers">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="report-card">
+                            <h3>Attendance Summary</h3>
+                            <p>Present: <strong id="totalPresent">15</strong></p>
+                            <p>Absent: <strong id="totalAbsent">1</strong></p>
+                            <p>Attendance Rate: <strong id="attendanceRate">94%</strong></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-section" class="section">
+                    <h2>Admin Settings</h2>
+                    <div class="settings-card">
+                        <h3>General Settings</h3>
+                        <div class="settings-group">
+                            <label>
+                                <input type="checkbox" checked> Enable Student Notifications
+                            </label>
+                            <label>
+                                <input type="checkbox" checked> Show Performance Analytics
+                            </label>
+                            <label>
+                                <input type="checkbox"> Maintenance Mode
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" onclick="location.href='#'">Save Settings</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Data Management</h3>
+                        <div class="settings-group">
+                            <button class="btn btn-primary" onclick="location.href='#'">Export All Data</button>
+                            <button class="btn btn-secondary" onclick="location.href='#'">Clear Cache</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .btn-back {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            background: #764ba2;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .subject-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .subject-card h3 {
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+
+        .subject-card p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .subject-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .stat-card p {
+            margin: 0;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .students-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .students-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-bar input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .action-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .students-table-container {
+            overflow-x: auto;
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .students-table thead {
+            background: #f5f5f5;
+        }
+
+        .students-table th {
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .students-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+        }
+
+        .students-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-taken {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-not-taken {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .attendance-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .attendance-present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .attendance-absent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .score-text {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .report-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .report-card p {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .report-card strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .top-performer {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin: 8px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .top-performer p {
+            margin: 3px 0;
+        }
+
+        .settings-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .settings-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .settings-group {
+            margin: 15px 0;
+        }
+
+        .settings-group label {
+            display: block;
+            padding: 10px 0;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .settings-group input {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .students-table {
+                font-size: 0.9em;
+            }
+
+            .students-table th,
+            .students-table td {
+                padding: 8px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .action-bar input {
+                min-width: auto;
+            }
+
+            .action-bar button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script src="script.js"></script>
+    <script>
+        // Sample Data - Student Subjects and Performance Data
+        const subjectsData = [
+            {
+                id: 1,
+                name: 'Advance Java',
+                code: 'CS201',
+                instructor: 'Mr. Imran ulla khan'
+            },
+            {
+                id: 2,
+                name: 'Machine Learning',
+                code: 'CS202',
+                instructor: 'Mrs. Rashmi KT'
+            },
+            {
+                id: 3,
+                name: 'Computer Networks',
+                code: 'CS203',
+                instructor: 'Mrs. Latha A'
+            },
+            {
+                id: 4,
+                name: 'Cloud Computing',
+                code: 'CS204',
+                instructor: 'Mr. Monish'
+            }
+        ];
+
+        const studentsData = {
+            1: [ // Advance Java students
+                { id: '1KT23CS001', name: 'Aditya K', rollNo: 1, quizTaken: true, score: 85, correct: 21, total: 25, attendance: 'P' },
+                { id: '1KT23CS007', name: 'Deepak S', rollNo: 7, quizTaken: true, score: 78, correct: 19, total: 25, attendance: 'P' },
+                { id: '1KT23CS010', name: 'Harshith M', rollNo: 10, quizTaken: false, score: 0, correct: 0, total: 25, attendance: 'P' },
+                { id: '1KT23CS013', name: 'Jayesh K', rollNo: 13, quizTaken: true, score: 92, correct: 23, total: 25, attendance: 'P' },
+                { id: '1KT23CS016', name: 'B Monish', rollNo: 16, quizTaken: true, score: 88, correct: 22, total: 25, attendance: 'P' },
+                { id: '1KT23CS022', name: 'Chirag KH', rollNo: 22, quizTaken: true, score: 76, correct: 19, total: 25, attendance: 'A' },
+                { id: '1KT23CS028', name: 'Nithish K', rollNo: 28, quizTaken: false, score: 0, correct: 0, total: 25, attendance: 'P' },
+                { id: '1KT23CS034', name: 'Praveen M', rollNo: 34, quizTaken: true, score: 82, correct: 20, total: 25, attendance: 'P' },
+                { id: '1KT23CS040', name: 'Rohan S', rollNo: 40, quizTaken: true, score: 90, correct: 22, total: 25, attendance: 'P' },
+                { id: '1KT23CS046', name: 'Kiran L', rollNo: 46, quizTaken: true, score: 81, correct: 20, total: 25, attendance: 'P' },
+                { id: '1KT23CS050', name: 'Lakshmi Pathi V', rollNo: 50, quizTaken: true, score: 87, correct: 21, total: 25, attendance: 'P' },
+                { id: '1KT23CS055', name: 'Manish B', rollNo: 55, quizTaken: false, score: 0, correct: 0, total: 25, attendance: 'P' },
+                { id: '1KT23CS061', name: 'Naveen K', rollNo: 61, quizTaken: true, score: 79, correct: 19, total: 25, attendance: 'P' },
+                { id: '1KT23CS067', name: 'Oshitha D', rollNo: 67, quizTaken: true, score: 89, correct: 22, total: 25, attendance: 'P' },
+                { id: '1KT23CS073', name: 'Prem M', rollNo: 73, quizTaken: true, score: 84, correct: 21, total: 25, attendance: 'P' },
+                { id: '1KT23CS079', name: 'Qadri S', rollNo: 79, quizTaken: false, score: 0, correct: 0, total: 25, attendance: 'P' }
+            ],
+            2: [ // Machine Learning students
+                { id: '1KT23CS001', name: 'Aditya K', rollNo: 1, quizTaken: true, score: 88, correct: 22, total: 25, attendance: 'P' },
+                { id: '1KT23CS016', name: 'B Monish', rollNo: 16, quizTaken: true, score: 91, correct: 23, total: 25, attendance: 'P' }
+            ],
+            3: [],
+            4: []
+        };
+
+        let currentSubjectId = null;
+        let filteredStudents = [];
+
+        // Load admin data on page load
+        window.addEventListener('load', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const admins = JSON.parse(localStorage.getItem('admins')) || {};
+
+            if (!currentUser || currentUser.role !== 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('adminName').textContent = currentUser.userId;
+            document.getElementById('userName').textContent = currentUser.userId;
+            
+            loadSubjects();
+        });
+
+        // Load Subjects
+        function loadSubjects() {
+            const grid = document.getElementById('subjectsGrid');
+            grid.innerHTML = '';
+
+            subjectsData.forEach(subject => {
+                const students = studentsData[subject.id] || [];
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.onclick = () => viewSubjectDetails(subject.id);
+                card.innerHTML = `
+                    <h3>${subject.name}</h3>
+                    <p><strong>Code:</strong> ${subject.code}</p>
+                    <p><strong>Instructor:</strong> ${subject.instructor}</p>
+                    <p><strong>Students:</strong> ${students.length}</p>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">View Details →</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // View Subject Details
+        function viewSubjectDetails(subjectId) {
+            currentSubjectId = subjectId;
+            const subject = subjectsData.find(s => s.id === subjectId);
+            const students = studentsData[subjectId] || [];
+
+            document.getElementById('subjectTitle').textContent = subject.name;
+            document.getElementById('totalStudents').textContent = students.length;
+            
+            const quizzesTaken = students.filter(s => s.quizTaken).length;
+            document.getElementById('quizzesTaken').textContent = quizzesTaken;
+
+            const avgScore = students.filter(s => s.quizTaken).length > 0 
+                ? Math.round(students.filter(s => s.quizTaken).reduce((a, b) => a + b.score, 0) / quizzesTaken)
+                : 0;
+            document.getElementById('averageScore').textContent = avgScore + '%';
+
+            const presentCount = students.filter(s => s.attendance === 'P').length;
+            document.getElementById('presentCount').textContent = presentCount;
+
+            filteredStudents = [...students];
+            populateStudentsList(students);
+
+            // Hide subjects, show details
+            document.getElementById('subjects-section').classList.remove('active-section');
+            document.getElementById('subject-details-section').classList.add('active-section');
+        }
+
+        // Populate Students List
+        function populateStudentsList(students) {
+            const tbody = document.getElementById('studentsList');
+            tbody.innerHTML = '';
+
+            students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                const quizStatus = student.quizTaken 
+                    ? `<span class="status-badge status-taken">✓ Taken</span>`
+                    : `<span class="status-badge status-not-taken">✗ Not Taken</span>`;
+                
+                const attendanceStatus = student.attendance === 'P'
+                    ? `<span class="attendance-badge attendance-present">P - Present</span>`
+                    : `<span class="attendance-badge attendance-absent">A - Absent</span>`;
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${student.name}</td>
+                    <td>${student.id}</td>
+                    <td>${quizStatus}</td>
+                    <td><span class="score-text">${student.quizTaken ? student.score + '%' : 'N/A'}</span></td>
+                    <td>${student.quizTaken ? student.correct + '/' + student.total : 'N/A'}</td>
+                    <td>${attendanceStatus}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Filter Students
+        function filterStudents() {
+            const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+            const students = studentsData[currentSubjectId] || [];
+            
+            const filtered = students.filter(student => 
+                student.name.toLowerCase().includes(searchTerm) ||
+                student.id.toLowerCase().includes(searchTerm)
+            );
+
+            populateStudentsList(filtered);
+        }
+
+        // Back to Subjects
+        function backToSubjects() {
+            document.getElementById('subject-details-section').classList.remove('active-section');
+            document.getElementById('subjects-section').classList.add('active-section');
+            document.getElementById('searchStudent').value = '';
+        }
+
+        // Download Performance Report
+        function downloadPerformanceReport() {
+            const subject = subjectsData.find(s => s.id === currentSubjectId);
+            const students = studentsData[currentSubjectId] || [];
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += `Subject: ${subject.name}\n`;
+            csvContent += `Code: ${subject.code}\n`;
+            csvContent += `Instructor: ${subject.instructor}\n`;
+            csvContent += `Report Generated: ${new Date().toLocaleString()}\n\n`;
+            
+            csvContent += "Roll No,Student Name,Student ID,Quiz Status,Score,Correct/Total,Attendance\n";
+
+            students.forEach((student, index) => {
+                const quizStatus = student.quizTaken ? 'Taken' : 'Not Taken';
+                const score = student.quizTaken ? student.score : 'N/A';
+                const answers = student.quizTaken ? `${student.correct}/${student.total}` : 'N/A';
+                const attendance = student.attendance === 'P' ? 'Present' : 'Absent';
+
+                csvContent += `${index + 1},"${student.name}","${student.id}","${quizStatus}","${score}","${answers}","${attendance}"\n`;
+            });
+
+            // Add Summary
+            csvContent += "\n\nSUMMARY\n";
+            const quizzesTaken = students.filter(s => s.quizTaken).length;
+            const avgScore = quizzesTaken > 0 
+                ? Math.round(students.filter(s => s.quizTaken).reduce((a, b) => a + b.score, 0) / quizzesTaken)
+                : 0;
+            const presentCount = students.filter(s => s.attendance === 'P').length;
+
+            csvContent += `Total Students,${students.length}\n`;
+            csvContent += `Quizzes Taken,${quizzesTaken}\n`;
+            csvContent += `Quizzes Not Taken,${students.length - quizzesTaken}\n`;
+            csvContent += `Average Score,${avgScore}%\n`;
+            csvContent += `Present,${presentCount}\n`;
+            csvContent += `Absent,${students.length - presentCount}\n`;
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${subject.name}_performance_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Show/Hide sections
+        function showSection(sectionId) {
+            const lowerSectionId = sectionId.toLowerCase();
+
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active-section');
+            });
+
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const selectedSection = document.getElementById(lowerSectionId + '-section');
+            if (selectedSection) {
+                selectedSection.classList.add('active-section');
+            }
+
+            const menuItems2 = document.querySelectorAll('.menu-item');
+            menuItems2.forEach(item => {
+                if (item.textContent.toLowerCase().includes(lowerSectionId) || 
+                    item.onclick.toString().includes(lowerSectionId)) {
+                    item.classList.add('active');
+                }
+            });
+
+            const titles = {
+                'home': 'Home',
+                'subjects': 'Subjects Management',
+                'reports': 'Performance Reports',
+                'settings': 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[lowerSectionId] || 'Dashboard';
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

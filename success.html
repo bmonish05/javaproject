@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Successful</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-box">
+            <div class="success-icon">✓</div>
+            <h1>Login Successful!</h1>
+            <p id="welcomeMessage">Welcome to the system</p>
+            
+            <div class="user-info">
+                <p><strong>Role:</strong> <span id="userRole">-</span></p>
+                <p><strong>User ID:</strong> <span id="userId">-</span></p>
+                <p><strong>Login Time:</strong> <span id="loginTime">-</span></p>
+            </div>
+
+            <div class="success-actions">
+                <button class="btn btn-primary" id="dashboardBtn" onclick="goToDashboard()">Go to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Load success page data and redirect after 2 seconds
+        window.addEventListener('load', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const roleText = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${roleText}! Your login was successful.`;
+            document.getElementById('userRole').textContent = roleText;
+            document.getElementById('userId').textContent = currentUser.userId;
+            document.getElementById('loginTime').textContent = currentUser.loginTime;
+
+            // Auto redirect to dashboard after 3 seconds
+            setTimeout(function() {
+                goToDashboard();
+            }, 3000);
+        });
+
+        function goToDashboard() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser.role === 'student') {
+                window.location.href = 'student_dashboard.html';
+            } else if (currentUser.role === 'admin') {
+                window.location.href = 'admin_dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

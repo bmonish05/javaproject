@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 Student Portal</h2>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="javascript:void(0)" class="menu-item active" onclick="showSection('home')">🏠 Home</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('courses')">📖 My Courses</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('assignments')">✏️ Assignments</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('grades')">📊 Grades</a>
+                <a href="javascript:void(0)" class="menu-item" onclick="showSection('profile')">👤 Profile</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="nav-content">
+                    <h1 id="pageTitle">Home</h1>
+                    <div class="user-menu">
+                        <span id="userName">Student</span>
+                        <button class="btn btn-logout" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Home Section -->
+                <section id="home-section" class="section active-section">
+                    <div class="welcome-card">
+                        <h2>Welcome back, <span id="studentName">Student</span>! 👋</h2>
+                        <p>You are successfully logged in to the Student Portal</p>
+                    </div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-icon">📖</div>
+                            <h3>Enrolled Courses</h3>
+                            <p class="card-number">5</p>
+                            <a href="javascript:void(0)" onclick="showSection('courses')" class="card-link">View Courses →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">✏️</div>
+                            <h3>Pending Assignments</h3>
+                            <p class="card-number">3</p>
+                            <a href="javascript:void(0)" onclick="showSection('assignments')" class="card-link">View Assignments →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <h3>Average Grade</h3>
+                            <p class="card-number">85%</p>
+                            <a href="javascript:void(0)" onclick="showSection('grades')" class="card-link">View Grades →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">📅</div>
+                            <h3>Upcoming Events</h3>
+                            <p class="card-number">2</p>
+                            <a href="javascript:void(0)" class="card-link">View Events →</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Courses Section -->
+                <section id="courses-section" class="section">
+                    <h2>My Courses</h2>
+                    <div class="courses-list">
+                        <div class="course-card">
+                            <h3>Computer Networks</h3>
+                            <p>Instructor: Mrs.Latha A</p>
+                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 75%"></span></span> 75%</p>
+                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
+                        </div>
+
+                        <div class="course-card">
+                            <h3>Advance Java</h3>
+                            <p>Instructor: Mr.Imran ulla khan</p>
+                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 60%"></span></span> 60%</p>
+                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
+                        </div>
+
+                        <div class="course-card">
+                            <h3>Machine Learning</h3>
+                            <p>Instructor: Mrs.Rashmi KT</p>
+                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 80%"></span></span> 80%</p>
+                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
+                        </div>
+
+                        <div class="course-card">
+                            <h3>Computer Science Basics</h3>
+                            <p>Instructor:Mr.Monish</p>
+                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 85%"></span></span> 85%</p>
+                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Assignments Section -->
+                <section id="assignments-section" class="section">
+                    <h2>Assignments</h2>
+                    <div class="assignments-list">
+                        <div class="assignment-card">
+                            <h3>Cloud Computing Assignment #5</h3>
+                            <p>Due Date: <strong>March 15, 2026</strong></p>
+                            <p>Status: <span class="status pending">Pending</span></p>
+                            <button class="btn btn-small" onclick="location.href='#'">Submit Assignment</button>
+                        </div>
+
+                        <div class="assignment-card">
+                            <h3>Advance Java Project</h3>
+                            <p>Due Date: <strong>March 18, 2026</strong></p>
+                            <p>Status: <span class="status pending">Pending</span></p>
+                            <button class="btn btn-small" onclick="startQuiz()">Start Quiz</button>
+                        </div>
+
+                        <div class="assignment-card">
+                            <h3>Devops Lab Report</h3>
+                            <p>Due Date: <strong>March 12, 2026</strong></p>
+                            <p>Status: <span class="status submitted">Submitted</span></p>
+                            <button class="btn btn-small btn-disabled" onclick="location.href='#'" disabled>Submitted</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Grades Section -->
+                <section id="grades-section" class="section">
+                    <h2>Grades</h2>
+                    <div class="grades-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th>Assignment 1</th>
+                                    <th>Assignment 2</th>
+                                    <th>Midterm</th>
+                                    <th>Final Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Cloud Computing</td>
+                                    <td>90</td>
+                                    <td>85</td>
+                                    <td>88</td>
+                                    <td><strong>87</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Advance Java</td>
+                                    <td>88</td>
+                                    <td>82</td>
+                                    <td>80</td>
+                                    <td><strong>83</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Machine Learning</td>
+                                    <td>92</td>
+                                    <td>89</td>
+                                    <td>91</td>
+                                    <td><strong>91</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Computer Science Basics</td>
+                                    <td>95</td>
+                                    <td>92</td>
+                                    <td>93</td>
+                                    <td><strong>93</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Profile Section -->
+                <section id="profile-section" class="section">
+                    <h2>My Profile</h2>
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">👨‍🎓</div>
+                            <div class="profile-info">
+                                <h3 id="profileName">Student Name</h3>
+                                <p id="profileId">Student ID: </p>
+                            </div>
+                        </div>
+
+                        <div class="profile-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Email:</span>
+                                <span id="profileEmail">student@example.com</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Program:</span>
+                                <span>Bachelor of Science in Computer Science</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Year:</span>
+                                <span>3rd Year</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">GPA:</span>
+                                <span>3.85</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Join Date:</span>
+                                <span id="joinDate">September 2023</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="btn btn-small" onclick="location.href='#'">Edit Profile</button>
+                            <button class="btn btn-small" onclick="location.href='#'">Change Password</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Load user data on page load
+        window.addEventListener('load', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const students = JSON.parse(localStorage.getItem('students')) || {};
+
+            if (!currentUser || currentUser.role !== 'student') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const studentData = students[currentUser.userId];
+            document.getElementById('studentName').textContent = currentUser.userId;
+            document.getElementById('userName').textContent = currentUser.userId;
+            document.getElementById('profileName').textContent = currentUser.userId;
+            document.getElementById('profileId').textContent = 'Student ID: ' + currentUser.userId;
+            document.getElementById('profileEmail').textContent = studentData?.email || 'Not available';
+            document.getElementById('joinDate').textContent = studentData?.createdAt || 'Not available';
+        });
+
+        // Show/Hide sections
+        function showSection(sectionId) {
+            const lowerSectionId = sectionId.toLowerCase();
+
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active-section');
+            });
+
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const selectedSection = document.getElementById(lowerSectionId + '-section');
+            if (selectedSection) {
+                selectedSection.classList.add('active-section');
+            }
+
+            const menuItems2 = document.querySelectorAll('.menu-item');
+            menuItems2.forEach(item => {
+                if (item.textContent.toLowerCase().includes(lowerSectionId) || 
+                    item.onclick.toString().includes(lowerSectionId)) {
+                    item.classList.add('active');
+                }
+            });
+
+            const titles = {
+                'home': 'Home',
+                'courses': 'My Courses',
+                'assignments': 'Assignments',
+                'grades': 'Grades',
+                'profile': 'Profile'
+            };
+            document.getElementById('pageTitle').textContent = titles[lowerSectionId] || 'Dashboard';
+        }
+
+        // Start Quiz Function
+        function startQuiz() {
+            window.location.href = 'assignment-quiz.html';
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
