@@ -126,7 +126,7 @@ function handleStudentSignup(e) {
 
     localStorage.setItem('students', JSON.stringify(students));
 
-    alert('Account created successfully! Please login with your credentials.');
+    // Auto switch to login form without alert
     document.getElementById('studentSignupForm').classList.remove('active-form');
     document.getElementById('studentLoginForm').classList.add('active-form');
     document.getElementById('studentLoginForm').reset();
@@ -231,7 +231,7 @@ function handleAdminSignup(e) {
 
     localStorage.setItem('admins', JSON.stringify(admins));
 
-    alert('Admin account created successfully! Please login with your credentials.');
+    // Auto switch to login form without alert
     document.getElementById('adminSignupForm').classList.remove('active-form');
     document.getElementById('adminLoginForm').classList.add('active-form');
     document.getElementById('adminLoginForm').reset();
