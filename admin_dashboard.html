@@ -9,7 +9,7 @@
         :root {
             --bg: #080c14;
             --surface: rgba(255,255,255,0.04);
-            --surface-hover: rgba(255,255,255,0.08);
+            --surface-hover: rgba(255,255,255,0.07);
             --border: rgba(255,255,255,0.08);
             --border-glow: rgba(251,113,133,0.35);
             --accent: #fb7185;
@@ -152,19 +152,25 @@
         .ts-bar-wrap { width:60px; height:4px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden; }
         .ts-bar { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
 
-        /* Quick alerts */
-        .alerts-list { display:flex; flex-direction:column; gap:8px; }
-        .alert-item { padding:11px 13px; border-radius:11px; border:1px solid; display:flex; align-items:flex-start; gap:10px; transition:all .25s; }
-        .alert-item:hover { transform:translateX(3px); }
-        .alert-item.warn { background:rgba(251,113,133,.05); border-color:rgba(251,113,133,.15); }
-        .alert-item.info { background:rgba(99,179,237,.05); border-color:rgba(99,179,237,.15); }
-        .alert-item.ok   { background:rgba(104,211,145,.05); border-color:rgba(104,211,145,.15); }
-        .alert-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:4px; }
-        .alert-item.warn .alert-dot{background:var(--accent)} .alert-item.info .alert-dot{background:var(--accent4)} .alert-item.ok .alert-dot{background:var(--accent3)}
-        .alert-text { font-size:.81em; line-height:1.4; color:var(--muted); }
-        .alert-text strong { font-weight:600; }
-        .alert-item.warn .alert-text strong{color:var(--accent)} .alert-item.info .alert-text strong{color:var(--accent4)} .alert-item.ok .alert-text strong{color:var(--accent3)}
-        .alert-time { font-size:.68em; color:var(--muted); white-space:nowrap; margin-left:auto; padding-left:8px; }
+        /* Recent Quiz Activity */
+        .quiz-activity-section { margin-top:30px; }
+        .quiz-list { display:flex; flex-direction:column; gap:10px; }
+        .quiz-item { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:14px; align-items:center; transition:all .25s; animation:card-in .4s both; }
+        .quiz-item:nth-child(1){animation-delay:.04s} .quiz-item:nth-child(2){animation-delay:.08s} .quiz-item:nth-child(3){animation-delay:.12s} .quiz-item:nth-child(4){animation-delay:.16s}
+        .quiz-item:hover { background:var(--surface-hover); border-color:rgba(255,255,255,.12); transform:translateX(2px); }
+        .quiz-item-name { display:flex; align-items:center; gap:10px; }
+        .quiz-av { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:.82em; font-weight:800; flex-shrink:0; }
+        .quiz-name-text { font-size:.88em; font-weight:600; }
+        .quiz-score { text-align:center; }
+        .quiz-score-num { font-family:'Syne',sans-serif; font-size:1.1em; font-weight:800; background:linear-gradient(135deg,var(--accent3),var(--accent4)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .quiz-score-lbl { font-size:.68em; color:var(--muted); }
+        .quiz-correct { text-align:center; }
+        .quiz-correct-num { font-family:'Syne',sans-serif; font-size:.95em; font-weight:700; color:var(--accent3); }
+        .quiz-correct-lbl { font-size:.68em; color:var(--muted); }
+        .quiz-incorrect { text-align:center; }
+        .quiz-incorrect-num { font-family:'Syne',sans-serif; font-size:.95em; font-weight:700; color:var(--accent); }
+        .quiz-incorrect-lbl { font-size:.68em; color:var(--muted); }
+        .quiz-time { text-align:center; font-size:.82em; color:var(--muted); }
 
         /* ── STUDENTS SECTION ── */
         .search-bar { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 16px; margin-bottom:18px; transition:all .25s; }
@@ -310,7 +316,7 @@
 
         @media(max-width:1200px){.stats-row{grid-template-columns:repeat(2,1fr)}.panels-row{grid-template-columns:1fr}.analytics-grid{grid-template-columns:1fr}.analytics-grid.three{grid-template-columns:1fr 1fr}}
         @media(max-width:960px){:root{--sidebar-w:220px}.subjects-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.settings-card:nth-child(3){grid-column:span 1}.sparkline-grid{grid-template-columns:1fr 1fr}}
-        @media(max-width:720px){.st-head,.st-row{grid-template-columns:2fr 1fr 1fr 1fr}}
+        @media(max-width:720px){.st-head,.st-row{grid-template-columns:2fr 1fr 1fr 1fr}.quiz-item{grid-template-columns:1.5fr 1fr 1fr 1fr}}
     </style>
 </head>
 <body>
@@ -361,6 +367,12 @@
                 <div class="nav-indicator"></div>
                 <span class="nav-icon">◻</span>
                 <span class="nav-text">Settings</span>
+            </div>
+            <div class="nav-item" onclick="goSec('quiz-activity',this)">
+                <div class="nav-indicator"></div>
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Recent Quizzes</span>
+                <span class="nav-badge">12</span>
             </div>
         </nav>
         <div class="sidebar-bottom">
@@ -682,6 +694,21 @@
                 </div>
             </div>
 
+            <!-- ── RECENT QUIZ ACTIVITY ── -->
+            <div class="section" id="sec-quiz-activity">
+                <div class="sec-hdr">
+                    <div class="sec-title">Recent Quiz Activity</div>
+                    <div class="sec-actions">
+                        <button class="btn green" onclick="exportQuizCSV()">⬇ Export Quizzes</button>
+                    </div>
+                </div>
+                <div class="quiz-activity-section">
+                    <div class="quiz-list" id="quizActivityList">
+                        <!-- Quiz items will be populated here by JS -->
+                    </div>
+                </div>
+            </div>
+
         </div><!-- /content -->
     </div><!-- /main -->
 </div><!-- /shell -->
@@ -719,7 +746,7 @@
 
 <script>
 /* ── CANVAS ─────────────────────────────────────── */
-const cv=document.getElementById('bgCanvas'),cx=cv.getContext('2d');
+const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
 let W,H;
 const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
 resize(); window.addEventListener('resize',resize);
@@ -727,20 +754,20 @@ class P{
     constructor(){this.reset(true)}
     reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+5;this.vx=(Math.random()-.5)*.3;this.vy=-(Math.random()*.4+.1);this.r=Math.random()*1.4+.2;this.life=Math.random()*.6+.2;this.ml=this.life;this.col=Math.random()>.5?'251,113,133':'249,115,22';}
     upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0015;if(this.life<=0||this.y<-8)this.reset(false);}
-    drw(){const a=(this.life/this.ml)*.6;cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fillStyle=`rgba(${this.col},${a})`;cx.fill();}
+    drw(){const a=(this.life/this.ml)*.6;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(${this.col},${a})`;ctx.fill();}
 }
 class Orb{
     constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*160+80;this.vx=(Math.random()-.5)*.1;this.vy=(Math.random()-.5)*.1;this.col=Math.random()>.5?'251,113,133':'249,115,22';this.a=Math.random()*.025+.007;}
     upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}
-    drw(){const g=cx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fillStyle=g;cx.fill();}
+    drw(){const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();}
 }
 const pts=Array.from({length:100},()=>new P());
 const orbs=Array.from({length:5},()=>new Orb());
 (function loop(){
-    cx.clearRect(0,0,W,H);
+    ctx.clearRect(0,0,W,H);
     orbs.forEach(o=>{o.upd();o.drw();});
     pts.forEach(p=>{p.upd();p.drw();});
-    for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<75){const a=(1-d/75)*.06;cx.beginPath();cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.strokeStyle=`rgba(251,113,133,${a})`;cx.lineWidth=.5;cx.stroke();}}}
+    for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<75){const a=(1-d/75)*.06;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(251,113,133,${a})`;ctx.lineWidth=.5;ctx.stroke();}}}
     requestAnimationFrame(loop);
 })();
 
@@ -749,7 +776,7 @@ const updClk=()=>{const n=new Date();document.getElementById('clk').textContent=
 updClk(); setInterval(updClk,10000);
 
 /* ── SECTION NAV ────────────────────────────────── */
-const TITLES={overview:'Overview',students:'Students',subjects:'Subjects',analytics:'Analytics',settings:'Settings'};
+const TITLES={overview:'Overview',students:'Students',subjects:'Subjects',analytics:'Analytics',settings:'Settings','quiz-activity':'Recent Quiz Activity'};
 function goSec(id,el){
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -759,6 +786,7 @@ function goSec(id,el){
     const t=document.getElementById('topTitle');
     if(t){t.style.animation='none';void t.offsetWidth;t.style.animation='title-in .4s ease both';t.textContent=TITLES[id]||id;}
     if(id==='analytics')buildCharts();
+    if(id==='quiz-activity')loadQuizActivity();
 }
 
 /* ── RIPPLE ─────────────────────────────────────── */
@@ -801,6 +829,22 @@ const STUDENTS=[
     {id:'STU010',name:'Lakshmi Das',    course:'Machine Learning', score:93,asgn:'5/5',active:true},
     {id:'STU011',name:'Vikram Singh',   course:'Advance Java',     score:67,asgn:'2/5',active:true},
     {id:'STU012',name:'Ananya Krishn',  course:'CS Basics',        score:80,asgn:'3/4',active:true},
+];
+
+// Quiz Activity Data (Sample)
+const QUIZ_ACTIVITIES=[
+    {student:'B Monish',id:'STU001',quiz:'Advance Java Quiz',marks:84,correct:21,incorrect:4,time:'2h ago'},
+    {student:'Divya Rao',id:'STU006',quiz:'Cloud Computing Test',marks:92,correct:23,incorrect:2,time:'1h ago'},
+    {student:'Chirag Kh',id:'STU002',quiz:'Machine Learning Quiz',marks:88,correct:22,incorrect:3,time:'45m ago'},
+    {student:'Aditya Kumar',id:'STU007',quiz:'CS Basics Exam',marks:95,correct:24,incorrect:1,time:'30m ago'},
+    {student:'Lakshmi Das',id:'STU010',quiz:'ML Advanced Topics',marks:91,correct:23,incorrect:2,time:'20m ago'},
+    {student:'Kiran L',id:'STU003',quiz:'Java Core Concepts',marks:79,correct:20,incorrect:5,time:'15m ago'},
+    {student:'Suresh Babu',id:'STU009',quiz:'Cloud Platforms',marks:86,correct:21,incorrect:4,time:'10m ago'},
+    {student:'Ananya Krishn',id:'STU012',quiz:'Data Structures',marks:93,correct:23,incorrect:2,time:'5m ago'},
+    {student:'Lakshmipathi V',id:'STU004',quiz:'Algorithms',marks:97,correct:24,incorrect:1,time:'Just now'},
+    {student:'Vikram Singh',id:'STU011',quiz:'OOP Fundamentals',marks:75,correct:19,incorrect:6,time:'2m ago'},
+    {student:'Kiran Naik',id:'STU005',quiz:'DevOps Basics',marks:82,correct:20,incorrect:5,time:'8m ago'},
+    {student:'Meera Iyer',id:'STU008',quiz:'Java Advanced',marks:71,correct:18,incorrect:7,time:'12m ago'},
 ];
 
 let filteredStudents=[...STUDENTS];
@@ -854,6 +898,17 @@ function exportCSV(){
     showToast('CSV downloaded!','⬇');
 }
 
+function exportQuizCSV(){
+    const rows=[['Student Name','Student ID','Quiz Name','Marks','Correct','Incorrect','Time']];
+    QUIZ_ACTIVITIES.forEach(q=>rows.push([q.student,q.id,q.quiz,q.marks,q.correct,q.incorrect,q.time]));
+    const csv=rows.map(r=>r.join(',')).join('\n');
+    const a=document.createElement('a');
+    a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download='quiz_activity_report.csv';
+    a.click();
+    showToast('Quiz report downloaded!','⬇');
+}
+
 /* ── TOP STUDENTS ───────────────────────────────── */
 function renderTopStudents(){
     const sorted=[...STUDENTS].sort((a,b)=>b.score-a.score).slice(0,5);
@@ -879,6 +934,42 @@ function renderTopStudents(){
     });
 }
 
+/* ── QUIZ ACTIVITY ────────────────────────────── */
+function loadQuizActivity(){
+    const el=document.getElementById('quizActivityList');
+    if(!el)return;
+    el.innerHTML='';
+    QUIZ_ACTIVITIES.forEach((q,i)=>{
+        const col=COLORS[i%COLORS.length];
+        const item=document.createElement('div');
+        item.className='quiz-item';
+        item.style.animationDelay=(i*.04)+'s';
+        item.innerHTML=`
+            <div class="quiz-item-name">
+                <div class="quiz-av" style="background:linear-gradient(135deg,${col},${COLORS[(i+1)%COLORS.length]})">${q.student.charAt(0)}</div>
+                <div class="quiz-name-text">
+                    <div style="font-size:.87em;font-weight:600">${q.student}</div>
+                    <div style="font-size:.75em;color:var(--muted)">${q.quiz}</div>
+                </div>
+            </div>
+            <div class="quiz-score">
+                <div class="quiz-score-num">${q.marks}%</div>
+                <div class="quiz-score-lbl">Score</div>
+            </div>
+            <div class="quiz-correct">
+                <div class="quiz-correct-num">✓ ${q.correct}</div>
+                <div class="quiz-correct-lbl">Correct</div>
+            </div>
+            <div class="quiz-incorrect">
+                <div class="quiz-incorrect-num">✗ ${q.incorrect}</div>
+                <div class="quiz-incorrect-lbl">Incorrect</div>
+            </div>
+            <div class="quiz-time">${q.time}</div>
+        `;
+        el.appendChild(item);
+    });
+}
+
 /* ── CHARTS ─────────────────────────────────────── */
 function buildCharts(){
     buildSparklines();
@@ -896,7 +987,7 @@ function buildSparklines(){
         {label:'Active Students',val:'22',trend:'+2',up:true,data:[18,19,19,20,21,20,22]},
         {label:'Pending Asgn.',val:'6',trend:'-4',up:false,data:[12,10,9,8,7,8,6]},
     ];
-    const colors=['#fb7185','#68d391','#63b3ed','#f97316'];
+    const colors=['#fb7185','#68d391','#63b3ed','#f6ad55'];
     items.forEach((item,i)=>{
         const mn=Math.min(...item.data),mx=Math.max(...item.data),range=mx-mn||1;
         const pts=item.data.map((v,j)=>`${j*(60/6)},${20-((v-mn)/range)*18}`).join(' ');
@@ -964,7 +1055,6 @@ function buildDonut(){
         path.addEventListener('mouseleave',()=>path.setAttribute('opacity','0.85'));
         svg.appendChild(path);
     });
-    // Center text
     const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
     txt.setAttribute('x',60);txt.setAttribute('y',56);txt.setAttribute('text-anchor','middle');
     txt.setAttribute('font-family','Syne,sans-serif');txt.setAttribute('font-size','14');
@@ -974,7 +1064,6 @@ function buildDonut(){
     sub.setAttribute('x',60);sub.setAttribute('y',70);sub.setAttribute('text-anchor','middle');
     sub.setAttribute('font-size','9');sub.setAttribute('fill','#6b7494');sub.textContent='students';
     svg.appendChild(sub);
-    // Legend
     data.forEach(d=>{
         legend.innerHTML+=`<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div><div class="legend-label">${d.label}</div><div class="legend-val" style="color:${d.color}">${d.val}</div></div>`;
     });
