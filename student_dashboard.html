@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #080c14;
@@ -152,12 +152,12 @@
         .courses-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
         .cc { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:22px; position:relative; overflow:hidden; transition:all .4s cubic-bezier(.4,0,.2,1); animation:card-in .5s cubic-bezier(.4,0,.2,1) both; }
         .cc:nth-child(1){animation-delay:.04s} .cc:nth-child(2){animation-delay:.08s} .cc:nth-child(3){animation-delay:.12s} .cc:nth-child(4){animation-delay:.16s}
-        .cc::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--ca,var(--accent)),transparent); opacity:0; transition:opacity .3s; }
+        .cc::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--ca),transparent); opacity:0; transition:opacity .3s; }
         .cc:hover { transform:translateY(-6px); border-color:rgba(255,255,255,.1); box-shadow:0 30px 80px rgba(0,0,0,.5); }
         .cc:hover::before { opacity:1; }
-        .cc[data-a=b]{--ca:var(--accent)} .cc[data-a=o]{--ca:var(--accent4)} .cc[data-a=p]{--ca:var(--accent2)} .cc[data-a=g]{--ca:var(--accent3)}
+        .cc[data-a=b]{--ca:#63b3ed} .cc[data-a=o]{--ca:#f6ad55} .cc[data-a=p]{--ca:#9f7aea} .cc[data-a=g]{--ca:#68d391}
         .cc-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
-        .cc-emoji { font-size:2.1em; line-height:1; filter:drop-shadow(0 0 10px var(--ca,rgba(99,179,237,.5))); transition:transform .3s; }
+        .cc-emoji { font-size:2.1em; line-height:1; filter:drop-shadow(0 0 10px var(--ca)); transition:transform .3s; }
         .cc:hover .cc-emoji { transform:scale(1.15) rotate(-6deg); }
         .cc-badge { font-size:.7em; padding:4px 10px; border-radius:20px; font-weight:600; border:1px solid; }
         .cc-badge.ok{background:rgba(104,211,145,.1);color:var(--accent3);border-color:rgba(104,211,145,.2)} .cc-badge.wip{background:rgba(246,173,85,.1);color:var(--accent4);border-color:rgba(246,173,85,.2)}
@@ -259,29 +259,29 @@
         </div>
         <div class="nav-section-label">Navigation</div>
         <nav class="nav">
-            <div class="nav-item active" onclick="goSec('home',this)">
+            <div class="nav-item active" data-nav="home" onclick="goSec('home',this)">
                 <div class="nav-indicator"></div>
                 <span class="nav-icon">⬡</span>
                 <span class="nav-text">Overview</span>
             </div>
-            <div class="nav-item" onclick="goSec('courses',this)">
+            <div class="nav-item" data-nav="courses" onclick="goSec('courses',this)">
                 <div class="nav-indicator"></div>
                 <span class="nav-icon">◈</span>
                 <span class="nav-text">My Courses</span>
                 <span class="nav-badge">4</span>
             </div>
-            <div class="nav-item" onclick="goSec('assignments',this)">
+            <div class="nav-item" data-nav="assignments" onclick="goSec('assignments',this)">
                 <div class="nav-indicator"></div>
                 <span class="nav-icon">◻</span>
                 <span class="nav-text">Assignments</span>
                 <span class="nav-badge">2</span>
             </div>
-            <div class="nav-item" onclick="goSec('grades',this)">
+            <div class="nav-item" data-nav="grades" onclick="goSec('grades',this)">
                 <div class="nav-indicator"></div>
                 <span class="nav-icon">◇</span>
                 <span class="nav-text">Grades</span>
             </div>
-            <div class="nav-item" onclick="goSec('profile',this)">
+            <div class="nav-item" data-nav="profile" onclick="goSec('profile',this)">
                 <div class="nav-indicator"></div>
                 <span class="nav-icon">◎</span>
                 <span class="nav-text">Profile</span>
@@ -317,7 +317,7 @@
                 </div>
 
                 <div class="stats-row">
-                    <div class="stat-card" data-c="b" onclick="goSec('courses',document.querySelector('.nav-item:nth-child(2)'))">
+                    <div class="stat-card" data-c="b" onclick="goSec('courses',document.querySelector('[data-nav=courses]'))">
                         <div class="stat-top">
                             <div class="stat-icon">📖</div>
                             <div class="stat-pill neu">Active</div>
@@ -325,7 +325,7 @@
                         <div class="stat-num">4</div>
                         <div class="stat-lbl">Enrolled Courses</div>
                     </div>
-                    <div class="stat-card" data-c="p" onclick="goSec('assignments',document.querySelector('.nav-item:nth-child(3)'))">
+                    <div class="stat-card" data-c="p" onclick="goSec('assignments',document.querySelector('[data-nav=assignments]'))">
                         <div class="stat-top">
                             <div class="stat-icon">✏️</div>
                             <div class="stat-pill warn">2 due</div>
@@ -333,7 +333,7 @@
                         <div class="stat-num">3</div>
                         <div class="stat-lbl">Pending Tasks</div>
                     </div>
-                    <div class="stat-card" data-c="g" onclick="goSec('grades',document.querySelector('.nav-item:nth-child(4)'))">
+                    <div class="stat-card" data-c="g" onclick="goSec('grades',document.querySelector('[data-nav=grades]'))">
                         <div class="stat-top">
                             <div class="stat-icon">📊</div>
                             <div class="stat-pill up">↑ +2%</div>
@@ -541,7 +541,6 @@
     <span id="tIcon">✓</span><span id="tMsg">Done</span>
 </div>
 
-<script src="script.js"></script>
 <script>
 /* ── CANVAS BACKGROUND ───────────────────────────── */
 const cv=document.getElementById('bgCanvas'),cx=cv.getContext('2d');
@@ -579,11 +578,11 @@ const TITLES={home:'Overview',courses:'My Courses',assignments:'Assignments',gra
 function goSec(id,el){
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    document.getElementById('sec-'+id).classList.add('active');
+    const sec=document.getElementById('sec-'+id);
+    if(sec) sec.classList.add('active');
     if(el) el.classList.add('active');
     const t=document.getElementById('topTitle');
-    t.style.animation='none'; void t.offsetWidth; t.style.animation='title-in .4s ease both';
-    t.textContent=TITLES[id]||id;
+    if(t){ t.style.animation='none'; void t.offsetWidth; t.style.animation='title-in .4s ease both'; t.textContent=TITLES[id]||id; }
 }
 
 /* ── RIPPLE ─────────────────────────────────────── */

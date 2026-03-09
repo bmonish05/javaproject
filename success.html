@@ -3,59 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Successful</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>EduPortal — Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#080c14;--border:rgba(255,255,255,0.08);--accent:#63b3ed;--accent2:#9f7aea;--accent3:#68d391;--text:#e8eaf0;--muted:#6b7494;}
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+        #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+        body::before{content:'';position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;opacity:.5;}
+
+        .page{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
+
+        /* Checkmark animation */
+        .check-wrap{width:90px;height:90px;margin:0 auto 28px;position:relative;animation:pop-in .6s cubic-bezier(.4,0,.2,1) both;}
+        @keyframes pop-in{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+        .check-ring{width:90px;height:90px;border-radius:50%;border:2px solid rgba(104,211,145,.2);position:absolute;inset:0;animation:ring-expand 1s ease .3s both;}
+        @keyframes ring-expand{from{transform:scale(.8);opacity:0}to{transform:scale(1.2);opacity:0}}
+        .check-circle{width:90px;height:90px;border-radius:50%;background:rgba(104,211,145,.1);border:2px solid rgba(104,211,145,.3);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(104,211,145,.2);position:relative;z-index:1;}
+        .check-icon{font-size:2.2em;animation:check-bounce .4s .2s cubic-bezier(.4,0,.2,1) both;}
+        @keyframes check-bounce{from{opacity:0;transform:scale(.4) rotate(-20deg)}60%{transform:scale(1.2) rotate(5deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+
+        .welcome-text{font-family:'Syne',sans-serif;font-size:1.8em;font-weight:800;margin-bottom:8px;animation:fade-up .5s .3s ease both;}
+        .welcome-text span{background:linear-gradient(90deg,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+        .welcome-sub{color:var(--muted);font-size:.92em;margin-bottom:36px;max-width:320px;line-height:1.6;animation:fade-up .5s .4s ease both;}
+
+        /* Progress bar */
+        .progress-wrap{width:260px;margin:0 auto 16px;animation:fade-up .5s .5s ease both;}
+        .progress-label{font-size:.75em;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;}
+        .progress-track{height:4px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+        .progress-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent3),var(--accent));width:0%;transition:width .1s linear;box-shadow:0 0 8px rgba(104,211,145,.4);}
+
+        .redirect-note{font-size:.78em;color:var(--muted);animation:fade-up .5s .6s ease both;}
+        .redirect-note a{color:var(--accent);text-decoration:none;font-weight:600;}
+    </style>
 </head>
 <body>
-    <div class="success-container">
-        <div class="success-box">
-            <div class="success-icon">✓</div>
-            <h1>Login Successful!</h1>
-            <p id="welcomeMessage">Welcome to the system</p>
-            
-            <div class="user-info">
-                <p><strong>Role:</strong> <span id="userRole">-</span></p>
-                <p><strong>User ID:</strong> <span id="userId">-</span></p>
-                <p><strong>Login Time:</strong> <span id="loginTime">-</span></p>
-            </div>
-
-            <div class="success-actions">
-                <button class="btn btn-primary" id="dashboardBtn" onclick="goToDashboard()">Go to Dashboard</button>
-            </div>
+<canvas id="bgCanvas"></canvas>
+<div class="page">
+    <div class="check-wrap">
+        <div class="check-ring"></div>
+        <div class="check-circle">
+            <span class="check-icon">✓</span>
         </div>
     </div>
 
-    <script src="script.js"></script>
-    <script>
-        // Load success page data and redirect after 2 seconds
-        window.addEventListener('load', function() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    <div class="welcome-text">Welcome, <span id="userName">User</span>!</div>
+    <p class="welcome-sub">Login successful. You're being redirected to your dashboard.</p>
 
-            if (!currentUser) {
-                window.location.href = 'index.html';
-                return;
-            }
+    <div class="progress-wrap">
+        <div class="progress-label">
+            <span>Redirecting…</span>
+            <span id="pct">0%</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
 
-            const roleText = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
-            document.getElementById('welcomeMessage').textContent = `Welcome, ${roleText}! Your login was successful.`;
-            document.getElementById('userRole').textContent = roleText;
-            document.getElementById('userId').textContent = currentUser.userId;
-            document.getElementById('loginTime').textContent = currentUser.loginTime;
+    <div class="redirect-note">Taking too long? <a id="manualLink" href="#">Go to dashboard →</a></div>
+</div>
 
-            // Auto redirect to dashboard after 3 seconds
-            setTimeout(function() {
-                goToDashboard();
-            }, 3000);
-        });
+<script>
+/* CANVAS */
+const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
+let W,H;
+const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
+resize();window.addEventListener('resize',resize);
+class P{constructor(){this.reset(true)}reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+5;this.vx=(Math.random()-.5)*.25;this.vy=-(Math.random()*.35+.08);this.r=Math.random()*1.3+.2;this.life=Math.random()*.6+.2;this.ml=this.life;this.col=Math.random()>.5?'104,211,145':'99,179,237';}upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0012;if(this.life<=0||this.y<-8)this.reset(false);}drw(){const a=(this.life/this.ml)*.6;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(${this.col},${a})`;ctx.fill();}}
+class Orb{constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*180+80;this.vx=(Math.random()-.5)*.1;this.vy=(Math.random()-.5)*.1;this.col='104,211,145';this.a=Math.random()*.02+.007;}upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}drw(){const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();}}
+const pts=Array.from({length:70},()=>new P()),orbs=Array.from({length:3},()=>new Orb());
+(function loop(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{o.upd();o.drw();});pts.forEach(p=>{p.upd();p.drw();});requestAnimationFrame(loop);})();
 
-        function goToDashboard() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (currentUser.role === 'student') {
-                window.location.href = 'student_dashboard.html';
-            } else if (currentUser.role === 'admin') {
-                window.location.href = 'admin_dashboard.html';
-            }
-        }
-    </script>
+/* Redirect logic */
+const u=JSON.parse(localStorage.getItem('currentUser'));
+const dest=u&&u.role==='admin'?'admin_dashboard.html':'student_dashboard.html';
+document.getElementById('manualLink').href=dest;
+if(u)document.getElementById('userName').textContent=u.userId;
+
+const bar=document.getElementById('progressBar');
+const pct=document.getElementById('pct');
+const DURATION=2500;
+const start=Date.now();
+function tick(){
+    const p=Math.min((Date.now()-start)/DURATION*100,100);
+    bar.style.width=p+'%';
+    pct.textContent=Math.round(p)+'%';
+    if(p<100)requestAnimationFrame(tick);
+    else window.location.href=dest;
+}
+requestAnimationFrame(tick);
+</script>
 </body>
 </html>

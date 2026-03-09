@@ -3,145 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>EduPortal — Admin Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#080c14;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--border-glow:rgba(251,113,133,0.35);--accent:#fb7185;--accent2:#f97316;--accent3:#68d391;--text:#e8eaf0;--muted:#6b7494;}
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+        #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+        body::before{content:'';position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;opacity:.5;}
+
+        .page{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;padding:20px;}
+
+        .card{width:100%;max-width:420px;background:rgba(10,15,25,0.85);border:1px solid var(--border);border-radius:24px;padding:36px 32px;backdrop-filter:blur(24px);box-shadow:0 40px 100px rgba(0,0,0,.5);animation:card-in .5s cubic-bezier(.4,0,.2,1) both;position:relative;overflow:hidden;}
+        @keyframes card-in{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);opacity:.5;}
+
+        .card-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(251,113,133,.06),transparent 70%);pointer-events:none;}
+
+        .card-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+        .logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px rgba(251,113,133,.35);animation:logo-float 3s ease-in-out infinite;}
+        @keyframes logo-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-5deg)}}
+        .logo-name{font-family:'Syne',sans-serif;font-size:1em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .admin-tag{font-size:.62em;padding:2px 8px;border-radius:20px;background:rgba(251,113,133,.1);color:var(--accent);border:1px solid rgba(251,113,133,.2);font-weight:700;letter-spacing:.04em;}
+
+        .card-title{font-family:'Syne',sans-serif;font-size:1.4em;font-weight:800;margin-bottom:5px;}
+        .card-sub{font-size:.83em;color:var(--muted);margin-bottom:24px;}
+
+        /* Admin badge */
+        .admin-badge{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(251,113,133,.06);border:1px solid rgba(251,113,133,.15);border-radius:12px;margin-bottom:22px;font-size:.82em;color:var(--muted);}
+        .admin-badge strong{color:var(--accent);}
+
+        .field{margin-bottom:14px;}
+        .field label{display:block;font-size:.73em;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+        .field-wrap{position:relative;}
+        .field input{width:100%;padding:11px 14px 11px 40px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9em;outline:none;transition:all .25s;}
+        .field input:focus{border-color:var(--border-glow);background:rgba(251,113,133,.04);box-shadow:0 0 0 3px rgba(251,113,133,.07);}
+        .field input::placeholder{color:var(--muted);}
+        .field-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:.9em;pointer-events:none;}
+
+        .submit-btn{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#080c14;font-family:'Syne',sans-serif;font-size:.95em;font-weight:800;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);margin-top:6px;position:relative;overflow:hidden;letter-spacing:.02em;}
+        .submit-btn:hover{box-shadow:0 8px 30px rgba(251,113,133,.35);transform:translateY(-2px);}
+
+        .error-msg{background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:10px;padding:10px 14px;font-size:.82em;color:#fc8181;margin-bottom:14px;display:none;animation:shake .35s ease;}
+        .error-msg.show{display:block;}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+        .success-msg{background:rgba(104,211,145,.08);border:1px solid rgba(104,211,145,.2);border-radius:10px;padding:10px 14px;font-size:.82em;color:var(--accent3);margin-bottom:14px;display:none;}
+        .success-msg.show{display:block;}
+
+        .back-link{text-align:center;margin-top:20px;font-size:.8em;color:var(--muted);}
+        .back-link a{color:var(--accent);text-decoration:none;font-weight:600;}
+        .back-link a:hover{color:var(--accent2);}
+
+        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.15);transform:scale(0);animation:rip .6s linear;pointer-events:none;}
+        @keyframes rip{to{transform:scale(4);opacity:0}}
+    </style>
 </head>
 <body>
-    <div class="form-container">
-        <div class="form-box">
-            <div class="form-header">
-                <h1>Admin Portal</h1>
-                <a href="index.html" class="back-btn">← Back</a>
-            </div>
-
-            <!-- Login Form -->
-            <form id="adminLoginForm" class="form active-form">
-                <h2>Admin Login</h2>
-                
-                <div class="form-group">
-                    <label for="adminLoginId">Admin ID</label>
-                    <input 
-                        type="text" 
-                        id="adminLoginId" 
-                        placeholder="Enter your Admin ID"
-                        required
-                    >
-                    <span class="error-msg" id="adminLoginIdError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminLoginPassword">Password</label>
-                    <div class="password-container">
-                        <input 
-                            type="password" 
-                            id="adminLoginPassword" 
-                            placeholder="Enter your password"
-                            required
-                        >
-                        <button type="button" class="toggle-password" onclick="togglePassword('adminLoginPassword')">👁️</button>
-                    </div>
-                    <span class="error-msg" id="adminLoginPasswordError"></span>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Login</button>
-
-                <div class="form-footer">
-                    <p>Don't have an account? 
-                        <a href="javascript:void(0)" onclick="switchToAdminSignup()">Sign up here</a>
-                    </p>
-                </div>
-            </form>
-
-            <!-- Signup Form -->
-            <form id="adminSignupForm" class="form">
-                <h2>Create Admin Account</h2>
-                
-                <div class="form-group">
-                    <label for="adminSignupId">Admin ID</label>
-                    <input 
-                        type="text" 
-                        id="adminSignupId" 
-                        placeholder="Enter your Admin ID"
-                        required
-                    >
-                    <span class="error-msg" id="adminSignupIdError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminEmail">Email</label>
-                    <input 
-                        type="email" 
-                        id="adminEmail" 
-                        placeholder="Enter your email"
-                        required
-                    >
-                    <span class="error-msg" id="adminSignupEmailError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminSignupPassword">Password</label>
-                    <div class="password-container">
-                        <input 
-                            type="password" 
-                            id="adminSignupPassword" 
-                            placeholder="Enter a strong password"
-                            required
-                        >
-                        <button type="button" class="toggle-password" onclick="togglePassword('adminSignupPassword')">👁️</button>
-                    </div>
-                    <span class="error-msg" id="adminSignupPasswordError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminConfirmPassword">Confirm Password</label>
-                    <div class="password-container">
-                        <input 
-                            type="password" 
-                            id="adminConfirmPassword" 
-                            placeholder="Confirm your password"
-                            required
-                        >
-                        <button type="button" class="toggle-password" onclick="togglePassword('adminConfirmPassword')">👁️</button>
-                    </div>
-                    <span class="error-msg" id="adminSignupConfirmError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminKey">Admin Secret Key</label>
-                    <input 
-                        type="password" 
-                        id="adminKey" 
-                        placeholder="Enter admin secret key"
-                        required
-                    >
-                    <span class="error-msg" id="adminKeyError"></span>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Create Account</button>
-
-                <div class="form-footer">
-                    <p>Already have an account? 
-                        <a href="javascript:void(0)" onclick="switchToAdminLogin()">Login here</a>
-                    </p>
-                </div>
-            </form>
+<canvas id="bgCanvas"></canvas>
+<div class="page">
+    <div class="card">
+        <div class="card-glow"></div>
+        <div class="card-logo">
+            <div class="logo-mark">🎓</div>
+            <div class="logo-name">EduPortal</div>
+            <div class="admin-tag">ADMIN</div>
         </div>
+
+        <div class="card-title">Admin Access</div>
+        <div class="card-sub">Sign in with your admin credentials</div>
+
+        <div class="admin-badge">
+            🛡️ Restricted area — <strong>Admin credentials required</strong>
+        </div>
+
+        <div class="error-msg" id="adminError"></div>
+        <div class="success-msg" id="adminSuccess"></div>
+
+        <div class="field">
+            <label>Admin ID</label>
+            <div class="field-wrap">
+                <span class="field-icon">🛡️</span>
+                <input type="text" id="adminId" placeholder="Enter admin ID" autocomplete="username">
+            </div>
+        </div>
+        <div class="field">
+            <label>Password</label>
+            <div class="field-wrap">
+                <span class="field-icon">🔒</span>
+                <input type="password" id="adminPass" placeholder="Enter password" autocomplete="current-password">
+            </div>
+        </div>
+        <div class="field">
+            <label>Secret Key</label>
+            <div class="field-wrap">
+                <span class="field-icon">🗝️</span>
+                <input type="password" id="adminSecret" placeholder="Enter admin secret key" onkeydown="if(event.key==='Enter')doAdminLogin()">
+            </div>
+        </div>
+
+        <button class="submit-btn" onclick="doAdminLogin()">Access Admin Panel →</button>
+
+        <div class="back-link">← <a href="index.html">Back to role selection</a></div>
     </div>
+</div>
 
-    <script src="script.js"></script>
-    <script>
-        function switchToAdminLogin() {
-            document.getElementById('adminSignupForm').classList.remove('active-form');
-            document.getElementById('adminLoginForm').classList.add('active-form');
-        }
+<script>
+/* CANVAS */
+const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
+let W,H;
+const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
+resize();window.addEventListener('resize',resize);
+class P{constructor(){this.reset(true)}reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+5;this.vx=(Math.random()-.5)*.25;this.vy=-(Math.random()*.35+.08);this.r=Math.random()*1.3+.2;this.life=Math.random()*.6+.2;this.ml=this.life;this.col=Math.random()>.5?'251,113,133':'249,115,22';}upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0012;if(this.life<=0||this.y<-8)this.reset(false);}drw(){const a=(this.life/this.ml)*.6;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(${this.col},${a})`;ctx.fill();}}
+class Orb{constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*180+80;this.vx=(Math.random()-.5)*.1;this.vy=(Math.random()-.5)*.1;this.col=Math.random()>.5?'251,113,133':'249,115,22';this.a=Math.random()*.02+.007;}upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}drw(){const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();}}
+const pts=Array.from({length:80},()=>new P()),orbs=Array.from({length:4},()=>new Orb());
+(function loop(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{o.upd();o.drw();});pts.forEach(p=>{p.upd();p.drw();});for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){const a=(1-d/80)*.06;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(251,113,133,${a})`;ctx.lineWidth=.5;ctx.stroke();}}}requestAnimationFrame(loop);})();
 
-        function switchToAdminSignup() {
-            document.getElementById('adminLoginForm').classList.remove('active-form');
-            document.getElementById('adminSignupForm').classList.add('active-form');
-        }
+document.querySelector('.submit-btn').addEventListener('click',function(e){const r=this.getBoundingClientRect(),s=document.createElement('span');s.className='ripple';s.style.cssText=`width:80px;height:80px;left:${e.clientX-r.left-40}px;top:${e.clientY-r.top-40}px`;this.appendChild(s);setTimeout(()=>s.remove(),700);});
 
-        document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
-        document.getElementById('adminSignupForm').addEventListener('submit', handleAdminSignup);
-    </script>
+const ADMIN_SECRET_KEY='admin@123';
+function doAdminLogin(){
+    const id=document.getElementById('adminId').value.trim();
+    const pass=document.getElementById('adminPass').value;
+    const secret=document.getElementById('adminSecret').value;
+    const errEl=document.getElementById('adminError');
+    const sucEl=document.getElementById('adminSuccess');
+    errEl.classList.remove('show');sucEl.classList.remove('show');
+    if(!id||!pass||!secret){errEl.textContent='Please fill in all fields.';errEl.classList.add('show');return;}
+    if(secret!==ADMIN_SECRET_KEY){errEl.textContent='Invalid secret key. Access denied.';errEl.classList.add('show');return;}
+    const admins=JSON.parse(localStorage.getItem('admins'))||{};
+    if(!admins[id]){
+        admins[id]={password:pass,createdAt:new Date().toLocaleDateString()};
+        localStorage.setItem('admins',JSON.stringify(admins));
+    } else if(admins[id].password!==pass){
+        errEl.textContent='Incorrect password.';errEl.classList.add('show');return;
+    }
+    sucEl.textContent='Access granted! Redirecting…';sucEl.classList.add('show');
+    localStorage.setItem('currentUser',JSON.stringify({userId:id,role:'admin'}));
+    setTimeout(()=>window.location.href='success.html',800);
+}
+</script>
 </body>
 </html>

@@ -3,28 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login System - Role Selection</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>EduPortal — Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#080c14; --surface:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08);
+            --accent:#63b3ed; --accent2:#9f7aea; --accent-admin:#fb7185; --accent-admin2:#f97316;
+            --text:#e8eaf0; --muted:#6b7494;
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+        #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+        body::before{content:'';position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;opacity:.55;}
+
+        .page{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+
+        /* Logo */
+        .logo{display:flex;align-items:center;gap:12px;margin-bottom:48px;animation:fade-up .6s ease both;}
+        .logo-mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 24px rgba(99,179,237,.4);animation:logo-float 3s ease-in-out infinite;}
+        @keyframes logo-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(5deg)}}
+        .logo-name{font-family:'Syne',sans-serif;font-size:1.6em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+        /* Tagline */
+        .tagline{text-align:center;margin-bottom:52px;animation:fade-up .6s .1s ease both;}
+        .tagline h1{font-family:'Syne',sans-serif;font-size:2.2em;font-weight:800;line-height:1.2;margin-bottom:10px;}
+        .tagline h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .tagline p{color:var(--muted);font-size:.95em;max-width:380px;margin:0 auto;line-height:1.6;}
+
+        /* Cards */
+        .cards{display:flex;gap:20px;animation:fade-up .6s .2s ease both;}
+        @media(max-width:600px){.cards{flex-direction:column;width:100%;max-width:340px;}}
+
+        .role-card{width:240px;padding:28px 24px;background:var(--surface);border:1px solid var(--border);border-radius:22px;cursor:pointer;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1);text-align:center;}
+        @media(max-width:600px){.role-card{width:100%;}}
+        .role-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--rc1),var(--rc2));opacity:0;transition:opacity .4s;border-radius:22px;}
+        .role-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--rca),transparent);opacity:0;transition:opacity .3s;}
+        .role-card:hover{transform:translateY(-8px);border-color:rgba(255,255,255,.15);box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 40px var(--rcg);}
+        .role-card:hover::before{opacity:1;}
+        .role-card:hover::after{opacity:1;}
+        .role-card.student{--rc1:rgba(99,179,237,.08);--rc2:rgba(159,122,234,.04);--rca:var(--accent);--rcg:rgba(99,179,237,.15);}
+        .role-card.admin{--rc1:rgba(251,113,133,.08);--rc2:rgba(249,115,22,.04);--rca:var(--accent-admin);--rcg:rgba(251,113,133,.15);}
+
+        .role-icon-wrap{width:64px;height:64px;border-radius:18px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:1.8em;position:relative;z-index:1;transition:transform .3s;}
+        .role-card:hover .role-icon-wrap{transform:scale(1.1) rotate(-5deg);}
+        .role-card.student .role-icon-wrap{background:rgba(99,179,237,.12);box-shadow:0 0 20px rgba(99,179,237,.2);}
+        .role-card.admin   .role-icon-wrap{background:rgba(251,113,133,.12);box-shadow:0 0 20px rgba(251,113,133,.2);}
+
+        .role-title{font-family:'Syne',sans-serif;font-size:1.1em;font-weight:800;margin-bottom:6px;position:relative;z-index:1;}
+        .role-desc{font-size:.8em;color:var(--muted);line-height:1.5;margin-bottom:20px;position:relative;z-index:1;}
+
+        .role-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:11px;border:1px solid;font-family:'DM Sans',sans-serif;font-size:.87em;font-weight:600;cursor:pointer;transition:all .3s;position:relative;z-index:1;}
+        .role-card.student .role-btn{border-color:rgba(99,179,237,.3);color:var(--accent);background:rgba(99,179,237,.08);}
+        .role-card.student .role-btn:hover{background:var(--accent);color:#080c14;border-color:transparent;}
+        .role-card.admin   .role-btn{border-color:rgba(251,113,133,.3);color:var(--accent-admin);background:rgba(251,113,133,.08);}
+        .role-card.admin   .role-btn:hover{background:var(--accent-admin);color:#080c14;border-color:transparent;}
+
+        /* Divider between cards */
+        .card-or{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:.78em;font-weight:600;letter-spacing:.05em;padding:0 4px;}
+        @media(max-width:600px){.card-or{flex-direction:row;padding:4px 0;}}
+        .card-or::before,.card-or::after{content:'';display:block;width:1px;height:40px;background:var(--border);}
+        @media(max-width:600px){.card-or::before,.card-or::after{width:40px;height:1px;}}
+
+        /* Footer */
+        .footer{position:fixed;bottom:24px;left:0;right:0;text-align:center;font-size:.75em;color:var(--muted);z-index:2;animation:fade-up .6s .4s ease both;}
+
+        @keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+        /* Ripple */
+        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.1);transform:scale(0);animation:rip .6s linear;pointer-events:none;}
+        @keyframes rip{to{transform:scale(4);opacity:0}}
+    </style>
 </head>
 <body>
-    <div class="role-container">
-        <div class="role-box">
-            <h1>Welcome</h1>
-            <p>Please select your role to continue</p>
-            
-            <div class="role-buttons">
-                <button class="btn btn-student" onclick="location.href='student.html'">
-                    <span class="icon">👨‍🎓</span>
-                    <span>Student</span>
-                </button>
-                <button class="btn btn-admin" onclick="location.href='admin.html'">
-                    <span class="icon">👨‍💼</span>
-                    <span>Admin</span>
-                </button>
-            </div>
-        </div>
+<canvas id="bgCanvas"></canvas>
+<div class="page">
+    <div class="logo">
+        <div class="logo-mark">📚</div>
+        <div class="logo-name">EduPortal</div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="tagline">
+        <h1>Your learning journey<br>starts <span>here</span></h1>
+        <p>Access your courses, assignments, and grades — or manage the entire portal as an admin.</p>
+    </div>
+
+    <div class="cards">
+        <div class="role-card student" onclick="go('student.html')">
+            <div class="role-icon-wrap">🎓</div>
+            <div class="role-title">Student</div>
+            <div class="role-desc">Access your courses, track progress, submit assignments, and view grades.</div>
+            <button class="role-btn">Enter as Student →</button>
+        </div>
+
+        <div class="card-or">OR</div>
+
+        <div class="role-card admin" onclick="go('admin.html')">
+            <div class="role-icon-wrap">🛡️</div>
+            <div class="role-title">Administrator</div>
+            <div class="role-desc">Manage students, subjects, and monitor performance across all courses.</div>
+            <button class="role-btn">Enter as Admin →</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">© 2026 EduPortal · Computer Science Department</div>
+
+<script>
+/* CANVAS */
+const cv=document.getElementById('bgCanvas'),cx=cv.getContext('2d');
+let W,H;
+const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
+resize();window.addEventListener('resize',resize);
+class P{
+    constructor(){this.reset(true)}
+    reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+5;this.vx=(Math.random()-.5)*.25;this.vy=-(Math.random()*.35+.08);this.r=Math.random()*1.3+.2;this.life=Math.random()*.6+.2;this.ml=this.life;this.col=Math.random()>.5?'99,179,237':'159,122,234';}
+    upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0012;if(this.life<=0||this.y<-8)this.reset(false);}
+    drw(){const a=(this.life/this.ml)*.6;cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fillStyle=`rgba(${this.col},${a})`;cx.fill();}
+}
+class Orb{
+    constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*200+100;this.vx=(Math.random()-.5)*.1;this.vy=(Math.random()-.5)*.1;this.col=Math.random()>.5?'99,179,237':'159,122,234';this.a=Math.random()*.025+.008;}
+    upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}
+    drw(){const g=cx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fillStyle=g;cx.fill();}
+}
+const pts=Array.from({length:80},()=>new P());
+const orbs=Array.from({length:4},()=>new Orb());
+(function loop(){
+    cx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{o.upd();o.drw();});
+    pts.forEach(p=>{p.upd();p.drw();});
+    for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){const a=(1-d/90)*.06;cx.beginPath();cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.strokeStyle=`rgba(99,179,237,${a})`;cx.lineWidth=.5;cx.stroke();}}}
+    requestAnimationFrame(loop);
+})();
+
+/* Ripple + nav */
+document.querySelectorAll('.role-card').forEach(el=>{
+    el.addEventListener('click',function(e){
+        const r=this.getBoundingClientRect(),s=document.createElement('span');
+        s.className='ripple';s.style.cssText=`width:80px;height:80px;left:${e.clientX-r.left-40}px;top:${e.clientY-r.top-40}px`;
+        this.appendChild(s);setTimeout(()=>s.remove(),700);
+    });
+});
+
+function go(url){
+    document.querySelector('.page').style.animation='fade-out .3s ease forwards';
+    setTimeout(()=>window.location.href=url,280);
+}
+const style=document.createElement('style');
+style.textContent='@keyframes fade-out{to{opacity:0;transform:translateY(-10px)}}';
+document.head.appendChild(style);
+</script>
 </body>
 </html>
