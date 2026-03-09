@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #f0f2f8;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .course-topbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .course-topbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.95em;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .course-topbar a:hover { opacity: 1; }
+
+        .topbar-title {
+            font-size: 1.15em;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .topbar-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Layout */
+        .course-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Sidebar */
+        .modules-sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #e8eaf0;
+            overflow-y: auto;
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            flex-shrink: 0;
+        }
+
+        .sidebar-course-header {
+            padding: 22px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-course-header h2 {
+            font-size: 1.05em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-course-header p {
+            font-size: 0.82em;
+            opacity: 0.85;
+        }
+
+        .progress-wrap {
+            margin-top: 12px;
+        }
+
+        .progress-label {
+            font-size: 0.78em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-track {
+            height: 5px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ffd700;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Module accordion */
+        .module-group { border-bottom: 1px solid #eef0f5; }
+
+        .module-header {
+            padding: 14px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fafbff;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .module-header:hover { background: #f0f3ff; }
+
+        .module-header.active { background: #eff1ff; }
+
+        .module-num {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.78em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .module-num.completed { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+
+        .module-title-wrap { flex: 1 }
+
+        .module-title {
+            font-size: 0.88em;
+            font-weight: 600;
+            color: #2d3561;
+            line-height: 1.3;
+        }
+
+        .module-meta {
+            font-size: 0.74em;
+            color: #8890aa;
+            margin-top: 2px;
+        }
+
+        .module-chevron {
+            font-size: 0.7em;
+            color: #aab;
+            transition: transform 0.25s;
+        }
+
+        .module-header.open .module-chevron { transform: rotate(90deg); }
+
+        /* Topic list */
+        .topics-list { display: none; }
+        .topics-list.open { display: block; }
+
+        .topic-item {
+            padding: 10px 18px 10px 56px;
+            cursor: pointer;
+            font-size: 0.84em;
+            color: #555f7a;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topic-item:hover {
+            background: #f5f7ff;
+            color: #667eea;
+            border-left-color: #c5caff;
+        }
+
+        .topic-item.active {
+            background: #eef0ff;
+            color: #667eea;
+            font-weight: 600;
+            border-left-color: #667eea;
+        }
+
+        .topic-item.completed { color: #27ae60; }
+
+        .topic-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #ccc;
+            flex-shrink: 0;
+        }
+
+        .topic-item.active .topic-dot { background: #667eea; }
+        .topic-item.completed .topic-dot { background: #27ae60; }
+
+        /* Main Content */
+        .content-area {
+            flex: 1;
+            padding: 36px 44px;
+            overflow-y: auto;
+            max-width: 900px;
+        }
+
+        .content-breadcrumb {
+            font-size: 0.82em;
+            color: #8890aa;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-breadcrumb span { color: #667eea; font-weight: 500; }
+
+        .content-title {
+            font-size: 1.75em;
+            font-weight: 700;
+            color: #1a1f3d;
+            margin-bottom: 8px;
+            line-height: 1.25;
+        }
+
+        .content-subtitle {
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 28px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #eef0f8;
+        }
+
+        /* Content blocks */
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .content-section h3 {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #2d3561;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-section h3::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .content-section p {
+            color: #4a5270;
+            line-height: 1.8;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+
+        /* Key concepts box */
+        .key-concepts {
+            background: linear-gradient(135deg, #f0f3ff 0%, #f5f0ff 100%);
+            border: 1px solid #dde2ff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+
+        .key-concepts h4 {
+            color: #667eea;
+            font-size: 0.88em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .concept-tag {
+            background: white;
+            border: 1px solid #c8d0ff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.84em;
+            color: #4454aa;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .concept-tag::before { content: '▸'; color: #667eea; }
+
+        /* Info card */
+        .info-card {
+            background: white;
+            border: 1px solid #e8eaf0;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 16px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .info-card h4 {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #2d3561;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card p {
+            font-size: 0.88em;
+            color: #5a6380;
+            line-height: 1.7;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #1e2340;
+            color: #a8b5e8;
+            padding: 20px 24px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88em;
+            line-height: 1.7;
+            margin: 16px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block .code-label {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-size: 0.72em;
+            color: #667eea;
+            background: rgba(102,126,234,0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .code-keyword { color: #c792ea; }
+        .code-string { color: #c3e88d; }
+        .code-comment { color: #546e7a; font-style: italic; }
+        .code-type { color: #ffcb6b; }
+        .code-func { color: #82aaff; }
+
+        /* Steps list */
+        .steps-list {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        .steps-list li {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.78em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .steps-list li p {
+            margin: 0;
+            color: #4a5270;
+            font-size: 0.9em;
+            line-height: 1.65;
+        }
+
+        /* Highlight box */
+        .highlight-box {
+            background: #fff8e6;
+            border-left: 4px solid #f39c12;
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+        }
+
+        .highlight-box p {
+            color: #7a5800;
+            font-size: 0.88em;
+            margin: 0;
+        }
+
+        .highlight-box strong { color: #c47a00; }
+
+        /* Success box */
+        .success-box-content {
+            background: #f0fdf5;
+            border-left: 4px solid #27ae60;
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+        }
+
+        .success-box-content p {
+            color: #1a5c35;
+            font-size: 0.88em;
+            margin: 0;
+        }
+
+        /* Nav footer */
+        .topic-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 2px solid #eef0f8;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            border-radius: 10px;
+            border: 2px solid #dde2f5;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.88em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .nav-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-btn.primary-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .nav-btn.primary-btn:hover {
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .mark-btn {
+            padding: 12px 22px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88em;
+            transition: all 0.2s;
+        }
+
+        .mark-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39,174,96,0.35);
+        }
+
+        .mark-btn.marked {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+        }
+
+        /* Welcome screen */
+        .welcome-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .welcome-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-screen h2 {
+            font-size: 1.8em;
+            color: #2d3561;
+            margin-bottom: 12px;
+        }
+
+        .welcome-screen p {
+            color: #7a8299;
+            font-size: 1em;
+            line-height: 1.7;
+            max-width: 480px;
+            margin: 0 auto 30px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 20px rgba(102,126,234,0.35);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.5);
+        }
+
+        @media (max-width: 900px) {
+            .modules-sidebar { width: 240px; }
+            .content-area { padding: 24px 20px; }
+        }
+
+        @media (max-width: 650px) {
+            .course-layout { flex-direction: column; }
+            .modules-sidebar { width: 100%; height: auto; position: static; }
+            .content-area { padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="course-topbar">
+    <a href="student_dashboard.html">← Dashboard</a>
+    <div class="topbar-title" id="topbarTitle">Course Viewer</div>
+    <div class="topbar-badge" id="topbarBadge">Loading...</div>
+</div>
+
+<div class="course-layout">
+    <!-- Sidebar -->
+    <aside class="modules-sidebar">
+        <div class="sidebar-course-header">
+            <h2 id="sidebarCourseTitle">Course</h2>
+            <p id="sidebarInstructor"></p>
+            <div class="progress-wrap">
+                <div class="progress-label">
+                    <span>Progress</span>
+                    <span id="progressPct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+        <div id="modulesList"></div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content-area" id="contentArea">
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-icon" id="welcomeIcon">📚</div>
+            <h2 id="welcomeTitle">Welcome to the Course!</h2>
+            <p id="welcomeDesc">Select a topic from the sidebar to begin learning. Work through each module at your own pace.</p>
+            <button class="start-btn" onclick="startFirstTopic()">Start Learning →</button>
+        </div>
+    </main>
+</div>
+
+<script>
+// ============================================================
+// COURSE DATA
+// ============================================================
+const coursesData = {
+    'cloud-computing': {
+        title: 'Cloud Computing',
+        instructor: 'Mr. Monish',
+        icon: '☁️',
+        modules: [
+            {
+                title: 'Module 1: Introduction to Cloud Computing',
+                topics: [
+                    {
+                        title: 'What is Cloud Computing?',
+                        content: `
+                            <div class="content-section">
+                                <h3>Overview</h3>
+                                <p>Cloud computing is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over the Internet ("the cloud") to offer faster innovation, flexible resources, and economies of scale.</p>
+                                <p>Instead of owning your own computing infrastructure or data centers, you can rent access to anything from applications to storage from a cloud service provider.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Key Concepts</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">On-Demand Self-Service</div>
+                                    <div class="concept-tag">Broad Network Access</div>
+                                    <div class="concept-tag">Resource Pooling</div>
+                                    <div class="concept-tag">Rapid Elasticity</div>
+                                    <div class="concept-tag">Measured Service</div>
+                                </div>
+                            </div>
+                            <div class="content-section">
+                                <h3>Benefits of Cloud Computing</h3>
+                                <ul class="steps-list">
+                                    <li><div class="step-num">1</div><p><strong>Cost Efficiency:</strong> Eliminate the capital expense of buying hardware and software, and reduce your data center costs.</p></li>
+                                    <li><div class="step-num">2</div><p><strong>Speed & Agility:</strong> Provision vast amounts of computing resources in minutes with just a few mouse clicks.</p></li>
+                                    <li><div class="step-num">3</div><p><strong>Global Scale:</strong> Scale elastically, delivering the right amount of IT resources from the right geographic location.</p></li>
+                                    <li><div class="step-num">4</div><p><strong>Reliability:</strong> Data backup, disaster recovery, and business continuity easier and less expensive.</p></li>
+                                </ul>
+                            </div>
+                            <div class="highlight-box"><p><strong>📌 Remember:</strong> NIST defines cloud computing through five essential characteristics, three service models, and four deployment models.</p></div>
+                        `
+                    },
+                    {
+                        title: 'History & Evolution',
+                        content: `
+                            <div class="content-section">
+                                <h3>Evolution of Cloud Computing</h3>
+                                <p>Cloud computing has evolved over decades from time-sharing concepts of the 1960s to the modern multi-cloud environments we use today.</p>
+                            </div>
+                            <div class="info-card"><h4>🕰️ 1960s – Mainframe Era</h4><p>IBM introduced time-sharing on mainframes. John McCarthy predicted computing as a public utility — the earliest conceptual foundation of cloud.</p></div>
+                            <div class="info-card"><h4>📡 1990s – Internet & Virtualization</h4><p>Salesforce launched in 1999 as the first true SaaS company. VMware popularized virtualization, enabling multiple virtual machines on a single physical server.</p></div>
+                            <div class="info-card"><h4>☁️ 2006 – AWS Launch</h4><p>Amazon Web Services launched EC2 and S3, democratizing access to scalable infrastructure. This marked the beginning of modern public cloud computing.</p></div>
+                            <div class="info-card"><h4>🚀 2010s–Present – Multi-cloud Era</h4><p>Google Cloud, Microsoft Azure, and hundreds of specialized cloud providers emerged. Kubernetes, containers, serverless, and edge computing expanded the ecosystem.</p></div>
+                            <div class="success-box-content"><p>Today, over 94% of enterprises use cloud services, with global cloud spending exceeding $500 billion annually.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Cloud Deployment Models',
+                        content: `
+                            <div class="content-section">
+                                <h3>Types of Cloud Deployments</h3>
+                                <p>Cloud environments are deployed in different ways depending on the organization's needs, security requirements, and budget.</p>
+                            </div>
+                            <div class="info-card"><h4>🌐 Public Cloud</h4><p>Owned and operated by third-party cloud service providers, delivering computing resources like servers and storage over the Internet. Examples: AWS, Azure, Google Cloud. Resources are shared among multiple tenants (multi-tenant).</p></div>
+                            <div class="info-card"><h4>🏢 Private Cloud</h4><p>Cloud infrastructure operated solely for a single organization. It can be physically located at the organization's on-site datacenter or hosted by a third-party service provider. Offers greater control, customization, and security.</p></div>
+                            <div class="info-card"><h4>🔀 Hybrid Cloud</h4><p>Combines public and private clouds, allowing data and applications to move between them. Gives businesses greater flexibility, more deployment options, and helps optimize existing infrastructure, security, and compliance.</p></div>
+                            <div class="info-card"><h4>🤝 Community Cloud</h4><p>Shared infrastructure between several organizations from a specific community with common concerns (security, compliance, jurisdiction). Costs are spread over fewer users than a public cloud, but more than a private cloud.</p></div>
+                            <div class="key-concepts">
+                                <h4>Key Differences</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Ownership & Control</div>
+                                    <div class="concept-tag">Cost Structure</div>
+                                    <div class="concept-tag">Security Level</div>
+                                    <div class="concept-tag">Scalability</div>
+                                    <div class="concept-tag">Compliance</div>
+                                </div>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 2: Cloud Service Models',
+                topics: [
+                    {
+                        title: 'IaaS – Infrastructure as a Service',
+                        content: `
+                            <div class="content-section">
+                                <h3>Infrastructure as a Service</h3>
+                                <p>IaaS delivers fundamental computing resources—virtual machines, storage, and networking—over the internet on a pay-per-use basis. It's the most flexible cloud service model, offering maximum control over your infrastructure.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>What IaaS Provides</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Virtual Machines</div>
+                                    <div class="concept-tag">Block & Object Storage</div>
+                                    <div class="concept-tag">Virtual Networking</div>
+                                    <div class="concept-tag">Load Balancers</div>
+                                    <div class="concept-tag">Firewalls & Security Groups</div>
+                                    <div class="concept-tag">Auto-Scaling</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>🌟 Popular IaaS Providers</h4><p><strong>AWS EC2</strong> – Elastic Compute Cloud for virtual servers<br><strong>Azure VMs</strong> – Microsoft's virtual machine service<br><strong>Google Compute Engine</strong> – GCP's VM offering<br><strong>DigitalOcean Droplets</strong> – Developer-friendly VMs</p></div>
+                            <div class="content-section">
+                                <h3>Responsibility Model</h3>
+                                <p>In IaaS, the provider manages: physical servers, networking hardware, storage hardware, and virtualization layer. <strong>You manage:</strong> OS, middleware, runtime, applications, and data.</p>
+                            </div>
+                            <div class="highlight-box"><p><strong>Best for:</strong> Startups needing flexibility, enterprises migrating workloads, businesses with variable demand patterns.</p></div>
+                        `
+                    },
+                    {
+                        title: 'PaaS – Platform as a Service',
+                        content: `
+                            <div class="content-section">
+                                <h3>Platform as a Service</h3>
+                                <p>PaaS provides a development and deployment environment in the cloud, with resources that enable developers to deliver everything from simple cloud-based apps to sophisticated, cloud-enabled enterprise applications. You don't manage the underlying infrastructure.</p>
+                            </div>
+                            <div class="info-card"><h4>🛠️ PaaS Examples</h4><p><strong>Heroku</strong> – Simplified app deployment platform<br><strong>Google App Engine</strong> – Managed application platform<br><strong>AWS Elastic Beanstalk</strong> – Easy app deployment & scaling<br><strong>Azure App Service</strong> – Build and host web apps</p></div>
+                            <div class="content-section">
+                                <h3>PaaS Features</h3>
+                                <ul class="steps-list">
+                                    <li><div class="step-num">1</div><p><strong>Development Tools:</strong> IDEs, version control, build tools integrated into the platform.</p></li>
+                                    <li><div class="step-num">2</div><p><strong>Database Management:</strong> Managed DB services (PostgreSQL, MySQL, NoSQL) with automatic backups.</p></li>
+                                    <li><div class="step-num">3</div><p><strong>Middleware:</strong> Pre-configured messaging queues, caching layers, and API gateways.</p></li>
+                                    <li><div class="step-num">4</div><p><strong>CI/CD Pipelines:</strong> Built-in continuous integration and deployment workflows.</p></li>
+                                </ul>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'SaaS – Software as a Service',
+                        content: `
+                            <div class="content-section">
+                                <h3>Software as a Service</h3>
+                                <p>SaaS delivers software applications over the Internet, on demand, and typically on a subscription basis. Cloud providers host and manage the software application and underlying infrastructure, handling maintenance like software upgrades and security patching.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Popular SaaS Applications</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Gmail / Google Workspace</div>
+                                    <div class="concept-tag">Microsoft 365</div>
+                                    <div class="concept-tag">Salesforce CRM</div>
+                                    <div class="concept-tag">Slack</div>
+                                    <div class="concept-tag">Zoom</div>
+                                    <div class="concept-tag">Dropbox</div>
+                                </div>
+                            </div>
+                            <div class="content-section">
+                                <h3>Advantages of SaaS</h3>
+                                <p>SaaS eliminates the need to install and run applications on individual computers. Users simply connect to the app over the Internet, usually with a web browser. This removes the complexity of software maintenance, ongoing patches, and diverse requirements for hardware and software.</p>
+                            </div>
+                            <div class="success-box-content"><p>The SaaS market is projected to reach $900+ billion by 2030. SaaS is the dominant delivery model for business software today.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 3: Virtualization',
+                topics: [
+                    {
+                        title: 'Virtualization Concepts',
+                        content: `
+                            <div class="content-section">
+                                <h3>What is Virtualization?</h3>
+                                <p>Virtualization is the process of creating a software-based (virtual) version of something—including virtual computer hardware platforms, storage devices, and computer network resources. It's the technology that powers cloud computing.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Types of Virtualization</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Server Virtualization</div>
+                                    <div class="concept-tag">Network Virtualization</div>
+                                    <div class="concept-tag">Storage Virtualization</div>
+                                    <div class="concept-tag">Desktop Virtualization</div>
+                                    <div class="concept-tag">Application Virtualization</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>🖥️ Hypervisors</h4><p>A hypervisor (VMM – Virtual Machine Monitor) creates and runs virtual machines. <strong>Type 1 (Bare-metal):</strong> Runs directly on host hardware (VMware ESXi, Microsoft Hyper-V). <strong>Type 2 (Hosted):</strong> Runs on a host OS (VirtualBox, VMware Workstation).</p></div>
+                            <div class="highlight-box"><p><strong>Key benefit:</strong> One physical server can run many virtual machines, each with its own OS—dramatically improving hardware utilization from ~15% to 80%+.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Containers & Docker',
+                        content: `
+                            <div class="content-section">
+                                <h3>Containerization</h3>
+                                <p>Containers are a lightweight, standalone, executable software package that includes everything needed to run an application: code, runtime, system tools, system libraries, and settings. Containers differ from VMs—they share the host OS kernel rather than virtualizing hardware.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Dockerfile</div>
+<span class="code-comment"># Start from official Node.js image</span>
+<span class="code-keyword">FROM</span> node:<span class="code-type">18-alpine</span>
+
+<span class="code-comment"># Set working directory</span>
+<span class="code-keyword">WORKDIR</span> /app
+
+<span class="code-comment"># Copy package files and install dependencies</span>
+<span class="code-keyword">COPY</span> package*.json ./
+<span class="code-keyword">RUN</span> npm install
+
+<span class="code-comment"># Copy source code</span>
+<span class="code-keyword">COPY</span> . .
+
+<span class="code-comment"># Expose port and start app</span>
+<span class="code-keyword">EXPOSE</span> 3000
+<span class="code-keyword">CMD</span> [<span class="code-string">"node"</span>, <span class="code-string">"app.js"</span>]</div>
+                            <div class="info-card"><h4>🐋 Docker Key Commands</h4><p><code>docker build -t myapp .</code> — Build an image<br><code>docker run -p 3000:3000 myapp</code> — Run a container<br><code>docker ps</code> — List running containers<br><code>docker-compose up</code> — Start multi-container apps</p></div>
+                        `
+                    },
+                    {
+                        title: 'Kubernetes Orchestration',
+                        content: `
+                            <div class="content-section">
+                                <h3>Kubernetes (K8s)</h3>
+                                <p>Kubernetes is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications. Originally developed by Google, it's now maintained by the Cloud Native Computing Foundation (CNCF).</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Kubernetes Components</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Pods</div>
+                                    <div class="concept-tag">Nodes</div>
+                                    <div class="concept-tag">Deployments</div>
+                                    <div class="concept-tag">Services</div>
+                                    <div class="concept-tag">ConfigMaps</div>
+                                    <div class="concept-tag">Ingress</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>Why Kubernetes?</strong> Handles container scheduling, self-healing (restarts failed containers), horizontal scaling, rolling updates, and service discovery automatically.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 4: Cloud Storage & Databases',
+                topics: [
+                    {
+                        title: 'Cloud Storage Types',
+                        content: `
+                            <div class="content-section">
+                                <h3>Types of Cloud Storage</h3>
+                                <p>Cloud storage allows you to save data and files in an off-site location accessible via the public internet or a private network connection. Different storage types serve different use cases.</p>
+                            </div>
+                            <div class="info-card"><h4>📦 Object Storage</h4><p>Stores data as objects (files + metadata + unique ID). Ideal for unstructured data: images, videos, backups. Massively scalable. Examples: AWS S3, Google Cloud Storage, Azure Blob Storage.</p></div>
+                            <div class="info-card"><h4>💽 Block Storage</h4><p>Stores data in fixed-size blocks, like a traditional hard drive. Best for databases and OS volumes where low-latency access matters. Examples: AWS EBS, Azure Managed Disks.</p></div>
+                            <div class="info-card"><h4>📁 File Storage</h4><p>Hierarchical storage like a file system, accessible via NFS or SMB protocols. Best for shared access across multiple servers. Examples: AWS EFS, Azure Files, Google Filestore.</p></div>
+                            <div class="key-concepts">
+                                <h4>Storage Characteristics</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Durability (11 nines)</div>
+                                    <div class="concept-tag">Availability SLAs</div>
+                                    <div class="concept-tag">Access Latency</div>
+                                    <div class="concept-tag">Cost per GB</div>
+                                    <div class="concept-tag">Replication</div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Cloud Databases',
+                        content: `
+                            <div class="content-section">
+                                <h3>Cloud Database Services</h3>
+                                <p>Cloud databases are database services built and accessed through a cloud platform. They can be self-managed (you install DB on a cloud VM) or fully managed (provider handles administration).</p>
+                            </div>
+                            <div class="info-card"><h4>🗄️ Relational (SQL) Databases</h4><p><strong>Amazon RDS</strong> – Supports MySQL, PostgreSQL, Oracle, SQL Server<br><strong>Google Cloud SQL</strong> – Managed MySQL and PostgreSQL<br><strong>Azure SQL Database</strong> – Fully managed SQL Server<br><strong>Amazon Aurora</strong> – MySQL/PostgreSQL-compatible, 5x faster</p></div>
+                            <div class="info-card"><h4>🌿 NoSQL Databases</h4><p><strong>Amazon DynamoDB</strong> – Key-value & document, single-digit ms latency<br><strong>Google Firestore</strong> – Document database for mobile/web<br><strong>Azure Cosmos DB</strong> – Multi-model, globally distributed<br><strong>MongoDB Atlas</strong> – Managed MongoDB service</p></div>
+                            <div class="highlight-box"><p><strong>CAP Theorem:</strong> A distributed database can provide only two of: Consistency, Availability, and Partition Tolerance simultaneously.</p></div>
+                        `
+                    },
+                    {
+                        title: 'CDN & Caching',
+                        content: `
+                            <div class="content-section">
+                                <h3>Content Delivery Networks</h3>
+                                <p>A CDN is a geographically distributed network of proxy servers and their data centers, serving content to end-users with high availability and performance. CDNs dramatically reduce latency by serving content from edge locations closest to users.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Popular CDN Providers</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Cloudflare</div>
+                                    <div class="concept-tag">AWS CloudFront</div>
+                                    <div class="concept-tag">Azure CDN</div>
+                                    <div class="concept-tag">Fastly</div>
+                                    <div class="concept-tag">Akamai</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>⚡ Cloud Caching Services</h4><p><strong>Amazon ElastiCache</strong> – Managed Redis & Memcached<br><strong>Azure Cache for Redis</strong> – Fully managed Redis<br>Caching reduces database load by storing frequently accessed data in memory, achieving sub-millisecond response times.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 5: Cloud Security & DevOps',
+                topics: [
+                    {
+                        title: 'Cloud Security Fundamentals',
+                        content: `
+                            <div class="content-section">
+                                <h3>Securing the Cloud</h3>
+                                <p>Cloud security encompasses the technologies, policies, controls, and services that protect cloud data, applications, and infrastructure from threats. Security is a shared responsibility between the cloud provider and the customer.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Security Pillars</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Identity & Access Management</div>
+                                    <div class="concept-tag">Data Encryption</div>
+                                    <div class="concept-tag">Network Security</div>
+                                    <div class="concept-tag">Compliance & Governance</div>
+                                    <div class="concept-tag">Threat Detection</div>
+                                    <div class="concept-tag">Zero Trust Architecture</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>🔐 IAM Best Practices</h4><p>• Apply least privilege principle — grant only necessary permissions<br>• Enable Multi-Factor Authentication (MFA) for all accounts<br>• Use roles and policies instead of long-term access keys<br>• Regularly audit and rotate credentials<br>• Enable CloudTrail / audit logging for all API calls</p></div>
+                        `
+                    },
+                    {
+                        title: 'DevOps & CI/CD in Cloud',
+                        content: `
+                            <div class="content-section">
+                                <h3>DevOps in the Cloud</h3>
+                                <p>DevOps is a set of practices that combines software development (Dev) and IT operations (Ops), aiming to shorten the development lifecycle and provide continuous delivery of high-quality software.</p>
+                            </div>
+                            <div class="info-card"><h4>🔄 CI/CD Pipeline</h4><p><strong>CI (Continuous Integration):</strong> Developers merge code frequently; automated tests run on every commit.<br><strong>CD (Continuous Delivery/Deployment):</strong> Automatically deploy tested code to staging or production environments.</p></div>
+                            <div class="key-concepts">
+                                <h4>DevOps Tools</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">GitHub Actions</div>
+                                    <div class="concept-tag">Jenkins</div>
+                                    <div class="concept-tag">AWS CodePipeline</div>
+                                    <div class="concept-tag">Terraform (IaC)</div>
+                                    <div class="concept-tag">Ansible</div>
+                                    <div class="concept-tag">Prometheus & Grafana</div>
+                                </div>
+                            </div>
+                            <div class="success-box-content"><p>Organizations practicing DevOps deploy 46x more frequently with 96x faster mean time to recover from failures compared to traditional organizations.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Serverless Computing',
+                        content: `
+                            <div class="content-section">
+                                <h3>Serverless Architecture</h3>
+                                <p>Serverless computing is a cloud execution model where the cloud provider dynamically manages the allocation and provisioning of servers. You write and deploy code without worrying about the underlying infrastructure. You only pay for the compute time consumed.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">AWS Lambda</div>
+<span class="code-keyword">exports</span>.handler = <span class="code-keyword">async</span> (<span class="code-type">event</span>) => {
+  <span class="code-comment">// Parse incoming request</span>
+  <span class="code-keyword">const</span> name = event.queryStringParameters?.name || <span class="code-string">'World'</span>;
+
+  <span class="code-comment">// Process and return response</span>
+  <span class="code-keyword">return</span> {
+    statusCode: <span class="code-type">200</span>,
+    body: JSON.stringify({ message: <span class="code-string">\`Hello, \${name}!\`</span> })
+  };
+};</div>
+                            <div class="info-card"><h4>⚡ Serverless Platforms</h4><p><strong>AWS Lambda</strong> – Functions triggered by events, supports 15 languages<br><strong>Google Cloud Functions</strong> – Lightweight, event-driven functions<br><strong>Azure Functions</strong> – Serverless compute with rich triggers<br><strong>Vercel / Netlify</strong> – Frontend-focused serverless platforms</p></div>
+                        `
+                    }
+                ]
+            }
+        ]
+    },
+
+    'advance-java': {
+        title: 'Advance Java',
+        instructor: 'Mr. Imran ulla khan',
+        icon: '☕',
+        modules: [
+            {
+                title: 'Module 1: Java Fundamentals Refresher',
+                topics: [
+                    {
+                        title: 'OOP Concepts in Java',
+                        content: `
+                            <div class="content-section">
+                                <h3>Object-Oriented Programming</h3>
+                                <p>Java is a pure object-oriented language built on four pillars: Encapsulation, Inheritance, Polymorphism, and Abstraction. Understanding these deeply is crucial for advanced Java development.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Four OOP Pillars</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Encapsulation</div>
+                                    <div class="concept-tag">Inheritance</div>
+                                    <div class="concept-tag">Polymorphism</div>
+                                    <div class="concept-tag">Abstraction</div>
+                                </div>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Java</div>
+<span class="code-comment">// Abstract class demonstrating abstraction</span>
+<span class="code-keyword">abstract class</span> <span class="code-type">Animal</span> {
+    <span class="code-keyword">private</span> <span class="code-type">String</span> name;  <span class="code-comment">// Encapsulation</span>
+
+    <span class="code-keyword">public</span> <span class="code-type">Animal</span>(<span class="code-type">String</span> name) { <span class="code-keyword">this</span>.name = name; }
+    <span class="code-keyword">public</span> <span class="code-type">String</span> <span class="code-func">getName</span>() { <span class="code-keyword">return</span> name; }
+
+    <span class="code-keyword">abstract void</span> <span class="code-func">makeSound</span>();  <span class="code-comment">// Abstract method</span>
+}
+
+<span class="code-keyword">class</span> <span class="code-type">Dog</span> <span class="code-keyword">extends</span> <span class="code-type">Animal</span> {  <span class="code-comment">// Inheritance</span>
+    <span class="code-keyword">public</span> <span class="code-type">Dog</span>(<span class="code-type">String</span> name) { <span class="code-keyword">super</span>(name); }
+
+    @Override
+    <span class="code-keyword">void</span> <span class="code-func">makeSound</span>() {  <span class="code-comment">// Polymorphism</span>
+        System.out.<span class="code-func">println</span>(getName() + <span class="code-string">" says: Woof!"</span>);
+    }
+}</div>
+                        `
+                    },
+                    {
+                        title: 'Generics & Collections',
+                        content: `
+                            <div class="content-section">
+                                <h3>Java Generics</h3>
+                                <p>Generics enable types (classes and interfaces) to be parameters when defining classes, interfaces, and methods. They provide stronger type checks at compile time and eliminate the need for casting.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Java Generics</div>
+<span class="code-comment">// Generic Stack implementation</span>
+<span class="code-keyword">public class</span> <span class="code-type">Stack</span>&lt;<span class="code-type">T</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-type">List</span>&lt;<span class="code-type">T</span>&gt; elements = <span class="code-keyword">new</span> <span class="code-type">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public void</span> <span class="code-func">push</span>(<span class="code-type">T</span> item) { elements.<span class="code-func">add</span>(item); }
+
+    <span class="code-keyword">public</span> <span class="code-type">T</span> <span class="code-func">pop</span>() {
+        <span class="code-keyword">if</span> (elements.<span class="code-func">isEmpty</span>()) <span class="code-keyword">throw new</span> <span class="code-type">EmptyStackException</span>();
+        <span class="code-keyword">return</span> elements.<span class="code-func">remove</span>(elements.<span class="code-func">size</span>() - 1);
+    }
+}</div>
+                            <div class="key-concepts">
+                                <h4>Java Collections Framework</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">ArrayList</div>
+                                    <div class="concept-tag">LinkedList</div>
+                                    <div class="concept-tag">HashMap</div>
+                                    <div class="concept-tag">TreeMap</div>
+                                    <div class="concept-tag">HashSet</div>
+                                    <div class="concept-tag">PriorityQueue</div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Exception Handling',
+                        content: `
+                            <div class="content-section">
+                                <h3>Advanced Exception Handling</h3>
+                                <p>Java's exception handling mechanism manages runtime errors gracefully. Advanced features include multi-catch, try-with-resources, custom exceptions, and chained exceptions.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Java</div>
+<span class="code-comment">// Try-with-resources (auto-closes resources)</span>
+<span class="code-keyword">try</span> (<span class="code-type">FileReader</span> fr = <span class="code-keyword">new</span> <span class="code-type">FileReader</span>(<span class="code-string">"file.txt"</span>);
+     <span class="code-type">BufferedReader</span> br = <span class="code-keyword">new</span> <span class="code-type">BufferedReader</span>(fr)) {
+
+    <span class="code-type">String</span> line;
+    <span class="code-keyword">while</span> ((line = br.<span class="code-func">readLine</span>()) != <span class="code-keyword">null</span>) {
+        System.out.<span class="code-func">println</span>(line);
+    }
+} <span class="code-keyword">catch</span> (<span class="code-type">IOException</span> | <span class="code-type">SecurityException</span> e) {
+    <span class="code-comment">// Multi-catch block</span>
+    e.<span class="code-func">printStackTrace</span>();
+}</div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 2: Multithreading & Concurrency',
+                topics: [
+                    {
+                        title: 'Threads and Thread Lifecycle',
+                        content: `
+                            <div class="content-section">
+                                <h3>Java Multithreading</h3>
+                                <p>Multithreading is a Java feature that allows concurrent execution of two or more parts of a program for maximum utilization of CPU. Each part of such a program is called a thread.</p>
+                            </div>
+                            <div class="info-card"><h4>🔄 Thread Lifecycle States</h4><p><strong>New</strong> → Thread created but not started<br><strong>Runnable</strong> → Thread is ready to run<br><strong>Running</strong> → Thread is executing<br><strong>Blocked/Waiting</strong> → Thread is waiting for a resource<br><strong>Terminated</strong> → Thread has completed execution</p></div>
+                            <div class="code-block">
+                                <div class="code-label">Java Thread</div>
+<span class="code-comment">// Method 1: Extending Thread class</span>
+<span class="code-keyword">class</span> <span class="code-type">MyThread</span> <span class="code-keyword">extends</span> <span class="code-type">Thread</span> {
+    <span class="code-keyword">public void</span> <span class="code-func">run</span>() {
+        System.out.<span class="code-func">println</span>(<span class="code-string">"Thread: "</span> + Thread.<span class="code-func">currentThread</span>().<span class="code-func">getName</span>());
+    }
+}
+
+<span class="code-comment">// Method 2: Implementing Runnable (preferred)</span>
+<span class="code-type">Runnable</span> task = () -> System.out.<span class="code-func">println</span>(<span class="code-string">"Lambda thread!"</span>);
+<span class="code-keyword">new</span> <span class="code-type">Thread</span>(task).<span class="code-func">start</span>();</div>
+                        `
+                    },
+                    {
+                        title: 'Synchronization',
+                        content: `
+                            <div class="content-section">
+                                <h3>Thread Synchronization</h3>
+                                <p>Synchronization controls access to shared resources, preventing race conditions and ensuring thread safety. Java provides the synchronized keyword and the java.util.concurrent package for this.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Java Synchronization</div>
+<span class="code-keyword">class</span> <span class="code-type">Counter</span> {
+    <span class="code-keyword">private int</span> count = 0;
+
+    <span class="code-comment">// Synchronized method - only one thread at a time</span>
+    <span class="code-keyword">public synchronized void</span> <span class="code-func">increment</span>() { count++; }
+    <span class="code-keyword">public synchronized int</span> <span class="code-func">getCount</span>() { <span class="code-keyword">return</span> count; }
+
+    <span class="code-comment">// Synchronized block for finer granularity</span>
+    <span class="code-keyword">public void</span> <span class="code-func">doWork</span>() {
+        <span class="code-keyword">synchronized</span>(<span class="code-keyword">this</span>) {
+            <span class="code-comment">// Only this block is synchronized</span>
+            count += 2;
+        }
+    }
+}</div>
+                            <div class="highlight-box"><p><strong>Deadlock Prevention:</strong> Always acquire locks in the same order, use tryLock() with timeout, and minimize synchronized scope.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Executor Framework',
+                        content: `
+                            <div class="content-section">
+                                <h3>Java Executor Framework</h3>
+                                <p>The Executor framework (java.util.concurrent) provides a high-level API for managing thread pools, tasks, and asynchronous computations. It decouples task submission from thread management.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">ExecutorService</div>
+<span class="code-comment">// Create a thread pool with 4 threads</span>
+<span class="code-type">ExecutorService</span> executor = Executors.<span class="code-func">newFixedThreadPool</span>(4);
+
+<span class="code-comment">// Submit tasks and get Future results</span>
+<span class="code-type">Future</span>&lt;<span class="code-type">Integer</span>&gt; future = executor.<span class="code-func">submit</span>(() -> {
+    <span class="code-comment">// Long running computation</span>
+    <span class="code-keyword">return</span> <span class="code-func">computeResult</span>();
+});
+
+<span class="code-comment">// Get result (blocks until done)</span>
+<span class="code-type">int</span> result = future.<span class="code-func">get</span>();
+
+executor.<span class="code-func">shutdown</span>();  <span class="code-comment">// Always shutdown!</span></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 3: Java 8+ Features',
+                topics: [
+                    {
+                        title: 'Lambda Expressions',
+                        content: `
+                            <div class="content-section">
+                                <h3>Lambda Expressions</h3>
+                                <p>Introduced in Java 8, lambda expressions provide a clear and concise way to represent one method interface using an expression. They enable functional programming in Java.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Lambda Examples</div>
+<span class="code-comment">// Old way (anonymous class)</span>
+<span class="code-type">Comparator</span>&lt;<span class="code-type">String</span>&gt; old = <span class="code-keyword">new</span> <span class="code-type">Comparator</span>&lt;<span class="code-type">String</span>&gt;() {
+    <span class="code-keyword">public int</span> <span class="code-func">compare</span>(<span class="code-type">String</span> a, <span class="code-type">String</span> b) { <span class="code-keyword">return</span> a.<span class="code-func">compareTo</span>(b); }
+};
+
+<span class="code-comment">// Lambda way</span>
+<span class="code-type">Comparator</span>&lt;<span class="code-type">String</span>&gt; lambda = (a, b) -> a.<span class="code-func">compareTo</span>(b);
+
+<span class="code-comment">// Method reference (even shorter!)</span>
+<span class="code-type">Comparator</span>&lt;<span class="code-type">String</span>&gt; ref = <span class="code-type">String</span>::compareTo;
+
+<span class="code-comment">// Lambda with List</span>
+<span class="code-type">List</span>&lt;<span class="code-type">String</span>&gt; names = <span class="code-type">Arrays</span>.<span class="code-func">asList</span>(<span class="code-string">"Alice"</span>, <span class="code-string">"Bob"</span>, <span class="code-string">"Charlie"</span>);
+names.<span class="code-func">forEach</span>(name -> System.out.<span class="code-func">println</span>(name));</div>
+                        `
+                    },
+                    {
+                        title: 'Streams API',
+                        content: `
+                            <div class="content-section">
+                                <h3>Java Streams API</h3>
+                                <p>Streams provide a functional approach to processing collections of objects. A stream pipeline consists of a source, zero or more intermediate operations, and a terminal operation.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Stream Operations</div>
+<span class="code-type">List</span>&lt;<span class="code-type">Student</span>&gt; students = <span class="code-func">getStudents</span>();
+
+<span class="code-comment">// Complex stream pipeline</span>
+<span class="code-type">Map</span>&lt;<span class="code-type">String</span>, <span class="code-type">Double</span>&gt; avgScoreByDept = students.<span class="code-func">stream</span>()
+    .<span class="code-func">filter</span>(s -> s.<span class="code-func">getScore</span>() >= 60)     <span class="code-comment">// Filter</span>
+    .<span class="code-func">sorted</span>(<span class="code-type">Comparator</span>.<span class="code-func">comparing</span>(<span class="code-type">Student</span>::getName))
+    .<span class="code-func">collect</span>(<span class="code-type">Collectors</span>.<span class="code-func">groupingBy</span>(     <span class="code-comment">// Group</span>
+        <span class="code-type">Student</span>::getDepartment,
+        <span class="code-type">Collectors</span>.<span class="code-func">averagingDouble</span>(<span class="code-type">Student</span>::getScore)
+    ));</div>
+                            <div class="key-concepts">
+                                <h4>Stream Operations</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">filter()</div>
+                                    <div class="concept-tag">map()</div>
+                                    <div class="concept-tag">flatMap()</div>
+                                    <div class="concept-tag">collect()</div>
+                                    <div class="concept-tag">reduce()</div>
+                                    <div class="concept-tag">sorted()</div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Optional & Functional Interfaces',
+                        content: `
+                            <div class="content-section">
+                                <h3>Optional Class</h3>
+                                <p>Optional is a container object that may or may not contain a non-null value. It helps eliminate NullPointerExceptions by explicitly handling the absence of a value.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Optional API</div>
+<span class="code-type">Optional</span>&lt;<span class="code-type">String</span>&gt; opt = <span class="code-func">findUserById</span>(id);
+
+<span class="code-comment">// Method chaining with Optional</span>
+<span class="code-type">String</span> result = opt
+    .<span class="code-func">filter</span>(s -> s.<span class="code-func">length</span>() > 3)
+    .<span class="code-func">map</span>(<span class="code-type">String</span>::toUpperCase)
+    .<span class="code-func">orElse</span>(<span class="code-string">"DEFAULT"</span>);
+
+<span class="code-comment">// ifPresent - execute if value exists</span>
+opt.<span class="code-func">ifPresent</span>(s -> System.out.<span class="code-func">println</span>(<span class="code-string">"Found: "</span> + s));</div>
+                            <div class="info-card"><h4>⚡ Built-in Functional Interfaces</h4><p><strong>Function&lt;T,R&gt;</strong> – Takes T, returns R<br><strong>Predicate&lt;T&gt;</strong> – Takes T, returns boolean<br><strong>Consumer&lt;T&gt;</strong> – Takes T, returns nothing<br><strong>Supplier&lt;T&gt;</strong> – Takes nothing, returns T<br><strong>BiFunction&lt;T,U,R&gt;</strong> – Takes T and U, returns R</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 4: JDBC & Database Connectivity',
+                topics: [
+                    {
+                        title: 'JDBC Architecture',
+                        content: `
+                            <div class="content-section">
+                                <h3>Java Database Connectivity</h3>
+                                <p>JDBC (Java Database Connectivity) is a Java API that manages connecting to a database, issuing queries and commands, and handling result sets obtained from the database.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>JDBC Components</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">DriverManager</div>
+                                    <div class="concept-tag">Connection</div>
+                                    <div class="concept-tag">Statement</div>
+                                    <div class="concept-tag">PreparedStatement</div>
+                                    <div class="concept-tag">ResultSet</div>
+                                    <div class="concept-tag">CallableStatement</div>
+                                </div>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">JDBC Connection</div>
+<span class="code-comment">// JDBC connection with try-with-resources</span>
+<span class="code-type">String</span> url = <span class="code-string">"jdbc:mysql://localhost:3306/mydb"</span>;
+<span class="code-type">String</span> user = <span class="code-string">"root"</span>, pass = <span class="code-string">"password"</span>;
+
+<span class="code-keyword">try</span> (<span class="code-type">Connection</span> conn = <span class="code-type">DriverManager</span>.<span class="code-func">getConnection</span>(url, user, pass);
+     <span class="code-type">PreparedStatement</span> ps = conn.<span class="code-func">prepareStatement</span>(
+         <span class="code-string">"SELECT * FROM students WHERE grade > ?"</span>)) {
+
+    ps.<span class="code-func">setInt</span>(1, 70);
+    <span class="code-type">ResultSet</span> rs = ps.<span class="code-func">executeQuery</span>();
+    <span class="code-keyword">while</span> (rs.<span class="code-func">next</span>()) {
+        System.out.<span class="code-func">println</span>(rs.<span class="code-func">getString</span>(<span class="code-string">"name"</span>));
+    }
+}</div>
+                        `
+                    },
+                    {
+                        title: 'Connection Pooling',
+                        content: `
+                            <div class="content-section">
+                                <h3>Database Connection Pooling</h3>
+                                <p>Connection pooling maintains a pool of database connections that can be reused when future requests to the database are required. Creating connections is expensive—pooling dramatically improves performance.</p>
+                            </div>
+                            <div class="info-card"><h4>🏊 HikariCP – Fastest Connection Pool</h4><p>HikariCP is the de facto standard for Java connection pooling, used by Spring Boot by default. Key settings: maximumPoolSize, minimumIdle, connectionTimeout, idleTimeout.</p></div>
+                            <div class="code-block">
+                                <div class="code-label">HikariCP</div>
+<span class="code-type">HikariConfig</span> config = <span class="code-keyword">new</span> <span class="code-type">HikariConfig</span>();
+config.<span class="code-func">setJdbcUrl</span>(<span class="code-string">"jdbc:mysql://localhost/mydb"</span>);
+config.<span class="code-func">setUsername</span>(<span class="code-string">"root"</span>);
+config.<span class="code-func">setMaximumPoolSize</span>(10);
+config.<span class="code-func">setMinimumIdle</span>(2);
+config.<span class="code-func">setConnectionTimeout</span>(30000);
+
+<span class="code-type">HikariDataSource</span> ds = <span class="code-keyword">new</span> <span class="code-type">HikariDataSource</span>(config);
+<span class="code-type">Connection</span> conn = ds.<span class="code-func">getConnection</span>();  <span class="code-comment">// From pool</span></div>
+                        `
+                    },
+                    {
+                        title: 'Hibernate & JPA',
+                        content: `
+                            <div class="content-section">
+                                <h3>Object-Relational Mapping</h3>
+                                <p>Hibernate is an ORM framework that maps Java objects to database tables. JPA (Java Persistence API) is the specification; Hibernate is the most popular implementation.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">JPA Entity</div>
+<span class="code-keyword">@Entity</span>
+<span class="code-keyword">@Table</span>(name = <span class="code-string">"students"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">Student</span> {
+    <span class="code-keyword">@Id</span>
+    <span class="code-keyword">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="code-keyword">private</span> <span class="code-type">Long</span> id;
+
+    <span class="code-keyword">@Column</span>(name = <span class="code-string">"student_name"</span>, nullable = <span class="code-keyword">false</span>)
+    <span class="code-keyword">private</span> <span class="code-type">String</span> name;
+
+    <span class="code-keyword">@Column</span>(unique = <span class="code-keyword">true</span>)
+    <span class="code-keyword">private</span> <span class="code-type">String</span> email;
+
+    <span class="code-comment">// Getters & Setters...</span>
+}</div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 5: Spring Framework & REST APIs',
+                topics: [
+                    {
+                        title: 'Spring Framework Core',
+                        content: `
+                            <div class="content-section">
+                                <h3>Spring Framework</h3>
+                                <p>Spring is the most widely used Java framework for enterprise application development. It provides a comprehensive programming and configuration model for modern Java-based enterprise applications.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Spring Core Concepts</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">IoC Container</div>
+                                    <div class="concept-tag">Dependency Injection</div>
+                                    <div class="concept-tag">Aspect-Oriented Programming</div>
+                                    <div class="concept-tag">Spring Beans</div>
+                                    <div class="concept-tag">ApplicationContext</div>
+                                    <div class="concept-tag">@Autowired</div>
+                                </div>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Spring Boot</div>
+<span class="code-keyword">@SpringBootApplication</span>
+<span class="code-keyword">public class</span> <span class="code-type">Application</span> {
+    <span class="code-keyword">public static void</span> <span class="code-func">main</span>(<span class="code-type">String</span>[] args) {
+        <span class="code-type">SpringApplication</span>.<span class="code-func">run</span>(<span class="code-type">Application</span>.class, args);
+    }
+}
+
+<span class="code-keyword">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-type">StudentService</span> {
+    <span class="code-keyword">@Autowired</span>  <span class="code-comment">// Dependency Injection</span>
+    <span class="code-keyword">private</span> <span class="code-type">StudentRepository</span> repo;
+}</div>
+                        `
+                    },
+                    {
+                        title: 'Building REST APIs',
+                        content: `
+                            <div class="content-section">
+                                <h3>RESTful APIs with Spring Boot</h3>
+                                <p>REST (Representational State Transfer) is an architectural style for building web services. Spring Boot makes it extremely easy to create RESTful APIs with minimal configuration.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">REST Controller</div>
+<span class="code-keyword">@RestController</span>
+<span class="code-keyword">@RequestMapping</span>(<span class="code-string">"/api/students"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">StudentController</span> {
+
+    <span class="code-keyword">@GetMapping</span>
+    <span class="code-keyword">public</span> <span class="code-type">List</span>&lt;<span class="code-type">Student</span>&gt; <span class="code-func">getAllStudents</span>() {
+        <span class="code-keyword">return</span> service.<span class="code-func">findAll</span>();
+    }
+
+    <span class="code-keyword">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-type">Student</span> <span class="code-func">createStudent</span>(<span class="code-keyword">@RequestBody</span> <span class="code-type">Student</span> s) {
+        <span class="code-keyword">return</span> service.<span class="code-func">save</span>(s);
+    }
+
+    <span class="code-keyword">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-type">ResponseEntity</span>&lt;<span class="code-type">Student</span>&gt; <span class="code-func">getById</span>(<span class="code-keyword">@PathVariable Long</span> id) {
+        <span class="code-keyword">return</span> service.<span class="code-func">findById</span>(id)
+            .<span class="code-func">map</span>(<span class="code-type">ResponseEntity</span>::ok)
+            .<span class="code-func">orElse</span>(<span class="code-type">ResponseEntity</span>.<span class="code-func">notFound</span>().<span class="code-func">build</span>());
+    }
+}</div>
+                        `
+                    },
+                    {
+                        title: 'Spring Security Basics',
+                        content: `
+                            <div class="content-section">
+                                <h3>Securing Spring Applications</h3>
+                                <p>Spring Security is a powerful and customizable authentication and authorization framework. It is the de-facto standard for securing Spring-based applications.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Security Concepts</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Authentication</div>
+                                    <div class="concept-tag">Authorization</div>
+                                    <div class="concept-tag">JWT Tokens</div>
+                                    <div class="concept-tag">OAuth2</div>
+                                    <div class="concept-tag">CSRF Protection</div>
+                                    <div class="concept-tag">Password Encoding</div>
+                                </div>
+                            </div>
+                            <div class="success-box-content"><p>Always encode passwords with BCrypt: <code>new BCryptPasswordEncoder().encode(rawPassword)</code> — never store plain text passwords!</p></div>
+                        `
+                    }
+                ]
+            }
+        ]
+    },
+
+    'machine-learning': {
+        title: 'Machine Learning',
+        instructor: 'Mrs. Rashmi KT',
+        icon: '🤖',
+        modules: [
+            {
+                title: 'Module 1: Introduction to Machine Learning',
+                topics: [
+                    {
+                        title: 'What is Machine Learning?',
+                        content: `
+                            <div class="content-section">
+                                <h3>Machine Learning Overview</h3>
+                                <p>Machine Learning is a subset of Artificial Intelligence that enables computers to learn from data without being explicitly programmed. It focuses on developing algorithms that can access data and use it to learn for themselves.</p>
+                                <p>Arthur Samuel coined the term in 1959: "Field of study that gives computers the ability to learn without being explicitly programmed."</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>ML Learning Paradigms</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Supervised Learning</div>
+                                    <div class="concept-tag">Unsupervised Learning</div>
+                                    <div class="concept-tag">Reinforcement Learning</div>
+                                    <div class="concept-tag">Semi-supervised Learning</div>
+                                    <div class="concept-tag">Self-supervised Learning</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>The ML Pipeline:</strong> Data Collection → Data Preprocessing → Feature Engineering → Model Selection → Training → Evaluation → Deployment → Monitoring</p></div>
+                        `
+                    },
+                    {
+                        title: 'Types of ML Problems',
+                        content: `
+                            <div class="content-section">
+                                <h3>ML Problem Categories</h3>
+                            </div>
+                            <div class="info-card"><h4>📊 Classification</h4><p>Predicting a discrete category/class label. Examples: Spam detection (spam/not spam), Medical diagnosis (disease/no disease), Image classification (cat/dog/bird). Algorithms: Logistic Regression, SVM, Decision Trees, Neural Networks.</p></div>
+                            <div class="info-card"><h4>📈 Regression</h4><p>Predicting a continuous numerical value. Examples: House price prediction, Stock price forecasting, Temperature prediction. Algorithms: Linear Regression, Polynomial Regression, Random Forest Regression.</p></div>
+                            <div class="info-card"><h4>🔵 Clustering</h4><p>Grouping similar data points without predefined labels. Examples: Customer segmentation, Document grouping, Anomaly detection. Algorithms: K-Means, DBSCAN, Hierarchical Clustering.</p></div>
+                            <div class="info-card"><h4>🎮 Reinforcement Learning</h4><p>An agent learns to make decisions by interacting with an environment to maximize cumulative reward. Examples: Game playing (AlphaGo), Robotics, Self-driving cars, Recommendation systems.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Data Preprocessing',
+                        content: `
+                            <div class="content-section">
+                                <h3>Preparing Data for ML</h3>
+                                <p>Data preprocessing is the most critical step in machine learning. "Garbage in, garbage out" — the quality of your model depends heavily on the quality of your data.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Python / Pandas</div>
+<span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+<span class="code-keyword">from</span> sklearn.preprocessing <span class="code-keyword">import</span> StandardScaler
+
+<span class="code-comment"># Load and inspect data</span>
+df = pd.<span class="code-func">read_csv</span>(<span class="code-string">'data.csv'</span>)
+
+<span class="code-comment"># Handle missing values</span>
+df[<span class="code-string">'age'</span>].<span class="code-func">fillna</span>(df[<span class="code-string">'age'</span>].<span class="code-func">mean</span>(), inplace=<span class="code-keyword">True</span>)
+df.<span class="code-func">dropna</span>(subset=[<span class="code-string">'target'</span>], inplace=<span class="code-keyword">True</span>)
+
+<span class="code-comment"># Feature scaling (Z-score normalization)</span>
+scaler = StandardScaler()
+df_scaled = scaler.<span class="code-func">fit_transform</span>(df[[<span class="code-string">'age'</span>, <span class="code-string">'salary'</span>]])</div>
+                            <div class="key-concepts">
+                                <h4>Preprocessing Techniques</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Missing Value Imputation</div>
+                                    <div class="concept-tag">Normalization / Scaling</div>
+                                    <div class="concept-tag">Encoding Categoricals</div>
+                                    <div class="concept-tag">Outlier Detection</div>
+                                    <div class="concept-tag">Feature Selection</div>
+                                    <div class="concept-tag">Train/Test Split</div>
+                                </div>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 2: Supervised Learning Algorithms',
+                topics: [
+                    {
+                        title: 'Linear & Logistic Regression',
+                        content: `
+                            <div class="content-section">
+                                <h3>Regression Algorithms</h3>
+                                <p>Linear regression models the linear relationship between input features and a continuous target variable. Logistic regression is used for binary classification despite its name.</p>
+                            </div>
+                            <div class="info-card"><h4>📐 Linear Regression</h4><p>Model: y = w₀ + w₁x₁ + w₂x₂ + ... + wₙxₙ<br>Loss function: Mean Squared Error (MSE)<br>Optimization: Gradient Descent or Ordinary Least Squares<br>Assumptions: Linearity, homoscedasticity, no multicollinearity</p></div>
+                            <div class="code-block">
+                                <div class="code-label">scikit-learn</div>
+<span class="code-keyword">from</span> sklearn.linear_model <span class="code-keyword">import</span> LogisticRegression
+<span class="code-keyword">from</span> sklearn.metrics <span class="code-keyword">import</span> accuracy_score, classification_report
+
+<span class="code-comment"># Train model</span>
+model = LogisticRegression(max_iter=<span class="code-type">1000</span>)
+model.<span class="code-func">fit</span>(X_train, y_train)
+
+<span class="code-comment"># Evaluate</span>
+y_pred = model.<span class="code-func">predict</span>(X_test)
+print(f<span class="code-string">"Accuracy: {accuracy_score(y_test, y_pred):.2%}"</span>)
+print(classification_report(y_test, y_pred))</div>
+                        `
+                    },
+                    {
+                        title: 'Decision Trees & Random Forests',
+                        content: `
+                            <div class="content-section">
+                                <h3>Tree-Based Models</h3>
+                                <p>Decision trees model decisions as a tree structure. Random Forests are an ensemble of decision trees that reduces overfitting through bagging and feature randomness.</p>
+                            </div>
+                            <div class="info-card"><h4>🌳 Decision Tree Concepts</h4><p><strong>Splitting criteria:</strong> Gini Impurity, Information Gain (Entropy)<br><strong>Overfitting control:</strong> max_depth, min_samples_split, pruning<br><strong>Advantage:</strong> Interpretable, no scaling needed<br><strong>Disadvantage:</strong> Prone to overfitting on complex data</p></div>
+                            <div class="info-card"><h4>🌲 Random Forest</h4><p>Builds N decision trees on random subsets of data (bootstrap aggregating = bagging). Final prediction is majority vote (classification) or average (regression). Key hyperparameters: n_estimators, max_features, max_depth.</p></div>
+                            <div class="success-box-content"><p>Random Forests typically achieve 90%+ accuracy on tabular data without heavy tuning, making them an excellent baseline model.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Support Vector Machines',
+                        content: `
+                            <div class="content-section">
+                                <h3>Support Vector Machines (SVM)</h3>
+                                <p>SVM finds the optimal hyperplane that maximizes the margin between different classes. The kernel trick allows SVMs to handle non-linearly separable data by implicitly mapping features to higher dimensions.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>SVM Kernels</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Linear Kernel</div>
+                                    <div class="concept-tag">RBF (Gaussian) Kernel</div>
+                                    <div class="concept-tag">Polynomial Kernel</div>
+                                    <div class="concept-tag">Sigmoid Kernel</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>When to use SVM:</strong> High-dimensional data (text classification), binary classification, when training data is small but high quality. Less suitable for very large datasets.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 3: Neural Networks & Deep Learning',
+                topics: [
+                    {
+                        title: 'Neural Network Fundamentals',
+                        content: `
+                            <div class="content-section">
+                                <h3>Artificial Neural Networks</h3>
+                                <p>Neural networks are computational models inspired by the human brain. They consist of interconnected layers of neurons (nodes) that process and transmit information. Deep learning refers to neural networks with many layers.</p>
+                            </div>
+                            <div class="info-card"><h4>🧠 Network Architecture</h4><p><strong>Input Layer:</strong> Receives raw features<br><strong>Hidden Layers:</strong> Learn complex representations<br><strong>Output Layer:</strong> Produces predictions<br><strong>Activation Functions:</strong> ReLU, Sigmoid, Tanh, Softmax</p></div>
+                            <div class="code-block">
+                                <div class="code-label">TensorFlow / Keras</div>
+<span class="code-keyword">import</span> tensorflow <span class="code-keyword">as</span> tf
+
+model = tf.keras.Sequential([
+    tf.keras.layers.<span class="code-func">Dense</span>(<span class="code-type">128</span>, activation=<span class="code-string">'relu'</span>, input_shape=(<span class="code-type">784</span>,)),
+    tf.keras.layers.<span class="code-func">Dropout</span>(<span class="code-type">0.2</span>),
+    tf.keras.layers.<span class="code-func">Dense</span>(<span class="code-type">64</span>, activation=<span class="code-string">'relu'</span>),
+    tf.keras.layers.<span class="code-func">Dense</span>(<span class="code-type">10</span>, activation=<span class="code-string">'softmax'</span>)
+])
+
+model.<span class="code-func">compile</span>(optimizer=<span class="code-string">'adam'</span>, loss=<span class="code-string">'categorical_crossentropy'</span>, metrics=[<span class="code-string">'accuracy'</span>])
+model.<span class="code-func">fit</span>(X_train, y_train, epochs=<span class="code-type">10</span>, batch_size=<span class="code-type">32</span>)</div>
+                        `
+                    },
+                    {
+                        title: 'Convolutional Neural Networks',
+                        content: `
+                            <div class="content-section">
+                                <h3>CNNs for Image Processing</h3>
+                                <p>Convolutional Neural Networks are specialized for processing grid-like data such as images. They use convolutional layers to automatically learn spatial features hierarchically.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>CNN Building Blocks</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Convolutional Layer</div>
+                                    <div class="concept-tag">Pooling Layer</div>
+                                    <div class="concept-tag">Flatten Layer</div>
+                                    <div class="concept-tag">Fully Connected Layer</div>
+                                    <div class="concept-tag">Batch Normalization</div>
+                                    <div class="concept-tag">Dropout</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>🏆 Famous CNN Architectures</h4><p><strong>LeNet-5</strong> (1998) – First successful CNN for digit recognition<br><strong>AlexNet</strong> (2012) – Won ImageNet, popularized deep learning<br><strong>VGGNet</strong> (2014) – Very deep with small 3×3 filters<br><strong>ResNet</strong> (2015) – Residual connections, 152 layers<br><strong>EfficientNet</strong> (2019) – State-of-the-art efficiency</p></div>
+                        `
+                    },
+                    {
+                        title: 'Model Evaluation & Overfitting',
+                        content: `
+                            <div class="content-section">
+                                <h3>Evaluating ML Models</h3>
+                                <p>Proper model evaluation is critical to ensure your model generalizes well to unseen data. Understanding bias-variance tradeoff helps diagnose and fix overfitting/underfitting.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Evaluation Metrics</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Accuracy</div>
+                                    <div class="concept-tag">Precision & Recall</div>
+                                    <div class="concept-tag">F1 Score</div>
+                                    <div class="concept-tag">AUC-ROC Curve</div>
+                                    <div class="concept-tag">Confusion Matrix</div>
+                                    <div class="concept-tag">Cross-Validation</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>Regularization techniques to prevent overfitting:</strong> L1 (Lasso), L2 (Ridge), Dropout, Early Stopping, Data Augmentation.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 4: Unsupervised Learning',
+                topics: [
+                    {
+                        title: 'Clustering Algorithms',
+                        content: `
+                            <div class="content-section">
+                                <h3>Clustering</h3>
+                                <p>Clustering groups similar data points together without predefined labels. The goal is to find inherent structure in unlabeled data.</p>
+                            </div>
+                            <div class="info-card"><h4>🎯 K-Means Clustering</h4><p>Algorithm: (1) Initialize K centroids randomly (2) Assign each point to nearest centroid (3) Recalculate centroids (4) Repeat until convergence. Uses Euclidean distance. K must be specified beforehand — use Elbow Method to choose K.</p></div>
+                            <div class="info-card"><h4>🌊 DBSCAN</h4><p>Density-Based Spatial Clustering of Applications with Noise. Discovers clusters of arbitrary shapes. Can identify outliers as noise. Parameters: epsilon (neighborhood radius), min_samples. Does NOT require specifying number of clusters.</p></div>
+                            <div class="key-concepts">
+                                <h4>Clustering Evaluation</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Silhouette Score</div>
+                                    <div class="concept-tag">Davies-Bouldin Index</div>
+                                    <div class="concept-tag">Inertia (Within-cluster SSE)</div>
+                                    <div class="concept-tag">Adjusted Rand Index</div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Dimensionality Reduction',
+                        content: `
+                            <div class="content-section">
+                                <h3>Dimensionality Reduction</h3>
+                                <p>High-dimensional data suffers from the "curse of dimensionality." Dimensionality reduction techniques project data into lower dimensions while preserving important information.</p>
+                            </div>
+                            <div class="info-card"><h4>📉 PCA – Principal Component Analysis</h4><p>Linear technique that finds directions (principal components) of maximum variance. Steps: Standardize → Compute covariance matrix → Eigen decomposition → Select top K eigenvectors → Transform data. PCA is used for visualization, noise reduction, and speeding up ML algorithms.</p></div>
+                            <div class="info-card"><h4>🗺️ t-SNE</h4><p>t-Distributed Stochastic Neighbor Embedding. Non-linear technique excellent for 2D/3D visualization of high-dimensional data. Preserves local structure. Computationally expensive, not suitable for transforming new data. Widely used for visualizing neural network embeddings.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Association Rule Mining',
+                        content: `
+                            <div class="content-section">
+                                <h3>Association Rules</h3>
+                                <p>Association rule mining discovers interesting relationships (co-occurrences) between variables in large datasets. The classic application is market basket analysis — "customers who bought X also bought Y."</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Key Metrics</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Support</div>
+                                    <div class="concept-tag">Confidence</div>
+                                    <div class="concept-tag">Lift</div>
+                                    <div class="concept-tag">Conviction</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>🛒 Apriori Algorithm</h4><p>Generates frequent itemsets iteratively. Prune itemsets below minimum support threshold. Then generate rules meeting minimum confidence. Applications: Recommendation systems, medical co-diagnosis, web usage patterns.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 5: ML in Production',
+                topics: [
+                    {
+                        title: 'Feature Engineering',
+                        content: `
+                            <div class="content-section">
+                                <h3>Feature Engineering</h3>
+                                <p>Feature engineering is the process of using domain knowledge to create features that make machine learning algorithms work better. It's often the most impactful step in improving model performance.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Feature Engineering Techniques</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">One-Hot Encoding</div>
+                                    <div class="concept-tag">Binning / Discretization</div>
+                                    <div class="concept-tag">Log Transformation</div>
+                                    <div class="concept-tag">Interaction Features</div>
+                                    <div class="concept-tag">Target Encoding</div>
+                                    <div class="concept-tag">Polynomial Features</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>Andrew Ng:</strong> "Applied machine learning is basically feature engineering." Good features can compensate for a mediocre algorithm, but a great algorithm can't fix bad features.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Hyperparameter Tuning',
+                        content: `
+                            <div class="content-section">
+                                <h3>Optimizing Model Hyperparameters</h3>
+                                <p>Hyperparameters are configuration settings external to the model that cannot be learned from data. Tuning them is crucial for optimal performance.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">GridSearchCV</div>
+<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> GridSearchCV
+
+param_grid = {
+    <span class="code-string">'n_estimators'</span>: [<span class="code-type">100</span>, <span class="code-type">200</span>, <span class="code-type">500</span>],
+    <span class="code-string">'max_depth'</span>: [<span class="code-type">5</span>, <span class="code-type">10</span>, <span class="code-keyword">None</span>],
+    <span class="code-string">'min_samples_split'</span>: [<span class="code-type">2</span>, <span class="code-type">5</span>, <span class="code-type">10</span>]
+}
+
+grid_search = GridSearchCV(
+    RandomForestClassifier(), param_grid, cv=<span class="code-type">5</span>, scoring=<span class="code-string">'accuracy'</span>, n_jobs=-<span class="code-type">1</span>
+)
+grid_search.<span class="code-func">fit</span>(X_train, y_train)
+print(<span class="code-string">"Best params:"</span>, grid_search.best_params_)</div>
+                        `
+                    },
+                    {
+                        title: 'Model Deployment',
+                        content: `
+                            <div class="content-section">
+                                <h3>Deploying ML Models</h3>
+                                <p>A model that isn't deployed is worthless. MLOps covers the practices for deploying, monitoring, and maintaining ML models in production reliably and efficiently.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Deployment Strategies</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">REST API (Flask/FastAPI)</div>
+                                    <div class="concept-tag">Docker Containers</div>
+                                    <div class="concept-tag">AWS SageMaker</div>
+                                    <div class="concept-tag">MLflow Tracking</div>
+                                    <div class="concept-tag">A/B Testing</div>
+                                    <div class="concept-tag">Model Monitoring</div>
+                                </div>
+                            </div>
+                            <div class="success-box-content"><p>Monitor for <strong>data drift</strong> and <strong>model drift</strong> in production — model performance degrades as the real world changes from training data distribution.</p></div>
+                        `
+                    }
+                ]
+            }
+        ]
+    },
+
+    'computer-science-basics': {
+        title: 'Computer Science Basics',
+        instructor: 'Mr. Monish',
+        icon: '💻',
+        modules: [
+            {
+                title: 'Module 1: Data Structures',
+                topics: [
+                    {
+                        title: 'Arrays & Linked Lists',
+                        content: `
+                            <div class="content-section">
+                                <h3>Fundamental Data Structures</h3>
+                                <p>Data structures are specialized formats for organizing, processing, retrieving, and storing data. Understanding them is foundational to computer science and software engineering.</p>
+                            </div>
+                            <div class="info-card"><h4>📦 Arrays</h4><p>Contiguous memory locations storing elements of the same type. O(1) access by index, O(n) search, O(n) insertion/deletion. Best for random access and when size is known upfront. Types: 1D, 2D (matrices), jagged arrays.</p></div>
+                            <div class="info-card"><h4>🔗 Linked Lists</h4><p>Nodes containing data + pointer to next node. O(n) access, O(1) insertion at head/tail. Types: Singly Linked, Doubly Linked, Circular. Used in stacks, queues, adjacency lists.</p></div>
+                            <div class="code-block">
+                                <div class="code-label">Linked List (Python)</div>
+<span class="code-keyword">class</span> <span class="code-type">Node</span>:
+    <span class="code-keyword">def</span> <span class="code-func">__init__</span>(self, data):
+        self.data = data
+        self.next = <span class="code-keyword">None</span>
+
+<span class="code-keyword">class</span> <span class="code-type">LinkedList</span>:
+    <span class="code-keyword">def</span> <span class="code-func">__init__</span>(self):
+        self.head = <span class="code-keyword">None</span>
+
+    <span class="code-keyword">def</span> <span class="code-func">append</span>(self, data):
+        new_node = Node(data)
+        <span class="code-keyword">if not</span> self.head:
+            self.head = new_node
+            <span class="code-keyword">return</span>
+        curr = self.head
+        <span class="code-keyword">while</span> curr.next:
+            curr = curr.next
+        curr.next = new_node</div>
+                        `
+                    },
+                    {
+                        title: 'Stacks & Queues',
+                        content: `
+                            <div class="content-section">
+                                <h3>Stacks and Queues</h3>
+                                <p>Stacks and queues are abstract data types that define specific rules for how data is added and removed, making them fundamental building blocks for many algorithms.</p>
+                            </div>
+                            <div class="info-card"><h4>📚 Stack (LIFO – Last In, First Out)</h4><p>Operations: push() – add to top, pop() – remove from top, peek() – view top.<br>Applications: Function call stack, Undo/Redo operations, Expression evaluation, Depth-First Search (DFS), Balanced parentheses checking.</p></div>
+                            <div class="info-card"><h4>🚶 Queue (FIFO – First In, First Out)</h4><p>Operations: enqueue() – add to back, dequeue() – remove from front.<br>Types: Simple Queue, Circular Queue, Priority Queue, Deque (double-ended).<br>Applications: BFS traversal, Process scheduling, Print spooling, Message queues.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Trees & Graphs',
+                        content: `
+                            <div class="content-section">
+                                <h3>Non-Linear Data Structures</h3>
+                                <p>Trees and graphs represent hierarchical and network relationships between data elements. They're used extensively in databases, networking, AI, and compilers.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Tree Types</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Binary Tree</div>
+                                    <div class="concept-tag">BST</div>
+                                    <div class="concept-tag">AVL Tree</div>
+                                    <div class="concept-tag">Red-Black Tree</div>
+                                    <div class="concept-tag">B-Tree</div>
+                                    <div class="concept-tag">Trie</div>
+                                </div>
+                            </div>
+                            <div class="info-card"><h4>🕸️ Graph Representations</h4><p><strong>Adjacency Matrix:</strong> 2D array, O(1) edge lookup, O(V²) space<br><strong>Adjacency List:</strong> Array of lists, O(V+E) space, better for sparse graphs<br><strong>Directed vs Undirected:</strong> Edges have direction or not<br><strong>Weighted vs Unweighted:</strong> Edges have costs or not</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 2: Algorithms & Complexity',
+                topics: [
+                    {
+                        title: 'Sorting Algorithms',
+                        content: `
+                            <div class="content-section">
+                                <h3>Sorting Algorithms</h3>
+                                <p>Sorting is the process of arranging elements in a defined order. Understanding different sorting algorithms and their trade-offs is essential for writing efficient code.</p>
+                            </div>
+                            <div class="info-card"><h4>⚡ Time Complexities</h4><p><strong>Bubble Sort:</strong> O(n²) – Simple but slow<br><strong>Selection Sort:</strong> O(n²) – Fewer swaps than bubble<br><strong>Insertion Sort:</strong> O(n²) avg, O(n) best – Fast for nearly sorted<br><strong>Merge Sort:</strong> O(n log n) – Stable, divide & conquer<br><strong>Quick Sort:</strong> O(n log n) avg – Fastest in practice<br><strong>Heap Sort:</strong> O(n log n) – In-place, not stable</p></div>
+                            <div class="code-block">
+                                <div class="code-label">Merge Sort</div>
+<span class="code-keyword">def</span> <span class="code-func">merge_sort</span>(arr):
+    <span class="code-keyword">if</span> len(arr) <= <span class="code-type">1</span>:
+        <span class="code-keyword">return</span> arr
+
+    mid = len(arr) // <span class="code-type">2</span>
+    left = <span class="code-func">merge_sort</span>(arr[:mid])
+    right = <span class="code-func">merge_sort</span>(arr[mid:])
+
+    <span class="code-keyword">return</span> <span class="code-func">merge</span>(left, right)
+
+<span class="code-keyword">def</span> <span class="code-func">merge</span>(left, right):
+    result = []
+    i = j = <span class="code-type">0</span>
+    <span class="code-keyword">while</span> i < len(left) <span class="code-keyword">and</span> j < len(right):
+        <span class="code-keyword">if</span> left[i] <= right[j]:
+            result.<span class="code-func">append</span>(left[i]); i += <span class="code-type">1</span>
+        <span class="code-keyword">else</span>:
+            result.<span class="code-func">append</span>(right[j]); j += <span class="code-type">1</span>
+    <span class="code-keyword">return</span> result + left[i:] + right[j:]</div>
+                        `
+                    },
+                    {
+                        title: 'Searching & Big O Notation',
+                        content: `
+                            <div class="content-section">
+                                <h3>Searching Algorithms</h3>
+                                <p>Searching algorithms locate specific elements within data structures. The choice of algorithm depends on whether the data is sorted and the required time complexity.</p>
+                            </div>
+                            <div class="info-card"><h4>🔍 Linear Search vs Binary Search</h4><p><strong>Linear Search:</strong> O(n) – Check each element sequentially. Works on unsorted data.<br><strong>Binary Search:</strong> O(log n) – Repeatedly halves search space. Requires sorted array. For n=1,000,000: Linear = 1M steps, Binary = only 20 steps!</p></div>
+                            <div class="key-concepts">
+                                <h4>Big O Complexity Classes</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">O(1) – Constant</div>
+                                    <div class="concept-tag">O(log n) – Logarithmic</div>
+                                    <div class="concept-tag">O(n) – Linear</div>
+                                    <div class="concept-tag">O(n log n) – Linearithmic</div>
+                                    <div class="concept-tag">O(n²) – Quadratic</div>
+                                    <div class="concept-tag">O(2ⁿ) – Exponential</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>Rule of thumb:</strong> O(1) and O(log n) are excellent. O(n) and O(n log n) are good. O(n²) is acceptable for small n. O(2ⁿ) is almost never acceptable.</p></div>
+                        `
+                    },
+                    {
+                        title: 'Dynamic Programming',
+                        content: `
+                            <div class="content-section">
+                                <h3>Dynamic Programming</h3>
+                                <p>DP is a technique for solving complex problems by breaking them into simpler subproblems and storing results to avoid redundant computations. It applies when problems have overlapping subproblems and optimal substructure.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Fibonacci with Memoization</div>
+<span class="code-comment"># Without DP: O(2^n) - exponential!</span>
+<span class="code-keyword">def</span> <span class="code-func">fib_naive</span>(n):
+    <span class="code-keyword">if</span> n <= <span class="code-type">1</span>: <span class="code-keyword">return</span> n
+    <span class="code-keyword">return</span> <span class="code-func">fib_naive</span>(n-<span class="code-type">1</span>) + <span class="code-func">fib_naive</span>(n-<span class="code-type">2</span>)
+
+<span class="code-comment"># With memoization: O(n) - linear!</span>
+<span class="code-keyword">def</span> <span class="code-func">fib_memo</span>(n, memo={}):
+    <span class="code-keyword">if</span> n <= <span class="code-type">1</span>: <span class="code-keyword">return</span> n
+    <span class="code-keyword">if</span> n <span class="code-keyword">in</span> memo: <span class="code-keyword">return</span> memo[n]
+    memo[n] = <span class="code-func">fib_memo</span>(n-<span class="code-type">1</span>, memo) + <span class="code-func">fib_memo</span>(n-<span class="code-type">2</span>, memo)
+    <span class="code-keyword">return</span> memo[n]</div>
+                            <div class="success-box-content"><p>Classic DP problems: Fibonacci, Longest Common Subsequence, 0/1 Knapsack, Coin Change, Edit Distance, Matrix Chain Multiplication.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 3: Operating Systems',
+                topics: [
+                    {
+                        title: 'Processes & Threads',
+                        content: `
+                            <div class="content-section">
+                                <h3>OS Processes and Threads</h3>
+                                <p>An operating system manages processes and threads — the fundamental units of execution. Understanding how the OS schedules and manages them is crucial for writing efficient software.</p>
+                            </div>
+                            <div class="info-card"><h4>⚙️ Process</h4><p>An independent program in execution with its own memory space (code, data, stack, heap). Processes communicate via IPC (pipes, sockets, shared memory). Context switching between processes is expensive (~microseconds).</p></div>
+                            <div class="info-card"><h4>🧵 Thread</h4><p>A lightweight unit of execution within a process. Threads share the process's memory space. Context switching is faster than processes. Concurrency issues: race conditions, deadlocks, starvation.</p></div>
+                            <div class="key-concepts">
+                                <h4>Process States</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">New</div>
+                                    <div class="concept-tag">Ready</div>
+                                    <div class="concept-tag">Running</div>
+                                    <div class="concept-tag">Waiting/Blocked</div>
+                                    <div class="concept-tag">Terminated</div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Memory Management',
+                        content: `
+                            <div class="content-section">
+                                <h3>Memory Management</h3>
+                                <p>The OS manages main memory, deciding which processes get memory, how much, and when. Modern OSes use virtual memory to allow programs to use more memory than physically available.</p>
+                            </div>
+                            <div class="info-card"><h4>🗂️ Memory Allocation Schemes</h4><p><strong>Contiguous:</strong> Fixed partitioning, dynamic partitioning<br><strong>Non-Contiguous:</strong> Paging (fixed-size frames), Segmentation (variable-size)<br><strong>Virtual Memory:</strong> Pages stored on disk, loaded on demand (page fault)</p></div>
+                            <div class="info-card"><h4>♻️ Page Replacement Algorithms</h4><p><strong>FIFO:</strong> Replace oldest page — simple but poor performance<br><strong>LRU (Least Recently Used):</strong> Replace least recently accessed page — good performance<br><strong>Optimal:</strong> Replace page not used for longest time — theoretical best (requires future knowledge)</p></div>
+                        `
+                    },
+                    {
+                        title: 'CPU Scheduling',
+                        content: `
+                            <div class="content-section">
+                                <h3>CPU Scheduling Algorithms</h3>
+                                <p>CPU scheduling determines which process runs on the CPU at any given time. Good scheduling maximizes CPU utilization, throughput, and minimizes wait time and turnaround time.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Scheduling Algorithms</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">FCFS (First-Come-First-Served)</div>
+                                    <div class="concept-tag">SJF (Shortest Job First)</div>
+                                    <div class="concept-tag">Round Robin</div>
+                                    <div class="concept-tag">Priority Scheduling</div>
+                                    <div class="concept-tag">Multilevel Queue</div>
+                                    <div class="concept-tag">MLFQ</div>
+                                </div>
+                            </div>
+                            <div class="highlight-box"><p><strong>Round Robin</strong> with time quantum Q is the most widely used algorithm for time-sharing systems. Small Q → responsive but many context switches. Large Q → FCFS behavior.</p></div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 4: Computer Networks',
+                topics: [
+                    {
+                        title: 'OSI & TCP/IP Models',
+                        content: `
+                            <div class="content-section">
+                                <h3>Network Models</h3>
+                                <p>The OSI (Open Systems Interconnection) model provides a conceptual framework for how network communication works. TCP/IP is the practical implementation used on the Internet.</p>
+                            </div>
+                            <div class="info-card"><h4>🏗️ OSI 7 Layers</h4><p><strong>7. Application</strong> – HTTP, FTP, DNS, SMTP<br><strong>6. Presentation</strong> – Encoding, Encryption, Compression<br><strong>5. Session</strong> – Session management<br><strong>4. Transport</strong> – TCP, UDP (end-to-end)<br><strong>3. Network</strong> – IP, Routing<br><strong>2. Data Link</strong> – MAC, Ethernet, Switches<br><strong>1. Physical</strong> – Cables, Radio, Hardware</p></div>
+                            <div class="highlight-box"><p><strong>Mnemonic:</strong> "All People Seem To Need Data Processing" (Application → Physical)</p></div>
+                        `
+                    },
+                    {
+                        title: 'TCP vs UDP & HTTP',
+                        content: `
+                            <div class="content-section">
+                                <h3>Transport Protocols</h3>
+                                <p>TCP and UDP are the two main transport layer protocols. Understanding their differences helps choose the right protocol for different applications.</p>
+                            </div>
+                            <div class="info-card"><h4>🔒 TCP (Transmission Control Protocol)</h4><p>Connection-oriented, reliable, ordered delivery, error checking, flow control, congestion control. Uses 3-way handshake (SYN, SYN-ACK, ACK). Used by: HTTP/HTTPS, FTP, SMTP, SSH. Slower but guaranteed delivery.</p></div>
+                            <div class="info-card"><h4>⚡ UDP (User Datagram Protocol)</h4><p>Connectionless, unreliable, no ordering guarantee, minimal overhead. Used by: DNS, DHCP, Video streaming, Online gaming, VoIP. Faster but no delivery guarantee.</p></div>
+                            <div class="key-concepts">
+                                <h4>HTTP Methods</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">GET – Retrieve</div>
+                                    <div class="concept-tag">POST – Create</div>
+                                    <div class="concept-tag">PUT – Replace</div>
+                                    <div class="concept-tag">PATCH – Update</div>
+                                    <div class="concept-tag">DELETE – Remove</div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'DNS & Network Security',
+                        content: `
+                            <div class="content-section">
+                                <h3>Domain Name System</h3>
+                                <p>DNS is the phone book of the Internet — it translates human-readable domain names (google.com) to IP addresses (142.250.80.46) that computers use to communicate.</p>
+                            </div>
+                            <div class="info-card"><h4>🔍 DNS Resolution Process</h4><p>1. Browser checks cache → 2. OS checks /etc/hosts → 3. Query Recursive Resolver → 4. Root Name Server → 5. TLD Name Server (.com) → 6. Authoritative Name Server → 7. Return IP → 8. Cache result</p></div>
+                            <div class="key-concepts">
+                                <h4>Network Security Concepts</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Firewalls</div>
+                                    <div class="concept-tag">TLS/SSL Encryption</div>
+                                    <div class="concept-tag">VPN</div>
+                                    <div class="concept-tag">DDoS Protection</div>
+                                    <div class="concept-tag">IDS/IPS</div>
+                                </div>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                title: 'Module 5: Databases & System Design',
+                topics: [
+                    {
+                        title: 'Relational Databases & SQL',
+                        content: `
+                            <div class="content-section">
+                                <h3>Relational Databases</h3>
+                                <p>Relational databases store data in tables with predefined schemas. SQL (Structured Query Language) is the standard language for managing relational databases, developed by IBM in the 1970s.</p>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">SQL</div>
+<span class="code-comment">-- Create table</span>
+<span class="code-keyword">CREATE TABLE</span> students (
+    id <span class="code-type">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    name <span class="code-type">VARCHAR</span>(100) <span class="code-keyword">NOT NULL</span>,
+    email <span class="code-type">VARCHAR</span>(150) <span class="code-keyword">UNIQUE</span>,
+    grade <span class="code-type">DECIMAL</span>(5,2) <span class="code-keyword">DEFAULT</span> 0.0
+);
+
+<span class="code-comment">-- Complex query with JOIN</span>
+<span class="code-keyword">SELECT</span> s.name, AVG(g.score) <span class="code-keyword">as</span> avg_score
+<span class="code-keyword">FROM</span> students s
+<span class="code-keyword">JOIN</span> grades g <span class="code-keyword">ON</span> s.id = g.student_id
+<span class="code-keyword">WHERE</span> g.year = 2026
+<span class="code-keyword">GROUP BY</span> s.name
+<span class="code-keyword">HAVING</span> AVG(g.score) > 75
+<span class="code-keyword">ORDER BY</span> avg_score <span class="code-keyword">DESC</span>;</div>
+                        `
+                    },
+                    {
+                        title: 'Database Normalization',
+                        content: `
+                            <div class="content-section">
+                                <h3>Database Normalization</h3>
+                                <p>Normalization is the process of organizing a database to reduce redundancy and improve data integrity. It involves decomposing tables to eliminate data anomalies.</p>
+                            </div>
+                            <div class="info-card"><h4>📋 Normal Forms</h4><p><strong>1NF:</strong> Atomic values, no repeating groups, primary key<br><strong>2NF:</strong> 1NF + no partial dependencies on composite key<br><strong>3NF:</strong> 2NF + no transitive dependencies<br><strong>BCNF:</strong> 3NF + every determinant is a candidate key<br><strong>4NF/5NF:</strong> Handle multi-valued and join dependencies</p></div>
+                            <div class="highlight-box"><p><strong>ACID Properties:</strong> Atomicity (all or nothing), Consistency (valid state transitions), Isolation (transactions don't interfere), Durability (committed data persists).</p></div>
+                        `
+                    },
+                    {
+                        title: 'System Design Fundamentals',
+                        content: `
+                            <div class="content-section">
+                                <h3>System Design</h3>
+                                <p>System design is the process of designing the architecture of a software system to meet specific requirements for scale, reliability, performance, and maintainability.</p>
+                            </div>
+                            <div class="key-concepts">
+                                <h4>Key System Design Concepts</h4>
+                                <div class="concepts-grid">
+                                    <div class="concept-tag">Load Balancing</div>
+                                    <div class="concept-tag">Horizontal vs Vertical Scaling</div>
+                                    <div class="concept-tag">Caching (Redis)</div>
+                                    <div class="concept-tag">Message Queues</div>
+                                    <div class="concept-tag">Microservices</div>
+                                    <div class="concept-tag">CAP Theorem</div>
+                                </div>
+                            </div>
+                            <div class="success-box-content"><p>For system design interviews: always clarify requirements → estimate scale → design high-level architecture → deep dive into components → identify bottlenecks → propose solutions.</p></div>
+                        `
+                    }
+                ]
+            }
+        ]
+    }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let currentCourse = null;
+let currentModuleIdx = -1;
+let currentTopicIdx = -1;
+let completedTopics = {};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'student') {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get('course');
+
+    if (!courseId || !coursesData[courseId]) {
+        window.location.href = 'student_dashboard.html';
+        return;
+    }
+
+    currentCourse = coursesData[courseId];
+    completedTopics = JSON.parse(localStorage.getItem('completedTopics_' + courseId) || '{}');
+
+    // Update UI
+    document.getElementById('topbarTitle').textContent = currentCourse.title;
+    document.getElementById('topbarBadge').textContent = currentCourse.instructor;
+    document.getElementById('sidebarCourseTitle').textContent = currentCourse.title;
+    document.getElementById('sidebarInstructor').textContent = 'Instructor: ' + currentCourse.instructor;
+    document.getElementById('welcomeIcon').textContent = currentCourse.icon;
+    document.getElementById('welcomeTitle').textContent = 'Welcome to ' + currentCourse.title + '!';
+    document.title = currentCourse.title + ' – Course Viewer';
+
+    renderModules(courseId);
+    updateProgress();
+});
+
+// ============================================================
+// RENDER MODULES
+// ============================================================
+function renderModules(courseId) {
+    const list = document.getElementById('modulesList');
+    list.innerHTML = '';
+
+    currentCourse.modules.forEach((mod, mIdx) => {
+        const group = document.createElement('div');
+        group.className = 'module-group';
+
+        const completedCount = mod.topics.filter((_, tIdx) => completedTopics[`${mIdx}-${tIdx}`]).length;
+        const allDone = completedCount === mod.topics.length;
+
+        const header = document.createElement('div');
+        header.className = 'module-header';
+        header.innerHTML = `
+            <div class="module-num ${allDone ? 'completed' : ''}">${allDone ? '✓' : mIdx + 1}</div>
+            <div class="module-title-wrap">
+                <div class="module-title">${mod.title.replace(/^Module \d+: /, '')}</div>
+                <div class="module-meta">${completedCount}/${mod.topics.length} topics</div>
+            </div>
+            <span class="module-chevron">▶</span>
+        `;
+
+        const topicsList = document.createElement('div');
+        topicsList.className = 'topics-list';
+
+        mod.topics.forEach((topic, tIdx) => {
+            const isDone = completedTopics[`${mIdx}-${tIdx}`];
+            const item = document.createElement('div');
+            item.className = `topic-item ${isDone ? 'completed' : ''}`;
+            item.id = `topic-${mIdx}-${tIdx}`;
+            item.innerHTML = `<div class="topic-dot"></div>${topic.title}`;
+            item.onclick = () => loadTopic(mIdx, tIdx);
+            topicsList.appendChild(item);
+        });
+
+        header.onclick = () => {
+            header.classList.toggle('open');
+            topicsList.classList.toggle('open');
+        };
+
+        group.appendChild(header);
+        group.appendChild(topicsList);
+        list.appendChild(group);
+    });
+}
+
+// ============================================================
+// LOAD TOPIC
+// ============================================================
+function loadTopic(mIdx, tIdx) {
+    currentModuleIdx = mIdx;
+    currentTopicIdx = tIdx;
+
+    const mod = currentCourse.modules[mIdx];
+    const topic = mod.topics[tIdx];
+
+    // Update active states
+    document.querySelectorAll('.topic-item').forEach(el => el.classList.remove('active'));
+    const activeEl = document.getElementById(`topic-${mIdx}-${tIdx}`);
+    if (activeEl) activeEl.classList.add('active');
+
+    document.querySelectorAll('.module-header').forEach((h, i) => {
+        if (i === mIdx) {
+            h.classList.add('open', 'active');
+            h.nextElementSibling.classList.add('open');
+        }
+    });
+
+    const isDone = completedTopics[`${mIdx}-${tIdx}`];
+    const totalTopics = currentCourse.modules.reduce((a, m) => a + m.topics.length, 0);
+    const flatIdx = currentCourse.modules.slice(0, mIdx).reduce((a, m) => a + m.topics.length, 0) + tIdx;
+
+    const contentArea = document.getElementById('contentArea');
+    contentArea.innerHTML = `
+        <div class="content-breadcrumb">
+            ${mod.title.replace(/^Module \d+: /, 'Module ' + (mIdx+1) + ': ')} <span>▸</span> <span>${topic.title}</span>
+        </div>
+        <div class="content-title">${topic.title}</div>
+        <div class="content-subtitle">${mod.title} · Topic ${tIdx + 1} of ${mod.topics.length}</div>
+        ${topic.content}
+        <div class="topic-nav">
+            <button class="nav-btn" onclick="loadTopic(${mIdx}, ${tIdx - 1})" ${tIdx === 0 && mIdx === 0 ? 'disabled' : ''}>
+                ← Previous
+            </button>
+            <button class="mark-btn ${isDone ? 'marked' : ''}" onclick="markComplete(${mIdx}, ${tIdx})">
+                ${isDone ? '✓ Completed' : '✓ Mark Complete'}
+            </button>
+            <button class="nav-btn primary-btn" onclick="loadNextTopic(${mIdx}, ${tIdx})" ${flatIdx === totalTopics - 1 ? 'disabled' : ''}>
+                Next →
+            </button>
+        </div>
+    `;
+
+    // Fix previous button for first topic of later modules
+    if (tIdx === 0 && mIdx > 0) {
+        contentArea.querySelector('.nav-btn').onclick = () => {
+            const prevMod = currentCourse.modules[mIdx - 1];
+            loadTopic(mIdx - 1, prevMod.topics.length - 1);
+        };
+        contentArea.querySelector('.nav-btn').disabled = false;
+    }
+
+    contentArea.scrollTop = 0;
+}
+
+function loadNextTopic(mIdx, tIdx) {
+    const mod = currentCourse.modules[mIdx];
+    if (tIdx < mod.topics.length - 1) {
+        loadTopic(mIdx, tIdx + 1);
+    } else if (mIdx < currentCourse.modules.length - 1) {
+        loadTopic(mIdx + 1, 0);
+    }
+}
+
+function startFirstTopic() {
+    loadTopic(0, 0);
+}
+
+// ============================================================
+// MARK COMPLETE
+// ============================================================
+function markComplete(mIdx, tIdx) {
+    const key = `${mIdx}-${tIdx}`;
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get('course');
+
+    completedTopics[key] = !completedTopics[key];
+    localStorage.setItem('completedTopics_' + courseId, JSON.stringify(completedTopics));
+
+    renderModules(courseId);
+    updateProgress();
+
+    // Update button
+    const btn = document.querySelector('.mark-btn');
+    if (btn) {
+        const isDone = completedTopics[key];
+        btn.textContent = isDone ? '✓ Completed' : '✓ Mark Complete';
+        btn.className = 'mark-btn' + (isDone ? ' marked' : '');
+    }
+
+    // Update active state
+    const topicEl = document.getElementById(`topic-${mIdx}-${tIdx}`);
+    if (topicEl) {
+        topicEl.classList.add('active');
+        if (completedTopics[key]) topicEl.classList.add('completed');
+        else topicEl.classList.remove('completed');
+    }
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function updateProgress() {
+    const totalTopics = currentCourse.modules.reduce((a, m) => a + m.topics.length, 0);
+    const done = Object.values(completedTopics).filter(Boolean).length;
+    const pct = Math.round((done / totalTopics) * 100);
+
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+}
+</script>
+</body>
+</html>

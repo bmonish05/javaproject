@@ -4,299 +4,626 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080c14;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.08);
+            --border-glow: rgba(99,179,237,0.3);
+            --accent: #63b3ed;
+            --accent2: #9f7aea;
+            --accent3: #68d391;
+            --accent4: #f6ad55;
+            --text: #e8eaf0;
+            --muted: #6b7494;
+            --sidebar-w: 260px;
+            --topbar-h: 64px;
+            --radius: 16px;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html, body { width:100%; height:100%; overflow:hidden; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); }
+        #bgCanvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+        body::before { content:''; position:fixed; inset:0; z-index:1; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); background-size:200px; pointer-events:none; opacity:0.6; }
+        .shell { position:fixed; inset:0; display:flex; z-index:2; }
+
+        /* SIDEBAR */
+        .sidebar { width:var(--sidebar-w); height:100%; display:flex; flex-direction:column; background:rgba(8,12,20,0.75); backdrop-filter:blur(28px); border-right:1px solid var(--border); flex-shrink:0; position:relative; overflow:hidden; }
+        .sidebar::after { content:''; position:absolute; top:0; left:0; width:1px; height:100%; background:linear-gradient(180deg,transparent,var(--accent),var(--accent2),transparent); opacity:0.4; animation:scanline 5s linear infinite; }
+        @keyframes scanline { 0%{transform:translateY(-100%);opacity:0} 10%{opacity:.5} 90%{opacity:.5} 100%{transform:translateY(100vh);opacity:0} }
+        .sidebar-orb { position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:220px; height:220px; background:radial-gradient(circle,rgba(99,179,237,.1) 0%,transparent 70%); border-radius:50%; pointer-events:none; animation:orb-pulse 4s ease-in-out infinite; }
+        @keyframes orb-pulse { 0%,100%{transform:translateX(-50%) scale(1);opacity:.5} 50%{transform:translateX(-50%) scale(1.3);opacity:1} }
+
+        .logo { padding:22px 22px 0; display:flex; align-items:center; gap:11px; position:relative; z-index:1; }
+        .logo-mark { width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:17px; box-shadow:0 0 20px rgba(99,179,237,.4); animation:logo-float 3s ease-in-out infinite; }
+        @keyframes logo-float { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-4px) rotate(6deg)} }
+        .logo-text { font-family:'Syne',sans-serif; font-size:1.05em; font-weight:800; letter-spacing:-.02em; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+        .user-widget { margin:18px 14px; padding:13px 15px; background:var(--surface); border:1px solid var(--border); border-radius:14px; display:flex; align-items:center; gap:11px; position:relative; overflow:hidden; transition:all .3s; cursor:default; }
+        .user-widget:hover { border-color:var(--border-glow); background:var(--surface-hover); }
+        .user-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:1em; font-weight:800; flex-shrink:0; box-shadow:0 0 14px rgba(99,179,237,.3); }
+        .user-info { flex:1; min-width:0; }
+        .user-name { font-size:.87em; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .user-role { font-size:.7em; color:var(--accent); margin-top:1px; }
+
+        .nav-section-label { padding:12px 22px 4px; font-size:.63em; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+        .nav { flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; }
+        .nav::-webkit-scrollbar { display:none; }
+        .nav-item { position:relative; display:flex; align-items:center; gap:11px; padding:11px 13px; border-radius:11px; cursor:pointer; color:var(--muted); font-size:.88em; font-weight:500; transition:all .25s cubic-bezier(.4,0,.2,1); border:1px solid transparent; overflow:hidden; user-select:none; }
+        .nav-item:hover { color:var(--text); background:rgba(255,255,255,.04); border-color:var(--border); transform:translateX(2px); }
+        .nav-item.active { color:var(--text); background:var(--surface-hover); border-color:var(--border-glow); box-shadow:0 0 20px rgba(99,179,237,.08),inset 0 0 20px rgba(99,179,237,.02); }
+        .nav-indicator { position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:0; background:linear-gradient(180deg,var(--accent),var(--accent2)); border-radius:0 3px 3px 0; transition:height .3s cubic-bezier(.4,0,.2,1); }
+        .nav-item.active .nav-indicator { height:55%; }
+        .nav-item.active .nav-icon { filter:drop-shadow(0 0 5px var(--accent)); }
+        .nav-icon { font-size:1.05em; z-index:1; }
+        .nav-text { z-index:1; flex:1; }
+        .nav-badge { z-index:1; background:var(--accent2); color:white; font-size:.66em; font-weight:700; padding:2px 7px; border-radius:20px; }
+
+        .sidebar-bottom { padding:14px 10px; border-top:1px solid var(--border); }
+        .logout-btn { width:100%; display:flex; align-items:center; gap:10px; padding:11px 13px; border-radius:11px; border:1px solid rgba(239,68,68,.18); background:rgba(239,68,68,.04); color:#fc8181; font-size:.88em; font-weight:500; cursor:pointer; transition:all .25s; font-family:'DM Sans',sans-serif; }
+        .logout-btn:hover { background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.35); color:#feb2b2; transform:translateX(3px); }
+
+        /* MAIN */
+        .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+        .topbar { height:var(--topbar-h); display:flex; align-items:center; padding:0 30px; border-bottom:1px solid var(--border); background:rgba(8,12,20,.55); backdrop-filter:blur(20px); gap:14px; flex-shrink:0; }
+        .topbar-title { font-family:'Syne',sans-serif; font-size:1.25em; font-weight:700; flex:1; background:linear-gradient(90deg,var(--text),rgba(255,255,255,.55)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:title-in .4s ease both; }
+        @keyframes title-in { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+        .topbar-actions { display:flex; align-items:center; gap:9px; }
+        .topbar-btn { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.95em; transition:all .25s; position:relative; }
+        .topbar-btn:hover { border-color:var(--border-glow); color:var(--text); background:var(--surface-hover); transform:scale(1.05); }
+        .notif-dot { position:absolute; top:6px; right:6px; width:6px; height:6px; background:var(--accent2); border-radius:50%; border:1.5px solid var(--bg); animation:dot-pulse 2s ease-in-out infinite; }
+        @keyframes dot-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5)} }
+        .clock { font-family:'Syne',sans-serif; font-size:.78em; font-weight:600; color:var(--muted); padding:5px 13px; background:var(--surface); border:1px solid var(--border); border-radius:20px; letter-spacing:.03em; }
+
+        /* CONTENT */
+        .content { flex:1; overflow-y:auto; padding:26px 30px; }
+        .content::-webkit-scrollbar { width:3px; }
+        .content::-webkit-scrollbar-track { background:transparent; }
+        .content::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+        .section { display:none; }
+        .section.active { display:block; animation:sec-in .4s cubic-bezier(.4,0,.2,1) both; }
+        @keyframes sec-in { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+        /* HERO */
+        .hero { background:linear-gradient(135deg,rgba(99,179,237,.07),rgba(159,122,234,.07)); border:1px solid rgba(99,179,237,.12); border-radius:20px; padding:26px 30px; margin-bottom:22px; position:relative; overflow:hidden; }
+        .hero-glow1 { position:absolute; top:-60px; right:-40px; width:280px; height:280px; background:radial-gradient(circle,rgba(99,179,237,.09),transparent 70%); pointer-events:none; animation:hg1 6s ease-in-out infinite; }
+        .hero-glow2 { position:absolute; bottom:-60px; left:20%; width:200px; height:200px; background:radial-gradient(circle,rgba(159,122,234,.07),transparent 70%); pointer-events:none; }
+        @keyframes hg1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,10px)} }
+        .hero-kicker { font-size:.75em; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:7px; display:flex; align-items:center; gap:8px; }
+        .hero-kicker::before { content:''; display:inline-block; width:18px; height:1px; background:var(--accent); }
+        .hero-h1 { font-family:'Syne',sans-serif; font-size:1.85em; font-weight:800; line-height:1.18; margin-bottom:9px; position:relative; z-index:1; }
+        .hero-h1 span { background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero-sub { color:var(--muted); font-size:.9em; max-width:380px; position:relative; z-index:1; }
+
+        /* STATS */
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+        .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; position:relative; overflow:hidden; cursor:pointer; transition:all .35s cubic-bezier(.4,0,.2,1); animation:card-in .5s cubic-bezier(.4,0,.2,1) both; }
+        .stat-card:nth-child(1){animation-delay:.04s} .stat-card:nth-child(2){animation-delay:.08s} .stat-card:nth-child(3){animation-delay:.12s} .stat-card:nth-child(4){animation-delay:.16s}
+        @keyframes card-in { from{opacity:0;transform:translateY(18px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+        .stat-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,var(--sc1),var(--sc2)); opacity:0; transition:opacity .35s; border-radius:var(--radius); }
+        .stat-card:hover { transform:translateY(-5px); border-color:rgba(255,255,255,.12); box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 30px var(--sg,rgba(99,179,237,.1)); }
+        .stat-card:hover::before { opacity:1; }
+        .stat-card[data-c=b]{--sc1:rgba(99,179,237,.07);--sc2:rgba(99,179,237,.02);--sg:rgba(99,179,237,.14);}
+        .stat-card[data-c=p]{--sc1:rgba(159,122,234,.07);--sc2:rgba(159,122,234,.02);--sg:rgba(159,122,234,.14);}
+        .stat-card[data-c=g]{--sc1:rgba(104,211,145,.07);--sc2:rgba(104,211,145,.02);--sg:rgba(104,211,145,.14);}
+        .stat-card[data-c=o]{--sc1:rgba(246,173,85,.07);--sc2:rgba(246,173,85,.02);--sg:rgba(246,173,85,.14);}
+        .stat-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; position:relative; z-index:1; }
+        .stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.15em; }
+        .stat-card[data-c=b] .stat-icon{background:rgba(99,179,237,.12)} .stat-card[data-c=p] .stat-icon{background:rgba(159,122,234,.12)} .stat-card[data-c=g] .stat-icon{background:rgba(104,211,145,.12)} .stat-card[data-c=o] .stat-icon{background:rgba(246,173,85,.12)}
+        .stat-pill { font-size:.72em; font-weight:600; padding:3px 8px; border-radius:20px; display:flex; align-items:center; gap:3px; }
+        .stat-pill.up{background:rgba(104,211,145,.1);color:var(--accent3)} .stat-pill.neu{background:rgba(99,179,237,.1);color:var(--accent)} .stat-pill.warn{background:rgba(246,173,85,.1);color:var(--accent4)}
+        .stat-num { font-family:'Syne',sans-serif; font-size:2em; font-weight:800; line-height:1; margin-bottom:3px; position:relative; z-index:1; background:linear-gradient(135deg,var(--text),rgba(255,255,255,.65)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .stat-lbl { font-size:.78em; color:var(--muted); position:relative; z-index:1; }
+
+        /* PANELS */
+        .panels-row { display:grid; grid-template-columns:1.45fr 1fr; gap:14px; }
+        .panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; position:relative; overflow:hidden; }
+        .panel-hdr { font-family:'Syne',sans-serif; font-size:.82em; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+        .panel-hdr::after { content:''; flex:1; height:1px; background:var(--border); }
+
+        /* Course tiles */
+        .course-tiles { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+        .ct { padding:13px; border-radius:12px; border:1px solid var(--border); cursor:pointer; transition:all .3s cubic-bezier(.4,0,.2,1); position:relative; overflow:hidden; background:rgba(255,255,255,.02); }
+        .ct::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,var(--tc1),var(--tc2)); opacity:0; transition:opacity .3s; }
+        .ct:hover { transform:translateY(-3px) scale(1.02); border-color:var(--border-glow); }
+        .ct:hover::before { opacity:1; }
+        .ct[data-t=cc]{--tc1:rgba(99,179,237,.09);--tc2:rgba(99,179,237,.02)} .ct[data-t=j]{--tc1:rgba(246,173,85,.09);--tc2:rgba(246,173,85,.02)} .ct[data-t=ml]{--tc1:rgba(159,122,234,.09);--tc2:rgba(159,122,234,.02)} .ct[data-t=cs]{--tc1:rgba(104,211,145,.09);--tc2:rgba(104,211,145,.02)}
+        .ct-icon { font-size:1.4em; margin-bottom:7px; position:relative; z-index:1; }
+        .ct-name { font-size:.8em; font-weight:600; color:var(--text); margin-bottom:4px; position:relative; z-index:1; }
+        .ct-sub { font-size:.69em; color:var(--muted); margin-bottom:7px; position:relative; z-index:1; }
+        .ct-bar-wrap { height:3px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden; position:relative; z-index:1; }
+        .ct-bar { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); position:relative; transition:width 1s cubic-bezier(.4,0,.2,1); }
+        .ct-bar::after { content:''; position:absolute; right:0; top:50%; transform:translateY(-50%); width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 5px #fff; }
+
+        /* Activity */
+        .act-list { display:flex; flex-direction:column; gap:8px; }
+        .act-item { display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:10px; background:rgba(255,255,255,.02); border:1px solid transparent; transition:all .25s; }
+        .act-item:hover { background:var(--surface-hover); border-color:var(--border); }
+        .act-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .act-text { flex:1; font-size:.81em; color:var(--muted); }
+        .act-text strong { color:var(--text); font-weight:500; }
+        .act-time { font-size:.7em; color:var(--muted); white-space:nowrap; }
+
+        /* COURSES SECTION */
+        .sec-hdr { margin-bottom:22px; display:flex; align-items:center; justify-content:space-between; }
+        .sec-title { font-family:'Syne',sans-serif; font-size:1.35em; font-weight:800; }
+        .courses-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+        .cc { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:22px; position:relative; overflow:hidden; transition:all .4s cubic-bezier(.4,0,.2,1); animation:card-in .5s cubic-bezier(.4,0,.2,1) both; }
+        .cc:nth-child(1){animation-delay:.04s} .cc:nth-child(2){animation-delay:.08s} .cc:nth-child(3){animation-delay:.12s} .cc:nth-child(4){animation-delay:.16s}
+        .cc::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--ca,var(--accent)),transparent); opacity:0; transition:opacity .3s; }
+        .cc:hover { transform:translateY(-6px); border-color:rgba(255,255,255,.1); box-shadow:0 30px 80px rgba(0,0,0,.5); }
+        .cc:hover::before { opacity:1; }
+        .cc[data-a=b]{--ca:var(--accent)} .cc[data-a=o]{--ca:var(--accent4)} .cc[data-a=p]{--ca:var(--accent2)} .cc[data-a=g]{--ca:var(--accent3)}
+        .cc-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
+        .cc-emoji { font-size:2.1em; line-height:1; filter:drop-shadow(0 0 10px var(--ca,rgba(99,179,237,.5))); transition:transform .3s; }
+        .cc:hover .cc-emoji { transform:scale(1.15) rotate(-6deg); }
+        .cc-badge { font-size:.7em; padding:4px 10px; border-radius:20px; font-weight:600; border:1px solid; }
+        .cc-badge.ok{background:rgba(104,211,145,.1);color:var(--accent3);border-color:rgba(104,211,145,.2)} .cc-badge.wip{background:rgba(246,173,85,.1);color:var(--accent4);border-color:rgba(246,173,85,.2)}
+        .cc-name { font-family:'Syne',sans-serif; font-size:1.1em; font-weight:700; margin-bottom:3px; line-height:1.25; }
+        .cc-inst { font-size:.78em; color:var(--muted); margin-bottom:14px; }
+        .cc-prow { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+        .cc-plbl { font-size:.76em; color:var(--muted); }
+        .cc-ppct { font-family:'Syne',sans-serif; font-size:.76em; font-weight:700; }
+        .cc-track { height:4px; background:rgba(255,255,255,.05); border-radius:3px; overflow:hidden; margin-bottom:16px; position:relative; }
+        .cc-fill { height:100%; border-radius:3px; position:relative; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+        .cc[data-a=b] .cc-fill{background:linear-gradient(90deg,var(--accent),rgba(99,179,237,.4))} .cc[data-a=o] .cc-fill{background:linear-gradient(90deg,var(--accent4),rgba(246,173,85,.4))} .cc[data-a=p] .cc-fill{background:linear-gradient(90deg,var(--accent2),rgba(159,122,234,.4))} .cc[data-a=g] .cc-fill{background:linear-gradient(90deg,var(--accent3),rgba(104,211,145,.4))}
+        .cc-fill::after { content:''; position:absolute; right:0; top:50%; transform:translateY(-50%); width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 8px rgba(255,255,255,.8); }
+        .cc-btn { width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--text); font-family:'DM Sans',sans-serif; font-size:.85em; font-weight:600; cursor:pointer; transition:all .3s cubic-bezier(.4,0,.2,1); display:flex; align-items:center; justify-content:center; gap:7px; }
+        .cc[data-a=b] .cc-btn:hover{background:var(--accent);border-color:transparent;color:#080c14} .cc[data-a=o] .cc-btn:hover{background:var(--accent4);border-color:transparent;color:#080c14} .cc[data-a=p] .cc-btn:hover{background:var(--accent2);border-color:transparent;color:#080c14} .cc[data-a=g] .cc-btn:hover{background:var(--accent3);border-color:transparent;color:#080c14}
+        .cc-btn:hover { transform:scale(1.02); box-shadow:0 8px 28px rgba(0,0,0,.3); }
+
+        /* ASSIGNMENTS */
+        .assign-list { display:flex; flex-direction:column; gap:12px; }
+        .acard { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 22px; display:flex; align-items:center; gap:18px; transition:all .3s cubic-bezier(.4,0,.2,1); position:relative; overflow:hidden; animation:card-in .5s both; }
+        .acard:nth-child(1){animation-delay:.04s} .acard:nth-child(2){animation-delay:.08s} .acard:nth-child(3){animation-delay:.12s}
+        .acard::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; }
+        .acard.pend::before{background:var(--accent4);box-shadow:0 0 10px var(--accent4)} .acard.done::before{background:var(--accent3);box-shadow:0 0 10px var(--accent3)} .acard.quiz::before{background:var(--accent2);box-shadow:0 0 10px var(--accent2)}
+        .acard:hover { transform:translateX(4px); border-color:rgba(255,255,255,.1); background:var(--surface-hover); }
+        .aicon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2em; flex-shrink:0; }
+        .acard.pend .aicon{background:rgba(246,173,85,.1)} .acard.done .aicon{background:rgba(104,211,145,.1)} .acard.quiz .aicon{background:rgba(159,122,234,.1)}
+        .ainfo { flex:1; }
+        .aname { font-size:.93em; font-weight:600; margin-bottom:4px; }
+        .ameta { font-size:.76em; color:var(--muted); display:flex; gap:14px; }
+        .astatus { font-size:.73em; font-weight:600; padding:4px 11px; border-radius:20px; white-space:nowrap; }
+        .acard.pend .astatus{background:rgba(246,173,85,.1);color:var(--accent4);border:1px solid rgba(246,173,85,.2)} .acard.done .astatus{background:rgba(104,211,145,.1);color:var(--accent3);border:1px solid rgba(104,211,145,.2)} .acard.quiz .astatus{background:rgba(159,122,234,.1);color:var(--accent2);border:1px solid rgba(159,122,234,.2)}
+        .abtn { padding:8px 17px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--text); font-family:'DM Sans',sans-serif; font-size:.81em; font-weight:600; cursor:pointer; transition:all .25s; white-space:nowrap; }
+        .abtn:hover { background:var(--surface-hover); border-color:var(--border-glow); transform:scale(1.05); }
+        .abtn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+        /* GRADES */
+        .grades-wrap { display:flex; flex-direction:column; gap:12px; }
+        .g-header { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr 1fr; gap:14px; padding:4px 22px 8px; }
+        .g-hlbl { font-size:.68em; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); text-align:center; }
+        .g-hlbl:first-child { text-align:left; }
+        .grow { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 22px; display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr 1fr; gap:14px; align-items:center; transition:all .3s; animation:card-in .5s both; }
+        .grow:nth-child(1){animation-delay:.04s} .grow:nth-child(2){animation-delay:.08s} .grow:nth-child(3){animation-delay:.12s} .grow:nth-child(4){animation-delay:.16s}
+        .grow:hover { transform:translateX(4px); border-color:rgba(255,255,255,.1); background:var(--surface-hover); }
+        .gc { font-size:.86em; text-align:center; }
+        .gc.name { text-align:left; display:flex; align-items:center; gap:8px; font-weight:600; }
+        .gc.score { font-family:'Syne',sans-serif; font-weight:700; font-size:.95em; }
+        .chip { display:inline-flex; align-items:center; justify-content:center; padding:4px 13px; border-radius:20px; font-family:'Syne',sans-serif; font-weight:700; font-size:.83em; }
+        .chip.a{background:rgba(104,211,145,.1);color:var(--accent3);border:1px solid rgba(104,211,145,.2)} .chip.b{background:rgba(99,179,237,.1);color:var(--accent);border:1px solid rgba(99,179,237,.2)}
+
+        /* PROFILE */
+        .profile-grid { display:grid; grid-template-columns:280px 1fr; gap:18px; }
+        .p-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:26px 22px; text-align:center; position:relative; overflow:hidden; }
+        .p-glow { position:absolute; top:-50px; left:50%; transform:translateX(-50%); width:200px; height:200px; background:radial-gradient(circle,rgba(99,179,237,.1),transparent 70%); pointer-events:none; }
+        .p-avatar { width:76px; height:76px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:1.9em; font-family:'Syne',sans-serif; font-weight:800; margin:0 auto 12px; box-shadow:0 0 0 4px rgba(99,179,237,.1),0 0 30px rgba(99,179,237,.2); animation:av-pulse 3s ease-in-out infinite; }
+        @keyframes av-pulse { 0%,100%{box-shadow:0 0 0 4px rgba(99,179,237,.1),0 0 30px rgba(99,179,237,.2)} 50%{box-shadow:0 0 0 8px rgba(99,179,237,.06),0 0 50px rgba(99,179,237,.3)} }
+        .p-name { font-family:'Syne',sans-serif; font-size:1.15em; font-weight:800; margin-bottom:4px; }
+        .p-id { font-size:.78em; color:var(--muted); margin-bottom:18px; }
+        .p-mini { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:18px; }
+        .pmini { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; padding:11px; }
+        .pmini-num { font-family:'Syne',sans-serif; font-size:1.35em; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .pmini-lbl { font-size:.68em; color:var(--muted); margin-top:1px; }
+        .p-edit { width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface-hover); color:var(--text); font-family:'DM Sans',sans-serif; font-size:.86em; font-weight:600; cursor:pointer; transition:all .25s; }
+        .p-edit:hover { background:linear-gradient(135deg,rgba(99,179,237,.15),rgba(159,122,234,.15)); border-color:var(--border-glow); transform:translateY(-2px); }
+        .p-details { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:26px; }
+        .p-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+        .p-field { padding:15px 0; border-bottom:1px solid var(--border); }
+        .p-field:nth-child(odd){padding-right:22px;border-right:1px solid var(--border)} .p-field:nth-child(even){padding-left:22px}
+        .p-field-lbl { font-size:.67em; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+        .p-field-val { font-size:.88em; font-weight:500; color:var(--text); }
+
+        /* RIPPLE */
+        .ripple { position:absolute; border-radius:50%; background:rgba(99,179,237,.18); transform:scale(0); animation:rip .6s linear; pointer-events:none; }
+        @keyframes rip { to{transform:scale(4);opacity:0} }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:22px; right:22px; background:rgba(18,24,38,.96); border:1px solid var(--border-glow); border-radius:14px; padding:13px 19px; font-size:.86em; color:var(--text); display:flex; align-items:center; gap:9px; z-index:9999; backdrop-filter:blur(20px); box-shadow:0 20px 60px rgba(0,0,0,.5); transform:translateY(70px); opacity:0; transition:all .4s cubic-bezier(.4,0,.2,1); }
+        .toast.show { transform:translateY(0); opacity:1; }
+
+        @media(max-width:1200px){.stats-row{grid-template-columns:repeat(2,1fr)}.panels-row{grid-template-columns:1fr}}
+        @media(max-width:900px){:root{--sidebar-w:220px}.courses-grid{grid-template-columns:1fr}.profile-grid{grid-template-columns:1fr}}
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>📚 Student Portal</h2>
-            </div>
-            <nav class="sidebar-menu">
-                <a href="javascript:void(0)" class="menu-item active" onclick="showSection('home')">🏠 Home</a>
-                <a href="javascript:void(0)" class="menu-item" onclick="showSection('courses')">📖 My Courses</a>
-                <a href="javascript:void(0)" class="menu-item" onclick="showSection('assignments')">✏️ Assignments</a>
-                <a href="javascript:void(0)" class="menu-item" onclick="showSection('grades')">📊 Grades</a>
-                <a href="javascript:void(0)" class="menu-item" onclick="showSection('profile')">👤 Profile</a>
-            </nav>
-        </aside>
+<canvas id="bgCanvas"></canvas>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Navigation -->
-            <div class="top-nav">
-                <div class="nav-content">
-                    <h1 id="pageTitle">Home</h1>
-                    <div class="user-menu">
-                        <span id="userName">Student</span>
-                        <button class="btn btn-logout" onclick="logout()">Logout</button>
+<div class="shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-orb"></div>
+        <div class="logo">
+            <div class="logo-mark">📚</div>
+            <div class="logo-text">EduPortal</div>
+        </div>
+        <div class="user-widget">
+            <div class="user-avatar" id="sidebarAvatar">S</div>
+            <div class="user-info">
+                <div class="user-name" id="sidebarName">Student</div>
+                <div class="user-role">Student · 3rd Year</div>
+            </div>
+        </div>
+        <div class="nav-section-label">Navigation</div>
+        <nav class="nav">
+            <div class="nav-item active" onclick="goSec('home',this)">
+                <div class="nav-indicator"></div>
+                <span class="nav-icon">⬡</span>
+                <span class="nav-text">Overview</span>
+            </div>
+            <div class="nav-item" onclick="goSec('courses',this)">
+                <div class="nav-indicator"></div>
+                <span class="nav-icon">◈</span>
+                <span class="nav-text">My Courses</span>
+                <span class="nav-badge">4</span>
+            </div>
+            <div class="nav-item" onclick="goSec('assignments',this)">
+                <div class="nav-indicator"></div>
+                <span class="nav-icon">◻</span>
+                <span class="nav-text">Assignments</span>
+                <span class="nav-badge">2</span>
+            </div>
+            <div class="nav-item" onclick="goSec('grades',this)">
+                <div class="nav-indicator"></div>
+                <span class="nav-icon">◇</span>
+                <span class="nav-text">Grades</span>
+            </div>
+            <div class="nav-item" onclick="goSec('profile',this)">
+                <div class="nav-indicator"></div>
+                <span class="nav-icon">◎</span>
+                <span class="nav-text">Profile</span>
+            </div>
+        </nav>
+        <div class="sidebar-bottom">
+            <button class="logout-btn" onclick="doLogout()">
+                <span>⇥</span> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <div class="topbar">
+            <div class="topbar-title" id="topTitle">Overview</div>
+            <div class="topbar-actions">
+                <div class="clock" id="clk">--:--</div>
+                <button class="topbar-btn">🔔<span class="notif-dot"></span></button>
+                <button class="topbar-btn">🔍</button>
+            </div>
+        </div>
+
+        <div class="content" id="content">
+
+            <!-- HOME -->
+            <div class="section active" id="sec-home">
+                <div class="hero">
+                    <div class="hero-glow1"></div><div class="hero-glow2"></div>
+                    <div class="hero-kicker">Good day</div>
+                    <div class="hero-h1">Welcome back, <span id="heroName">Student</span> 👋</div>
+                    <p class="hero-sub">Track your progress, explore courses, and keep up with assignments — all in one place.</p>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card" data-c="b" onclick="goSec('courses',document.querySelector('.nav-item:nth-child(2)'))">
+                        <div class="stat-top">
+                            <div class="stat-icon">📖</div>
+                            <div class="stat-pill neu">Active</div>
+                        </div>
+                        <div class="stat-num">4</div>
+                        <div class="stat-lbl">Enrolled Courses</div>
+                    </div>
+                    <div class="stat-card" data-c="p" onclick="goSec('assignments',document.querySelector('.nav-item:nth-child(3)'))">
+                        <div class="stat-top">
+                            <div class="stat-icon">✏️</div>
+                            <div class="stat-pill warn">2 due</div>
+                        </div>
+                        <div class="stat-num">3</div>
+                        <div class="stat-lbl">Pending Tasks</div>
+                    </div>
+                    <div class="stat-card" data-c="g" onclick="goSec('grades',document.querySelector('.nav-item:nth-child(4)'))">
+                        <div class="stat-top">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-pill up">↑ +2%</div>
+                        </div>
+                        <div class="stat-num">85%</div>
+                        <div class="stat-lbl">Avg. Grade</div>
+                    </div>
+                    <div class="stat-card" data-c="o">
+                        <div class="stat-top">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-pill neu">Week</div>
+                        </div>
+                        <div class="stat-num">2</div>
+                        <div class="stat-lbl">Upcoming Events</div>
+                    </div>
+                </div>
+
+                <div class="panels-row">
+                    <div class="panel">
+                        <div class="panel-hdr">Quick Course Access</div>
+                        <div class="course-tiles">
+                            <div class="ct" data-t="cc" onclick="openCourse('cloud-computing')">
+                                <div class="ct-icon">☁️</div>
+                                <div class="ct-name">Cloud Computing</div>
+                                <div class="ct-sub">75% complete</div>
+                                <div class="ct-bar-wrap"><div class="ct-bar" style="width:75%"></div></div>
+                            </div>
+                            <div class="ct" data-t="j" onclick="openCourse('advance-java')">
+                                <div class="ct-icon">☕</div>
+                                <div class="ct-name">Advance Java</div>
+                                <div class="ct-sub">60% complete</div>
+                                <div class="ct-bar-wrap"><div class="ct-bar" style="width:60%"></div></div>
+                            </div>
+                            <div class="ct" data-t="ml" onclick="openCourse('machine-learning')">
+                                <div class="ct-icon">🤖</div>
+                                <div class="ct-name">Machine Learning</div>
+                                <div class="ct-sub">80% complete</div>
+                                <div class="ct-bar-wrap"><div class="ct-bar" style="width:80%"></div></div>
+                            </div>
+                            <div class="ct" data-t="cs" onclick="openCourse('computer-science-basics')">
+                                <div class="ct-icon">💻</div>
+                                <div class="ct-name">CS Basics</div>
+                                <div class="ct-sub">85% complete</div>
+                                <div class="ct-bar-wrap"><div class="ct-bar" style="width:85%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-hdr">Recent Activity</div>
+                        <div class="act-list">
+                            <div class="act-item"><div class="act-dot" style="background:var(--accent3)"></div><div class="act-text"><strong>Devops Lab Report</strong> submitted successfully</div><div class="act-time">2d ago</div></div>
+                            <div class="act-item"><div class="act-dot" style="background:var(--accent)"></div><div class="act-text">Started <strong>Cloud Computing</strong> Module 3</div><div class="act-time">3d ago</div></div>
+                            <div class="act-item"><div class="act-dot" style="background:var(--accent2)"></div><div class="act-text"><strong>Java Quiz</strong> completed — 84%</div><div class="act-time">5d ago</div></div>
+                            <div class="act-item"><div class="act-dot" style="background:var(--accent4)"></div><div class="act-text"><strong>ML Assignment 2</strong> due in 6 days</div><div class="act-time">Today</div></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <!-- Home Section -->
-                <section id="home-section" class="section active-section">
-                    <div class="welcome-card">
-                        <h2>Welcome back, <span id="studentName">Student</span>! 👋</h2>
-                        <p>You are successfully logged in to the Student Portal</p>
+            <!-- COURSES -->
+            <div class="section" id="sec-courses">
+                <div class="sec-hdr"><div class="sec-title">My Courses</div></div>
+                <div class="courses-grid">
+                    <div class="cc" data-a="b">
+                        <div class="cc-head"><div class="cc-emoji">☁️</div><div class="cc-badge ok">Active</div></div>
+                        <div class="cc-name">Cloud Computing</div>
+                        <div class="cc-inst">Mr. Monish · CS204</div>
+                        <div class="cc-prow"><span class="cc-plbl">Progress</span><span class="cc-ppct">75%</span></div>
+                        <div class="cc-track"><div class="cc-fill" style="width:75%"></div></div>
+                        <button class="cc-btn" onclick="openCourse('cloud-computing')">Open Course →</button>
                     </div>
-
-                    <div class="cards-grid">
-                        <div class="card">
-                            <div class="card-icon">📖</div>
-                            <h3>Enrolled Courses</h3>
-                            <p class="card-number">5</p>
-                            <a href="javascript:void(0)" onclick="showSection('courses')" class="card-link">View Courses →</a>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-icon">✏️</div>
-                            <h3>Pending Assignments</h3>
-                            <p class="card-number">3</p>
-                            <a href="javascript:void(0)" onclick="showSection('assignments')" class="card-link">View Assignments →</a>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-icon">📊</div>
-                            <h3>Average Grade</h3>
-                            <p class="card-number">85%</p>
-                            <a href="javascript:void(0)" onclick="showSection('grades')" class="card-link">View Grades →</a>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-icon">📅</div>
-                            <h3>Upcoming Events</h3>
-                            <p class="card-number">2</p>
-                            <a href="javascript:void(0)" class="card-link">View Events →</a>
-                        </div>
+                    <div class="cc" data-a="o">
+                        <div class="cc-head"><div class="cc-emoji">☕</div><div class="cc-badge wip">Ongoing</div></div>
+                        <div class="cc-name">Advance Java</div>
+                        <div class="cc-inst">Mr. Imran ulla khan · CS201</div>
+                        <div class="cc-prow"><span class="cc-plbl">Progress</span><span class="cc-ppct">60%</span></div>
+                        <div class="cc-track"><div class="cc-fill" style="width:60%"></div></div>
+                        <button class="cc-btn" onclick="openCourse('advance-java')">Open Course →</button>
                     </div>
-                </section>
-
-                <!-- Courses Section -->
-                <section id="courses-section" class="section">
-                    <h2>My Courses</h2>
-                    <div class="courses-list">
-                        <div class="course-card">
-                            <h3>Computer Networks</h3>
-                            <p>Instructor: Mrs.Latha A</p>
-                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 75%"></span></span> 75%</p>
-                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
-                        </div>
-
-                        <div class="course-card">
-                            <h3>Advance Java</h3>
-                            <p>Instructor: Mr.Imran ulla khan</p>
-                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 60%"></span></span> 60%</p>
-                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
-                        </div>
-
-                        <div class="course-card">
-                            <h3>Machine Learning</h3>
-                            <p>Instructor: Mrs.Rashmi KT</p>
-                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 80%"></span></span> 80%</p>
-                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
-                        </div>
-
-                        <div class="course-card">
-                            <h3>Computer Science Basics</h3>
-                            <p>Instructor:Mr.Monish</p>
-                            <p>Progress: <span class="progress-bar"><span class="progress" style="width: 85%"></span></span> 85%</p>
-                            <button class="btn btn-small" onclick="location.href='#'">Open Course</button>
-                        </div>
+                    <div class="cc" data-a="p">
+                        <div class="cc-head"><div class="cc-emoji">🤖</div><div class="cc-badge ok">Active</div></div>
+                        <div class="cc-name">Machine Learning</div>
+                        <div class="cc-inst">Mrs. Rashmi KT · CS202</div>
+                        <div class="cc-prow"><span class="cc-plbl">Progress</span><span class="cc-ppct">80%</span></div>
+                        <div class="cc-track"><div class="cc-fill" style="width:80%"></div></div>
+                        <button class="cc-btn" onclick="openCourse('machine-learning')">Open Course →</button>
                     </div>
-                </section>
-
-                <!-- Assignments Section -->
-                <section id="assignments-section" class="section">
-                    <h2>Assignments</h2>
-                    <div class="assignments-list">
-                        <div class="assignment-card">
-                            <h3>Cloud Computing Assignment #5</h3>
-                            <p>Due Date: <strong>March 15, 2026</strong></p>
-                            <p>Status: <span class="status pending">Pending</span></p>
-                            <button class="btn btn-small" onclick="location.href='#'">Submit Assignment</button>
-                        </div>
-
-                        <div class="assignment-card">
-                            <h3>Advance Java Project</h3>
-                            <p>Due Date: <strong>March 18, 2026</strong></p>
-                            <p>Status: <span class="status pending">Pending</span></p>
-                            <button class="btn btn-small" onclick="startQuiz()">Start Quiz</button>
-                        </div>
-
-                        <div class="assignment-card">
-                            <h3>Devops Lab Report</h3>
-                            <p>Due Date: <strong>March 12, 2026</strong></p>
-                            <p>Status: <span class="status submitted">Submitted</span></p>
-                            <button class="btn btn-small btn-disabled" onclick="location.href='#'" disabled>Submitted</button>
-                        </div>
+                    <div class="cc" data-a="g">
+                        <div class="cc-head"><div class="cc-emoji">💻</div><div class="cc-badge ok">Active</div></div>
+                        <div class="cc-name">Computer Science Basics</div>
+                        <div class="cc-inst">Mr. Monish · CS205</div>
+                        <div class="cc-prow"><span class="cc-plbl">Progress</span><span class="cc-ppct">85%</span></div>
+                        <div class="cc-track"><div class="cc-fill" style="width:85%"></div></div>
+                        <button class="cc-btn" onclick="openCourse('computer-science-basics')">Open Course →</button>
                     </div>
-                </section>
-
-                <!-- Grades Section -->
-                <section id="grades-section" class="section">
-                    <h2>Grades</h2>
-                    <div class="grades-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Course Name</th>
-                                    <th>Assignment 1</th>
-                                    <th>Assignment 2</th>
-                                    <th>Midterm</th>
-                                    <th>Final Grade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Cloud Computing</td>
-                                    <td>90</td>
-                                    <td>85</td>
-                                    <td>88</td>
-                                    <td><strong>87</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Advance Java</td>
-                                    <td>88</td>
-                                    <td>82</td>
-                                    <td>80</td>
-                                    <td><strong>83</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Machine Learning</td>
-                                    <td>92</td>
-                                    <td>89</td>
-                                    <td>91</td>
-                                    <td><strong>91</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Computer Science Basics</td>
-                                    <td>95</td>
-                                    <td>92</td>
-                                    <td>93</td>
-                                    <td><strong>93</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- Profile Section -->
-                <section id="profile-section" class="section">
-                    <h2>My Profile</h2>
-                    <div class="profile-card">
-                        <div class="profile-header">
-                            <div class="profile-avatar">👨‍🎓</div>
-                            <div class="profile-info">
-                                <h3 id="profileName">Student Name</h3>
-                                <p id="profileId">Student ID: </p>
-                            </div>
-                        </div>
-
-                        <div class="profile-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Email:</span>
-                                <span id="profileEmail">student@example.com</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Program:</span>
-                                <span>Bachelor of Science in Computer Science</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Year:</span>
-                                <span>3rd Year</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">GPA:</span>
-                                <span>3.85</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Join Date:</span>
-                                <span id="joinDate">September 2023</span>
-                            </div>
-                        </div>
-
-                        <div class="profile-actions">
-                            <button class="btn btn-small" onclick="location.href='#'">Edit Profile</button>
-                            <button class="btn btn-small" onclick="location.href='#'">Change Password</button>
-                        </div>
-                    </div>
-                </section>
+                </div>
             </div>
-        </main>
-    </div>
 
-    <script src="script.js"></script>
-    <script>
-        // Load user data on page load
-        window.addEventListener('load', function() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            const students = JSON.parse(localStorage.getItem('students')) || {};
+            <!-- ASSIGNMENTS -->
+            <div class="section" id="sec-assignments">
+                <div class="sec-hdr"><div class="sec-title">Assignments</div></div>
+                <div class="assign-list">
+                    <div class="acard pend">
+                        <div class="aicon">☁️</div>
+                        <div class="ainfo">
+                            <div class="aname">Cloud Computing Assignment #5</div>
+                            <div class="ameta"><span>📅 Due: March 15, 2026</span><span>📌 CS204</span></div>
+                        </div>
+                        <div class="astatus">Pending</div>
+                        <button class="abtn">Submit</button>
+                    </div>
+                    <div class="acard quiz">
+                        <div class="aicon">☕</div>
+                        <div class="ainfo">
+                            <div class="aname">Advance Java Project Quiz</div>
+                            <div class="ameta"><span>📅 Due: March 18, 2026</span><span>📌 CS201</span></div>
+                        </div>
+                        <div class="astatus">Quiz</div>
+                        <button class="abtn" onclick="startQuiz()">Start Quiz</button>
+                    </div>
+                    <div class="acard done">
+                        <div class="aicon">⚙️</div>
+                        <div class="ainfo">
+                            <div class="aname">Devops Lab Report</div>
+                            <div class="ameta"><span>📅 Due: March 12, 2026</span><span>📌 CS205</span></div>
+                        </div>
+                        <div class="astatus">Submitted</div>
+                        <button class="abtn" disabled>Submitted ✓</button>
+                    </div>
+                </div>
+            </div>
 
-            if (!currentUser || currentUser.role !== 'student') {
-                window.location.href = 'index.html';
-                return;
-            }
+            <!-- GRADES -->
+            <div class="section" id="sec-grades">
+                <div class="sec-hdr"><div class="sec-title">Grades</div></div>
+                <div class="grades-wrap">
+                    <div class="g-header">
+                        <div class="g-hlbl">Course</div>
+                        <div class="g-hlbl">Asgn 1</div>
+                        <div class="g-hlbl">Asgn 2</div>
+                        <div class="g-hlbl">Midterm</div>
+                        <div class="g-hlbl">Final</div>
+                    </div>
+                    <div class="grow">
+                        <div class="gc name"><span>☁️</span>Cloud Computing</div>
+                        <div class="gc score">90</div><div class="gc score">85</div><div class="gc score">88</div>
+                        <div class="gc" style="text-align:center"><span class="chip a">87 A</span></div>
+                    </div>
+                    <div class="grow">
+                        <div class="gc name"><span>☕</span>Advance Java</div>
+                        <div class="gc score">88</div><div class="gc score">82</div><div class="gc score">80</div>
+                        <div class="gc" style="text-align:center"><span class="chip b">83 B+</span></div>
+                    </div>
+                    <div class="grow">
+                        <div class="gc name"><span>🤖</span>Machine Learning</div>
+                        <div class="gc score">92</div><div class="gc score">89</div><div class="gc score">91</div>
+                        <div class="gc" style="text-align:center"><span class="chip a">91 A</span></div>
+                    </div>
+                    <div class="grow">
+                        <div class="gc name"><span>💻</span>CS Basics</div>
+                        <div class="gc score">95</div><div class="gc score">92</div><div class="gc score">93</div>
+                        <div class="gc" style="text-align:center"><span class="chip a">93 A+</span></div>
+                    </div>
+                </div>
+            </div>
 
-            const studentData = students[currentUser.userId];
-            document.getElementById('studentName').textContent = currentUser.userId;
-            document.getElementById('userName').textContent = currentUser.userId;
-            document.getElementById('profileName').textContent = currentUser.userId;
-            document.getElementById('profileId').textContent = 'Student ID: ' + currentUser.userId;
-            document.getElementById('profileEmail').textContent = studentData?.email || 'Not available';
-            document.getElementById('joinDate').textContent = studentData?.createdAt || 'Not available';
-        });
+            <!-- PROFILE -->
+            <div class="section" id="sec-profile">
+                <div class="sec-hdr"><div class="sec-title">My Profile</div></div>
+                <div class="profile-grid">
+                    <div class="p-card">
+                        <div class="p-glow"></div>
+                        <div class="p-avatar" id="pAv">S</div>
+                        <div class="p-name" id="pName">Student</div>
+                        <div class="p-id" id="pId">ID: —</div>
+                        <div class="p-mini">
+                            <div class="pmini"><div class="pmini-num">3.85</div><div class="pmini-lbl">GPA</div></div>
+                            <div class="pmini"><div class="pmini-num">4</div><div class="pmini-lbl">Courses</div></div>
+                            <div class="pmini"><div class="pmini-num">3rd</div><div class="pmini-lbl">Year</div></div>
+                            <div class="pmini"><div class="pmini-num">85%</div><div class="pmini-lbl">Avg Grade</div></div>
+                        </div>
+                        <button class="p-edit">✏️ Edit Profile</button>
+                    </div>
+                    <div class="p-details">
+                        <div class="panel-hdr">Account Details</div>
+                        <div class="p-grid">
+                            <div class="p-field"><div class="p-field-lbl">Email Address</div><div class="p-field-val" id="pEmail">—</div></div>
+                            <div class="p-field"><div class="p-field-lbl">Student ID</div><div class="p-field-val" id="pSid">—</div></div>
+                            <div class="p-field"><div class="p-field-lbl">Program</div><div class="p-field-val">B.Sc Computer Science</div></div>
+                            <div class="p-field"><div class="p-field-lbl">Academic Year</div><div class="p-field-val">3rd Year (2023–2026)</div></div>
+                            <div class="p-field"><div class="p-field-lbl">Department</div><div class="p-field-val">CS & Engineering</div></div>
+                            <div class="p-field"><div class="p-field-lbl">Joined On</div><div class="p-field-val" id="pJoin">—</div></div>
+                            <div class="p-field" style="border-bottom:none"><div class="p-field-lbl">Status</div><div class="p-field-val" style="color:var(--accent3)">● Active Student</div></div>
+                            <div class="p-field" style="border-bottom:none"><div class="p-field-lbl">GPA</div><div class="p-field-val">3.85 / 4.00</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        // Show/Hide sections
-        function showSection(sectionId) {
-            const lowerSectionId = sectionId.toLowerCase();
+        </div><!-- /content -->
+    </div><!-- /main -->
+</div><!-- /shell -->
 
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                section.classList.remove('active-section');
-            });
+<div class="toast" id="toast">
+    <span id="tIcon">✓</span><span id="tMsg">Done</span>
+</div>
 
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(item => {
-                item.classList.remove('active');
-            });
+<script src="script.js"></script>
+<script>
+/* ── CANVAS BACKGROUND ───────────────────────────── */
+const cv=document.getElementById('bgCanvas'),cx=cv.getContext('2d');
+let W,H;
+const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
+resize(); window.addEventListener('resize',resize);
 
-            const selectedSection = document.getElementById(lowerSectionId + '-section');
-            if (selectedSection) {
-                selectedSection.classList.add('active-section');
-            }
+class P{
+    constructor(){this.reset(true)}
+    reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+5;this.vx=(Math.random()-.5)*.3;this.vy=-(Math.random()*.4+.1);this.r=Math.random()*1.4+.2;this.life=Math.random()*.6+.2;this.ml=this.life;this.col=Math.random()>.5?'99,179,237':'159,122,234';}
+    upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0015;if(this.life<=0||this.y<-8)this.reset(false);}
+    drw(){const a=(this.life/this.ml)*.65;cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fillStyle=`rgba(${this.col},${a})`;cx.fill();}
+}
+class Orb{
+    constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*160+80;this.vx=(Math.random()-.5)*.12;this.vy=(Math.random()-.5)*.12;this.col=Math.random()>.5?'99,179,237':'159,122,234';this.a=Math.random()*.025+.008;}
+    upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}
+    drw(){const g=cx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fillStyle=g;cx.fill();}
+}
+const pts=Array.from({length:110},()=>new P());
+const orbs=Array.from({length:5},()=>new Orb());
+(function loop(){
+    cx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{o.upd();o.drw();});
+    pts.forEach(p=>{p.upd();p.drw();});
+    for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<75){const a=(1-d/75)*.07;cx.beginPath();cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.strokeStyle=`rgba(99,179,237,${a})`;cx.lineWidth=.5;cx.stroke();}}}
+    requestAnimationFrame(loop);
+})();
 
-            const menuItems2 = document.querySelectorAll('.menu-item');
-            menuItems2.forEach(item => {
-                if (item.textContent.toLowerCase().includes(lowerSectionId) || 
-                    item.onclick.toString().includes(lowerSectionId)) {
-                    item.classList.add('active');
-                }
-            });
+/* ── CLOCK ──────────────────────────────────────── */
+const updClk=()=>{const n=new Date();document.getElementById('clk').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');};
+updClk(); setInterval(updClk,10000);
 
-            const titles = {
-                'home': 'Home',
-                'courses': 'My Courses',
-                'assignments': 'Assignments',
-                'grades': 'Grades',
-                'profile': 'Profile'
-            };
-            document.getElementById('pageTitle').textContent = titles[lowerSectionId] || 'Dashboard';
-        }
+/* ── SECTION NAV ────────────────────────────────── */
+const TITLES={home:'Overview',courses:'My Courses',assignments:'Assignments',grades:'Grades',profile:'Profile'};
+function goSec(id,el){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('sec-'+id).classList.add('active');
+    if(el) el.classList.add('active');
+    const t=document.getElementById('topTitle');
+    t.style.animation='none'; void t.offsetWidth; t.style.animation='title-in .4s ease both';
+    t.textContent=TITLES[id]||id;
+}
 
-        // Start Quiz Function
-        function startQuiz() {
-            window.location.href = 'assignment-quiz.html';
-        }
+/* ── RIPPLE ─────────────────────────────────────── */
+document.querySelectorAll('.cc-btn,.abtn,.nav-item,.ct,.stat-card').forEach(el=>{
+    el.addEventListener('click',function(e){
+        const r=this.getBoundingClientRect(),s=document.createElement('span');
+        s.className='ripple'; s.style.cssText=`width:60px;height:60px;left:${e.clientX-r.left-30}px;top:${e.clientY-r.top-30}px`;
+        this.appendChild(s); setTimeout(()=>s.remove(),700);
+    });
+});
 
-        // Logout function
-           function logout() {
-        localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
-    }
-    </script>
+/* ── TOAST ──────────────────────────────────────── */
+function toast(msg,icon='✓'){
+    const t=document.getElementById('toast');
+    document.getElementById('tMsg').textContent=msg;
+    document.getElementById('tIcon').textContent=icon;
+    t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ── NAVIGATION HELPERS ─────────────────────────── */
+function openCourse(id){ toast('Opening course…','📖'); setTimeout(()=>window.location.href='course-viewer.html?course='+id,400); }
+function startQuiz()   { toast('Loading quiz…','📝'); setTimeout(()=>window.location.href='assignment-quiz.html',400); }
+function doLogout()    { toast('Signing out…','⇥'); setTimeout(()=>{localStorage.removeItem('currentUser');window.location.href='index.html';},600); }
+
+/* ── INIT ───────────────────────────────────────── */
+window.addEventListener('load',()=>{
+    const u=JSON.parse(localStorage.getItem('currentUser'));
+    const s=JSON.parse(localStorage.getItem('students'))||{};
+    if(!u||u.role!=='student'){window.location.href='index.html';return;}
+    const d=s[u.userId]||{}, i=u.userId.charAt(0).toUpperCase();
+    document.getElementById('sidebarAvatar').textContent=i;
+    document.getElementById('sidebarName').textContent=u.userId;
+    document.getElementById('heroName').textContent=u.userId;
+    document.getElementById('pAv').textContent=i;
+    document.getElementById('pName').textContent=u.userId;
+    document.getElementById('pId').textContent='ID: '+u.userId;
+    document.getElementById('pSid').textContent=u.userId;
+    document.getElementById('pEmail').textContent=d.email||'—';
+    document.getElementById('pJoin').textContent=d.createdAt||'—';
+});
+</script>
 </body>
 </html>
