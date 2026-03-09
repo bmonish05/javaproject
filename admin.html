@@ -29,7 +29,6 @@
         .card-title{font-family:'Syne',sans-serif;font-size:1.4em;font-weight:800;margin-bottom:5px;}
         .card-sub{font-size:.83em;color:var(--muted);margin-bottom:24px;}
 
-        /* Admin badge */
         .admin-badge{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(251,113,133,.06);border:1px solid rgba(251,113,133,.15);border-radius:12px;margin-bottom:22px;font-size:.82em;color:var(--muted);}
         .admin-badge strong{color:var(--accent);}
 
@@ -108,6 +107,7 @@
     </div>
 </div>
 
+<script src="script.js"></script>
 <script>
 /* CANVAS */
 const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
@@ -126,19 +126,42 @@ function doAdminLogin(){
     const id=document.getElementById('adminId').value.trim();
     const pass=document.getElementById('adminPass').value;
     const secret=document.getElementById('adminSecret').value;
-    const errEl=document.getElementById('adminError');
-    const sucEl=document.getElementById('adminSuccess');
-    errEl.classList.remove('show');sucEl.classList.remove('show');
-    if(!id||!pass||!secret){errEl.textContent='Please fill in all fields.';errEl.classList.add('show');return;}
-    if(secret!==ADMIN_SECRET_KEY){errEl.textContent='Invalid secret key. Access denied.';errEl.classList.add('show');return;}
+    
+    clearErrors();
+    
+    if(!id||!pass||!secret){
+        const errEl=document.getElementById('adminError');
+        if(errEl){
+            errEl.textContent='Please fill in all fields.';
+            errEl.classList.add('show');
+        }
+        return;
+    }
+    if(secret!==ADMIN_SECRET_KEY){
+        const errEl=document.getElementById('adminError');
+        if(errEl){
+            errEl.textContent='Invalid secret key. Access denied.';
+            errEl.classList.add('show');
+        }
+        return;
+    }
     const admins=JSON.parse(localStorage.getItem('admins'))||{};
     if(!admins[id]){
         admins[id]={password:pass,createdAt:new Date().toLocaleDateString()};
         localStorage.setItem('admins',JSON.stringify(admins));
     } else if(admins[id].password!==pass){
-        errEl.textContent='Incorrect password.';errEl.classList.add('show');return;
+        const errEl=document.getElementById('adminError');
+        if(errEl){
+            errEl.textContent='Incorrect password.';
+            errEl.classList.add('show');
+        }
+        return;
     }
-    sucEl.textContent='Access granted! Redirecting…';sucEl.classList.add('show');
+    const sucEl=document.getElementById('adminSuccess');
+    if(sucEl){
+        sucEl.textContent='Access granted! Redirecting…';
+        sucEl.classList.add('show');
+    }
     localStorage.setItem('currentUser',JSON.stringify({userId:id,role:'admin'}));
     setTimeout(()=>window.location.href='success.html',800);
 }

@@ -25,11 +25,18 @@ function validateID(id) {
     return id.trim().length > 0;
 }
 
-// ===================== CLEAR ERRORS =====================
+// ===================== CLEAR ERRORS & SUCCESS MESSAGES =====================
 function clearErrors() {
-    const errorElements = document.querySelectorAll('.error-msg');
-    errorElements.forEach(el => {
+    // Clear all error messages and remove .show class
+    document.querySelectorAll('.error-msg').forEach(el => {
         el.textContent = '';
+        el.classList.remove('show');
+    });
+    
+    // Clear all success messages and remove .show class
+    document.querySelectorAll('.success-msg').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('show');
     });
 }
 
@@ -44,12 +51,20 @@ function handleStudentLogin(e) {
     let hasError = false;
 
     if (!validateID(studentId)) {
-        document.getElementById('loginIdError').textContent = 'Student ID is required';
+        const errorEl = document.getElementById('loginIdError');
+        if (errorEl) {
+            errorEl.textContent = 'Student ID is required';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (!password) {
-        document.getElementById('loginPasswordError').textContent = 'Password is required';
+        const errorEl = document.getElementById('loginPasswordError');
+        if (errorEl) {
+            errorEl.textContent = 'Password is required';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
@@ -58,12 +73,20 @@ function handleStudentLogin(e) {
     const students = JSON.parse(localStorage.getItem('students')) || {};
 
     if (!students[studentId]) {
-        document.getElementById('loginIdError').textContent = 'Student ID not found. Please create an account.';
+        const errorEl = document.getElementById('loginIdError');
+        if (errorEl) {
+            errorEl.textContent = 'Student ID not found. Please create an account.';
+            errorEl.classList.add('show');
+        }
         return;
     }
 
     if (students[studentId].password !== password) {
-        document.getElementById('loginPasswordError').textContent = 'Incorrect password';
+        const errorEl = document.getElementById('loginPasswordError');
+        if (errorEl) {
+            errorEl.textContent = 'Incorrect password';
+            errorEl.classList.add('show');
+        }
         return;
     }
 
@@ -74,7 +97,12 @@ function handleStudentLogin(e) {
     };
 
     localStorage.setItem('currentUser', JSON.stringify(loginData));
-    window.location.href = 'success.html';
+    const successEl = document.getElementById('loginSuccess');
+    if (successEl) {
+        successEl.textContent = 'Login successful! Redirecting...';
+        successEl.classList.add('show');
+    }
+    setTimeout(() => window.location.href = 'success.html', 800);
 }
 
 // ===================== STUDENT SIGNUP HANDLER =====================
@@ -90,22 +118,38 @@ function handleStudentSignup(e) {
     let hasError = false;
 
     if (!validateID(studentId)) {
-        document.getElementById('signupIdError').textContent = 'Student ID is required';
+        const errorEl = document.getElementById('signupIdError');
+        if (errorEl) {
+            errorEl.textContent = 'Student ID is required';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (!validateEmail(email)) {
-        document.getElementById('signupEmailError').textContent = 'Please enter a valid email';
+        const errorEl = document.getElementById('signupEmailError');
+        if (errorEl) {
+            errorEl.textContent = 'Please enter a valid email';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (!validatePassword(password)) {
-        document.getElementById('signupPasswordError').textContent = 'Password must be at least 6 characters';
+        const errorEl = document.getElementById('signupPasswordError');
+        if (errorEl) {
+            errorEl.textContent = 'Password must be at least 6 characters';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (password !== confirmPassword) {
-        document.getElementById('signupConfirmError').textContent = 'Passwords do not match';
+        const errorEl = document.getElementById('signupConfirmError');
+        if (errorEl) {
+            errorEl.textContent = 'Passwords do not match';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
@@ -114,7 +158,11 @@ function handleStudentSignup(e) {
     const students = JSON.parse(localStorage.getItem('students')) || {};
 
     if (students[studentId]) {
-        document.getElementById('signupIdError').textContent = 'This Student ID is already registered';
+        const errorEl = document.getElementById('signupIdError');
+        if (errorEl) {
+            errorEl.textContent = 'This Student ID is already registered';
+            errorEl.classList.add('show');
+        }
         return;
     }
 
@@ -125,11 +173,20 @@ function handleStudentSignup(e) {
     };
 
     localStorage.setItem('students', JSON.stringify(students));
+    
+    const successEl = document.getElementById('signupSuccess');
+    if (successEl) {
+        successEl.textContent = 'Account created successfully! Switching to login...';
+        successEl.classList.add('show');
+    }
 
-    // Auto switch to login form without alert
-    document.getElementById('studentSignupForm').classList.remove('active-form');
-    document.getElementById('studentLoginForm').classList.add('active-form');
-    document.getElementById('studentLoginForm').reset();
+    // Auto switch to login form
+    setTimeout(() => {
+        document.getElementById('studentSignupForm').classList.remove('active-form');
+        document.getElementById('studentLoginForm').classList.add('active-form');
+        document.getElementById('studentLoginForm').reset();
+        clearErrors();
+    }, 1200);
 }
 
 // ===================== ADMIN LOGIN HANDLER =====================
@@ -143,12 +200,20 @@ function handleAdminLogin(e) {
     let hasError = false;
 
     if (!validateID(adminId)) {
-        document.getElementById('adminLoginIdError').textContent = 'Admin ID is required';
+        const errorEl = document.getElementById('adminLoginIdError');
+        if (errorEl) {
+            errorEl.textContent = 'Admin ID is required';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (!password) {
-        document.getElementById('adminLoginPasswordError').textContent = 'Password is required';
+        const errorEl = document.getElementById('adminLoginPasswordError');
+        if (errorEl) {
+            errorEl.textContent = 'Password is required';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
@@ -157,12 +222,20 @@ function handleAdminLogin(e) {
     const admins = JSON.parse(localStorage.getItem('admins')) || {};
 
     if (!admins[adminId]) {
-        document.getElementById('adminLoginIdError').textContent = 'Admin ID not found. Please create an account.';
+        const errorEl = document.getElementById('adminLoginIdError');
+        if (errorEl) {
+            errorEl.textContent = 'Admin ID not found. Please create an account.';
+            errorEl.classList.add('show');
+        }
         return;
     }
 
     if (admins[adminId].password !== password) {
-        document.getElementById('adminLoginPasswordError').textContent = 'Incorrect password';
+        const errorEl = document.getElementById('adminLoginPasswordError');
+        if (errorEl) {
+            errorEl.textContent = 'Incorrect password';
+            errorEl.classList.add('show');
+        }
         return;
     }
 
@@ -173,7 +246,12 @@ function handleAdminLogin(e) {
     };
 
     localStorage.setItem('currentUser', JSON.stringify(loginData));
-    window.location.href = 'success.html';
+    const successEl = document.getElementById('adminLoginSuccess');
+    if (successEl) {
+        successEl.textContent = 'Login successful! Redirecting...';
+        successEl.classList.add('show');
+    }
+    setTimeout(() => window.location.href = 'success.html', 800);
 }
 
 // ===================== ADMIN SIGNUP HANDLER =====================
@@ -190,27 +268,47 @@ function handleAdminSignup(e) {
     let hasError = false;
 
     if (!validateID(adminId)) {
-        document.getElementById('adminSignupIdError').textContent = 'Admin ID is required';
+        const errorEl = document.getElementById('adminSignupIdError');
+        if (errorEl) {
+            errorEl.textContent = 'Admin ID is required';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (!validateEmail(email)) {
-        document.getElementById('adminSignupEmailError').textContent = 'Please enter a valid email';
+        const errorEl = document.getElementById('adminSignupEmailError');
+        if (errorEl) {
+            errorEl.textContent = 'Please enter a valid email';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (!validatePassword(password)) {
-        document.getElementById('adminSignupPasswordError').textContent = 'Password must be at least 6 characters';
+        const errorEl = document.getElementById('adminSignupPasswordError');
+        if (errorEl) {
+            errorEl.textContent = 'Password must be at least 6 characters';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (password !== confirmPassword) {
-        document.getElementById('adminSignupConfirmError').textContent = 'Passwords do not match';
+        const errorEl = document.getElementById('adminSignupConfirmError');
+        if (errorEl) {
+            errorEl.textContent = 'Passwords do not match';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
     if (adminKey !== ADMIN_SECRET_KEY) {
-        document.getElementById('adminKeyError').textContent = 'Invalid Admin Secret Key';
+        const errorEl = document.getElementById('adminKeyError');
+        if (errorEl) {
+            errorEl.textContent = 'Invalid Admin Secret Key';
+            errorEl.classList.add('show');
+        }
         hasError = true;
     }
 
@@ -219,7 +317,11 @@ function handleAdminSignup(e) {
     const admins = JSON.parse(localStorage.getItem('admins')) || {};
 
     if (admins[adminId]) {
-        document.getElementById('adminSignupIdError').textContent = 'This Admin ID is already registered';
+        const errorEl = document.getElementById('adminSignupIdError');
+        if (errorEl) {
+            errorEl.textContent = 'This Admin ID is already registered';
+            errorEl.classList.add('show');
+        }
         return;
     }
 
@@ -231,8 +333,17 @@ function handleAdminSignup(e) {
 
     localStorage.setItem('admins', JSON.stringify(admins));
 
-    // Auto switch to login form without alert
-    document.getElementById('adminSignupForm').classList.remove('active-form');
-    document.getElementById('adminLoginForm').classList.add('active-form');
-    document.getElementById('adminLoginForm').reset();
+    const successEl = document.getElementById('adminSignupSuccess');
+    if (successEl) {
+        successEl.textContent = 'Admin account created successfully! Switching to login...';
+        successEl.classList.add('show');
+    }
+
+    // Auto switch to login form
+    setTimeout(() => {
+        document.getElementById('adminSignupForm').classList.remove('active-form');
+        document.getElementById('adminLoginForm').classList.add('active-form');
+        document.getElementById('adminLoginForm').reset();
+        clearErrors();
+    }, 1200);
 }
