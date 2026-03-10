@@ -123,19 +123,121 @@
         .panel-hdr { font-family:'Syne',sans-serif; font-size:.82em; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
         .panel-hdr::after { content:''; flex:1; height:1px; background:var(--border); }
 
-        /* Course tiles */
-        .course-tiles { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-        .ct { padding:13px; border-radius:12px; border:1px solid var(--border); cursor:pointer; transition:all .3s cubic-bezier(.4,0,.2,1); position:relative; overflow:hidden; background:rgba(255,255,255,.02); }
-        .ct::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,var(--tc1),var(--tc2)); opacity:0; transition:opacity .3s; }
-        .ct:hover { transform:translateY(-3px) scale(1.02); border-color:var(--border-glow); }
+        /* ── COURSE TILES ─────────────────────────────── */
+        .course-tiles { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+        .ct {
+            padding:16px 15px 14px;
+            border-radius:16px;
+            border:1px solid var(--border);
+            cursor:pointer;
+            transition:transform .38s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease, border-color .3s;
+            position:relative; overflow:hidden;
+            background:rgba(255,255,255,.025);
+            backdrop-filter:blur(8px);
+            animation:card-in .5s both;
+        }
+        .ct:nth-child(1){animation-delay:.05s}
+        .ct:nth-child(2){animation-delay:.1s}
+        .ct:nth-child(3){animation-delay:.15s}
+        .ct:nth-child(4){animation-delay:.2s}
+
+        /* colour tokens per course */
+        .ct[data-t=cc]{ --cc:#63b3ed; --cc2:#4299e1; }
+        .ct[data-t=j] { --cc:#f6ad55; --cc2:#ed8936; }
+        .ct[data-t=ml]{ --cc:#9f7aea; --cc2:#805ad5; }
+        .ct[data-t=cs]{ --cc:#68d391; --cc2:#48bb78; }
+
+        /* top accent line */
+        .ct::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg, transparent, var(--cc), transparent);
+            opacity:0; transition:opacity .3s;
+        }
+        /* radial glow on hover */
+        .ct::after {
+            content:''; position:absolute; inset:0;
+            background:radial-gradient(ellipse at 50% 0%, var(--cc) 0%, transparent 65%);
+            opacity:0; transition:opacity .4s;
+        }
+        .ct:hover { transform:translateY(-6px) scale(1.03); border-color:color-mix(in srgb, var(--cc) 40%, transparent); box-shadow:0 18px 48px rgba(0,0,0,.45), 0 0 0 1px color-mix(in srgb, var(--cc) 20%, transparent), 0 0 28px color-mix(in srgb, var(--cc) 14%, transparent); }
         .ct:hover::before { opacity:1; }
-        .ct[data-t=cc]{--tc1:rgba(99,179,237,.09);--tc2:rgba(99,179,237,.02)} .ct[data-t=j]{--tc1:rgba(246,173,85,.09);--tc2:rgba(246,173,85,.02)} .ct[data-t=ml]{--tc1:rgba(159,122,234,.09);--tc2:rgba(159,122,234,.02)} .ct[data-t=cs]{--tc1:rgba(104,211,145,.09);--tc2:rgba(104,211,145,.02)}
-        .ct-icon { font-size:1.4em; margin-bottom:7px; position:relative; z-index:1; }
-        .ct-name { font-size:.8em; font-weight:600; color:var(--text); margin-bottom:4px; position:relative; z-index:1; }
-        .ct-sub { font-size:.69em; color:var(--muted); margin-bottom:7px; position:relative; z-index:1; }
-        .ct-bar-wrap { height:3px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden; position:relative; z-index:1; }
-        .ct-bar { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); position:relative; transition:width 1s cubic-bezier(.4,0,.2,1); }
-        .ct-bar::after { content:''; position:absolute; right:0; top:50%; transform:translateY(-50%); width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 5px #fff; }
+        .ct:hover::after  { opacity:.06; }
+
+        /* shimmer sweep on hover */
+        .ct .ct-shimmer {
+            position:absolute; top:0; left:-70%; width:45%; height:100%;
+            background:linear-gradient(105deg, transparent, rgba(255,255,255,.08), transparent);
+            transform:skewX(-15deg); pointer-events:none;
+            transition:left .55s ease;
+        }
+        .ct:hover .ct-shimmer { left:130%; }
+
+        /* icon wrapper */
+        .ct-icon-wrap {
+            width:38px; height:38px; border-radius:10px;
+            background:color-mix(in srgb, var(--cc) 14%, transparent);
+            border:1px solid color-mix(in srgb, var(--cc) 22%, transparent);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.2em; margin-bottom:10px;
+            position:relative; z-index:1;
+            transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+        }
+        .ct:hover .ct-icon-wrap {
+            transform:scale(1.18) rotate(-8deg);
+            box-shadow:0 6px 20px color-mix(in srgb, var(--cc) 30%, transparent);
+        }
+
+        /* top row: icon + arrow */
+        .ct-head { display:flex; align-items:flex-start; justify-content:space-between; }
+        .ct-arrow {
+            width:22px; height:22px; border-radius:7px;
+            background:color-mix(in srgb, var(--cc) 10%, transparent);
+            border:1px solid color-mix(in srgb, var(--cc) 18%, transparent);
+            display:flex; align-items:center; justify-content:center;
+            font-size:.7em; color:var(--cc);
+            position:relative; z-index:1;
+            opacity:0; transform:translateX(-6px);
+            transition:opacity .3s, transform .35s cubic-bezier(.34,1.56,.64,1);
+        }
+        .ct:hover .ct-arrow { opacity:1; transform:translateX(0); }
+
+        .ct-name {
+            font-family:'Syne',sans-serif;
+            font-size:.82em; font-weight:700; color:var(--text);
+            margin-bottom:3px; position:relative; z-index:1;
+            transition:color .25s;
+        }
+        .ct:hover .ct-name { color:color-mix(in srgb, var(--cc) 80%, white); }
+
+        .ct-sub {
+            font-size:.67em; color:var(--muted);
+            margin-bottom:9px; position:relative; z-index:1;
+            display:flex; align-items:center; gap:5px;
+        }
+        .ct-sub-dot {
+            width:5px; height:5px; border-radius:50%;
+            background:var(--cc); opacity:.55; flex-shrink:0;
+            animation:dot-pulse 2s ease-in-out infinite;
+        }
+        @keyframes dot-pulse { 0%,100%{transform:scale(1);opacity:.55} 50%{transform:scale(1.5);opacity:1} }
+
+        .ct-bar-wrap {
+            height:3px; background:rgba(255,255,255,.05);
+            border-radius:3px; overflow:hidden;
+            position:relative; z-index:1;
+        }
+        .ct-bar {
+            height:100%; border-radius:3px;
+            background:linear-gradient(90deg, var(--cc), var(--cc2));
+            position:relative; transition:width 1.2s cubic-bezier(.4,0,.2,1);
+            box-shadow:0 0 6px color-mix(in srgb, var(--cc) 55%, transparent);
+        }
+        .ct-bar::after {
+            content:''; position:absolute; right:-1px; top:50%; transform:translateY(-50%);
+            width:6px; height:6px; border-radius:50%;
+            background:#fff; box-shadow:0 0 6px var(--cc), 0 0 12px var(--cc);
+        }
 
         /* Activity */
         .act-list { display:flex; flex-direction:column; gap:8px; }
@@ -423,27 +525,43 @@
                         <div class="panel-hdr">Quick Course Access</div>
                         <div class="course-tiles">
                             <div class="ct" data-t="cc" onclick="openCourse('cloud-computing')">
-                                <div class="ct-icon">☁️</div>
+                                <div class="ct-shimmer"></div>
+                                <div class="ct-head">
+                                    <div class="ct-icon-wrap">☁️</div>
+                                    <div class="ct-arrow">→</div>
+                                </div>
                                 <div class="ct-name">Cloud Computing</div>
-                                <div class="ct-sub">75% complete</div>
+                                <div class="ct-sub"><span class="ct-sub-dot"></span>75% complete</div>
                                 <div class="ct-bar-wrap"><div class="ct-bar" style="width:75%"></div></div>
                             </div>
                             <div class="ct" data-t="j" onclick="openCourse('advance-java')">
-                                <div class="ct-icon">☕</div>
+                                <div class="ct-shimmer"></div>
+                                <div class="ct-head">
+                                    <div class="ct-icon-wrap">☕</div>
+                                    <div class="ct-arrow">→</div>
+                                </div>
                                 <div class="ct-name">Advance Java</div>
-                                <div class="ct-sub">60% complete</div>
+                                <div class="ct-sub"><span class="ct-sub-dot"></span>60% complete</div>
                                 <div class="ct-bar-wrap"><div class="ct-bar" style="width:60%"></div></div>
                             </div>
                             <div class="ct" data-t="ml" onclick="openCourse('machine-learning')">
-                                <div class="ct-icon">🤖</div>
+                                <div class="ct-shimmer"></div>
+                                <div class="ct-head">
+                                    <div class="ct-icon-wrap">🤖</div>
+                                    <div class="ct-arrow">→</div>
+                                </div>
                                 <div class="ct-name">Machine Learning</div>
-                                <div class="ct-sub">80% complete</div>
+                                <div class="ct-sub"><span class="ct-sub-dot"></span>80% complete</div>
                                 <div class="ct-bar-wrap"><div class="ct-bar" style="width:80%"></div></div>
                             </div>
                             <div class="ct" data-t="cs" onclick="openCourse('computer-science-basics')">
-                                <div class="ct-icon">💻</div>
+                                <div class="ct-shimmer"></div>
+                                <div class="ct-head">
+                                    <div class="ct-icon-wrap">💻</div>
+                                    <div class="ct-arrow">→</div>
+                                </div>
                                 <div class="ct-name">CS Basics</div>
-                                <div class="ct-sub">85% complete</div>
+                                <div class="ct-sub"><span class="ct-sub-dot"></span>85% complete</div>
                                 <div class="ct-bar-wrap"><div class="ct-bar" style="width:85%"></div></div>
                             </div>
                         </div>
@@ -1020,7 +1138,7 @@ function wrapTextCert(ctx2,text,x,y,maxW,lineH){
 
 /* ── NAVIGATION HELPERS ─────────────────────────── */
 function openCourse(id){ toast('Opening course…','📖'); setTimeout(()=>window.location.href='course-viewer.html?course='+id,400); }
-function startQuiz()   { toast('Loading quiz…','📝'); setTimeout(()=>window.location.href='assignment-quiz.html',400); }
+function startQuiz()   { toast('Opening quiz…','🏆'); setTimeout(()=>window.location.href='welcome.html',400); }
 function doLogout()    { toast('Signing out…','⇥'); setTimeout(()=>{localStorage.removeItem('currentUser');window.location.href='index.html';},600); }
 
 /* ── INIT ───────────────────────────────────────── */
