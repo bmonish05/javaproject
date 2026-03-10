@@ -260,23 +260,6 @@
                         </div>
                     </div>
 
-                    <!-- Date & Signature -->
-                    <div class="cert-date-sig">
-                        <div class="cert-field">
-                            <div class="cert-field-label">DATE</div>
-                            <div class="cert-field-line"></div>
-                            <div class="cert-field-value" id="certDate">2024/01/01</div>
-                        </div>
-                        <div class="cert-field">
-                            <div class="cert-field-label">SIGNATURE</div>
-                            <div class="cert-field-line"></div>
-                            <svg class="cert-sig-svg" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10,30 C20,10 30,35 45,20 C55,10 60,32 75,22 C85,15 90,28 105,18 C110,15 112,20 115,18" 
-                                      fill="none" stroke="#1a3a6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                                      style="stroke-dasharray:200;stroke-dashoffset:200;animation:sig-draw 1.5s 1s ease forwards"/>
-                            </svg>
-                        </div>
-                    </div>
 
                     <!-- Right spacer -->
                     <div style="width:clamp(54px,8vw,80px)"></div>
@@ -568,7 +551,7 @@ async function downloadCert(){
     
     // Download
     const link=document.createElement('a');
-    link.download=`EduPortal_Certificate_${certName.replace(/\s+/g,'_')}.png`;
+    link.download=`QuizMaster_Certificate_${certName.replace(/\s+/g,'_')}.png`;
     link.href=canvas.toDataURL('image/png',1.0);
     link.click();
     showToast('Certificate downloaded!','✅');

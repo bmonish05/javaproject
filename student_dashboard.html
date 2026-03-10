@@ -227,6 +227,28 @@
         .p-field-lbl { font-size:.67em; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
         .p-field-val { font-size:.88em; font-weight:500; color:var(--text); }
 
+        /* CERTIFICATES / ACHIEVEMENTS */
+        .certs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:4px;}
+        .cert-card{background:rgba(255,255,255,.03);border:1px solid rgba(200,168,75,.2);border-radius:18px;padding:20px 22px;position:relative;overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1);animation:card-in .5s both;}
+        .cert-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c8a84b,#e8c86a,#c8a84b,transparent);opacity:.7;}
+        .cert-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,168,75,.04),transparent);pointer-events:none;}
+        .cert-card:hover{transform:translateY(-5px);border-color:rgba(200,168,75,.4);box-shadow:0 20px 50px rgba(0,0,0,.35),0 0 30px rgba(200,168,75,.12);}
+        .cert-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+        .cert-card-icon{font-size:1.8em;filter:drop-shadow(0 0 8px rgba(200,168,75,.4));animation:trophy-glow 2s ease-in-out infinite alternate;}
+        @keyframes trophy-glow{from{filter:drop-shadow(0 0 4px rgba(200,168,75,.3))}to{filter:drop-shadow(0 0 12px rgba(200,168,75,.7))}}
+        .cert-card-grade{font-family:'Syne',sans-serif;font-size:.8em;font-weight:800;padding:4px 11px;border-radius:20px;background:rgba(200,168,75,.12);color:#e8c86a;border:1px solid rgba(200,168,75,.25);}
+        .cert-card-title{font-family:'Syne',sans-serif;font-size:.95em;font-weight:700;color:var(--text);margin-bottom:4px;}
+        .cert-card-course{font-size:.78em;color:var(--muted);margin-bottom:12px;}
+        .cert-card-meta{display:flex;gap:14px;margin-bottom:16px;}
+        .cert-meta-item{display:flex;align-items:center;gap:5px;font-size:.75em;color:var(--muted);}
+        .cert-meta-item span{color:var(--text);font-weight:600;}
+        .cert-card-btn{width:100%;padding:9px;border-radius:10px;border:1px solid rgba(200,168,75,.25);background:rgba(200,168,75,.06);color:#e8c86a;font-family:'DM Sans',sans-serif;font-size:.82em;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:7px;}
+        .cert-card-btn:hover{background:rgba(200,168,75,.15);border-color:rgba(200,168,75,.4);transform:translateY(-1px);}
+        .no-certs{text-align:center;padding:40px 20px;background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-top:4px;}
+        .no-certs-icon{font-size:2.5em;margin-bottom:12px;opacity:.5;}
+        .no-certs-title{font-family:'Syne',sans-serif;font-size:1em;font-weight:700;margin-bottom:6px;color:var(--muted);}
+        .no-certs-sub{font-size:.83em;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.6;}
+
         /* RIPPLE */
         .ripple { position:absolute; border-radius:50%; background:rgba(99,179,237,.18); transform:scale(0); animation:rip .6s linear; pointer-events:none; }
         @keyframes rip { to{transform:scale(4);opacity:0} }
@@ -531,6 +553,18 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ACHIEVEMENTS -->
+                <div class="sec-hdr" style="margin-top:22px"><div class="sec-title" style="font-size:.95em">🏆 Achievements & Certificates</div></div>
+                <div id="achievementsWrap" style="margin-top:0">
+                    <div id="certsGrid" class="certs-grid"></div>
+                    <div id="noCerts" class="no-certs" style="display:none">
+                        <div class="no-certs-icon">🎓</div>
+                        <div class="no-certs-title">No certificates yet</div>
+                        <div class="no-certs-sub">Complete the Advance Java quiz and generate your first certificate!</div>
+                        <button class="abtn" onclick="goSec('assignments',document.querySelector('[data-nav=assignments]'))" style="margin-top:14px">Go to Assignments →</button>
+                    </div>
+                </div>
             </div>
 
         </div><!-- /content -->
@@ -602,6 +636,37 @@ function toast(msg,icon='✓'){
     t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
 }
 
+/* ── ACHIEVEMENTS ────────────────────────────────── */
+function loadAchievements(userId){
+    const certs=JSON.parse(localStorage.getItem('certificates'))||{};
+    const myCerts=certs[userId]||[];
+    const grid=document.getElementById('certsGrid');
+    const noCerts=document.getElementById('noCerts');
+    if(!grid)return;
+    if(myCerts.length===0){grid.style.display='none';noCerts.style.display='block';return;}
+    noCerts.style.display='none';grid.style.display='grid';
+    grid.innerHTML='';
+    myCerts.forEach((c,idx)=>{
+        const gradeColor=c.grade==='A+'?'#e8c86a':c.grade==='A'||c.grade==='B+'?'#63b3ed':'#9f7aea';
+        const div=document.createElement('div');
+        div.className='cert-card';
+        div.style.animationDelay=(idx*.06)+'s';
+        div.innerHTML=`
+            <div class="cert-card-top">
+                <div class="cert-card-icon">🏆</div>
+                <div class="cert-card-grade" style="color:${gradeColor};border-color:${gradeColor}44;background:${gradeColor}18">Grade ${c.grade}</div>
+            </div>
+            <div class="cert-card-title">Certificate of Achievement</div>
+            <div class="cert-card-course">${c.title||c.course}</div>
+            <div class="cert-card-meta">
+                <div class="cert-meta-item">📅 <span>${c.date}</span></div>
+                <div class="cert-meta-item">📊 <span>${c.score} (${c.pct}%)</span></div>
+            </div>
+            <button class="cert-card-btn" onclick="window.location.href='certificate.html'">🎓 View Certificate →</button>`;
+        grid.appendChild(div);
+    });
+}
+
 /* ── NAVIGATION HELPERS ─────────────────────────── */
 function openCourse(id){ toast('Opening course…','📖'); setTimeout(()=>window.location.href='course-viewer.html?course='+id,400); }
 function startQuiz()   { toast('Loading quiz…','📝'); setTimeout(()=>window.location.href='assignment-quiz.html',400); }
@@ -622,6 +687,7 @@ window.addEventListener('load',()=>{
     document.getElementById('pSid').textContent=u.userId;
     document.getElementById('pEmail').textContent=d.email||'—';
     document.getElementById('pJoin').textContent=d.createdAt||'—';
+    loadAchievements(u.userId);
 });
 </script>
 </body>
