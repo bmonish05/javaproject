@@ -1138,7 +1138,7 @@ function wrapTextCert(ctx2,text,x,y,maxW,lineH){
 
 /* ── NAVIGATION HELPERS ─────────────────────────── */
 function openCourse(id){ toast('Opening course…','📖'); setTimeout(()=>window.location.href='course-viewer.html?course='+id,400); }
-function startQuiz()   { toast('Opening quiz…','🏆'); setTimeout(()=>window.location.href='welcome.html',400); }
+function startQuiz()   { toast('Loading quiz…','📝'); setTimeout(()=>window.location.href='assignment-quiz.html',400); }
 function doLogout()    { toast('Signing out…','⇥'); setTimeout(()=>{localStorage.removeItem('currentUser');window.location.href='index.html';},600); }
 
 /* ── INIT ───────────────────────────────────────── */

@@ -596,7 +596,7 @@ for(let i=0;i<80;i++){
 }
 
 /* ── MARQUEE ─────────────────────────────────────── */
-const items=['Advanced Java Programming','25 Questions','30 Minute Timer','Certificate of Achievement','EduPortal · CS201','Test Your Knowledge','Prove Your Mastery'];
+const items=['Advanced Java Programming','25 Questions','30 Minute Timer','Certificate of Achievement','EduPortal · CS201','Mr. Imran ulla khan','Test Your Knowledge','Prove Your Mastery'];
 const track=document.getElementById('marqueeTrack');
 // duplicate for seamless loop
 [...items,...items].forEach(txt=>{
@@ -618,12 +618,12 @@ document.getElementById('goBtn').addEventListener('click',function(e){
 /* ── GO ON ───────────────────────────────────────── */
 function goOn(){
     const btn=document.getElementById('goBtn');
-    btn.innerHTML=`<span class="go-btn-text">Going…</span><span class="go-btn-arrow" style="animation:spin .6s linear infinite">⟳</span>`;
+    btn.innerHTML=`<span class="go-btn-text">Loading…</span><span class="go-btn-arrow" style="animation:spin .6s linear infinite">⟳</span>`;
     btn.style.pointerEvents='none';
     document.querySelector('.shell').style.transition='opacity .5s ease, transform .5s ease';
     document.querySelector('.shell').style.opacity='0';
     document.querySelector('.shell').style.transform='translateY(-16px)';
-    setTimeout(()=>window.location.href='index.html',520);
+    setTimeout(()=>window.location.href='student.html',520);
 }
 
 /* ── SPIN KEYFRAME (inline) ──────────────────────── */
