@@ -77,15 +77,106 @@
         .review-ans-text.wrong{color:var(--accent5);}
 
         /* Actions */
-        .result-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding-bottom:20px;}
-        .action-btn{display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88em;font-weight:600;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
-        .action-btn:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);transform:translateY(-2px);}
-        .action-btn.cert{background:linear-gradient(135deg,#f6ad55,#ed8936);border-color:transparent;color:#080c14;font-family:'Syne',sans-serif;font-weight:800;box-shadow:0 4px 20px rgba(246,173,85,.3);}
-        .action-btn.cert:hover{box-shadow:0 8px 30px rgba(246,173,85,.45);transform:translateY(-2px);}
-        .action-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#080c14;font-family:'Syne',sans-serif;font-weight:800;box-shadow:0 4px 20px rgba(99,179,237,.25);}
-        .action-btn.primary:hover{box-shadow:0 8px 30px rgba(99,179,237,.35);}
+        .result-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding-bottom:24px;}
 
-        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);transform:scale(0);animation:rip .6s linear;pointer-events:none;}
+        /* Base button */
+        .action-btn{display:flex;align-items:center;gap:9px;padding:13px 26px;border-radius:13px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88em;font-weight:600;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+        .action-btn:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);transform:translateY(-2px);}
+
+        /* Retake Quiz — vibrant green/teal gradient with shimmer + pulse */
+        .action-btn.retake{
+            background:linear-gradient(135deg,#43e97b,#38f9d7,#43e97b);
+            background-size:200% 200%;
+            border-color:transparent;
+            color:#080c14;
+            font-family:'Syne',sans-serif;
+            font-weight:800;
+            box-shadow:0 4px 22px rgba(67,233,123,.35);
+            animation:retake-pulse 2.4s ease-in-out infinite, retake-gradient 3s linear infinite;
+        }
+        @keyframes retake-gradient{
+            0%{background-position:0% 50%}
+            50%{background-position:100% 50%}
+            100%{background-position:0% 50%}
+        }
+        @keyframes retake-pulse{
+            0%,100%{box-shadow:0 4px 22px rgba(67,233,123,.35);}
+            50%{box-shadow:0 6px 36px rgba(56,249,215,.55),0 0 0 5px rgba(67,233,123,.08);}
+        }
+        .action-btn.retake::before{
+            content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;
+            background:linear-gradient(105deg,transparent,rgba(255,255,255,.35),transparent);
+            transform:skewX(-15deg);
+            animation:retake-shimmer 2.4s ease-in-out infinite;
+            pointer-events:none;
+        }
+        @keyframes retake-shimmer{
+            0%{left:-60%}
+            55%,100%{left:130%}
+        }
+        .action-btn.retake:hover{
+            transform:translateY(-3px) scale(1.03);
+            box-shadow:0 10px 40px rgba(67,233,123,.5),0 0 0 4px rgba(56,249,215,.15);
+        }
+        .action-btn.retake .btn-icon{
+            display:inline-block;
+            animation:retake-spin 2.4s linear infinite;
+        }
+        @keyframes retake-spin{
+            0%,80%{transform:rotate(0deg)}
+            90%{transform:rotate(360deg)}
+            100%{transform:rotate(360deg)}
+        }
+
+        /* Generate Certificate — gold shimmer (keep existing + enhance) */
+        .action-btn.cert{
+            background:linear-gradient(135deg,#f6d365,#fda085,#f6ad55,#f6d365);
+            background-size:200% 200%;
+            border-color:transparent;
+            color:#080c14;
+            font-family:'Syne',sans-serif;
+            font-weight:800;
+            box-shadow:0 4px 22px rgba(246,173,85,.35);
+            animation:cert-gradient 3s linear infinite, cert-pulse 2.8s ease-in-out infinite;
+        }
+        @keyframes cert-gradient{
+            0%{background-position:0% 50%}
+            50%{background-position:100% 50%}
+            100%{background-position:0% 50%}
+        }
+        @keyframes cert-pulse{
+            0%,100%{box-shadow:0 4px 22px rgba(246,173,85,.35);}
+            50%{box-shadow:0 6px 36px rgba(253,160,133,.55),0 0 0 5px rgba(246,173,85,.08);}
+        }
+        .action-btn.cert::before{
+            content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;
+            background:linear-gradient(105deg,transparent,rgba(255,255,255,.4),transparent);
+            transform:skewX(-15deg);
+            animation:cert-shimmer 2.8s ease-in-out infinite;
+            pointer-events:none;
+        }
+        @keyframes cert-shimmer{
+            0%{left:-60%}
+            60%,100%{left:130%}
+        }
+        .action-btn.cert:hover{
+            transform:translateY(-3px) scale(1.03);
+            box-shadow:0 10px 40px rgba(246,173,85,.55),0 0 0 4px rgba(253,160,133,.15);
+        }
+        .action-btn.cert .btn-icon{
+            display:inline-block;
+            animation:cert-bounce .8s ease-in-out infinite alternate;
+        }
+        @keyframes cert-bounce{
+            from{transform:translateY(0) rotate(-5deg) scale(1)}
+            to{transform:translateY(-3px) rotate(5deg) scale(1.15)}
+        }
+
+        /* Back to Dashboard */
+        .action-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#080c14;font-family:'Syne',sans-serif;font-weight:800;box-shadow:0 4px 20px rgba(99,179,237,.25);}
+        .action-btn.primary:hover{box-shadow:0 8px 30px rgba(99,179,237,.4);transform:translateY(-2px);}
+
+        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.18);transform:scale(0);animation:rip .6s linear;pointer-events:none;}
         @keyframes rip{to{transform:scale(4);opacity:0}}
     </style>
 </head>
@@ -230,8 +321,8 @@ window.addEventListener('load',()=>{
     // Actions
     inner.innerHTML+=`
     <div class="result-actions">
-        <button class="action-btn" onclick="window.location.href='assignment-quiz.html'">🔄 Retake Quiz</button>
-        <button class="action-btn cert" onclick="goToCert()">🏆 Generate Certificate</button>
+        <button class="action-btn retake" onclick="window.location.href='assignment-quiz.html'"><span class="btn-icon">🔄</span> Retake Quiz</button>
+        <button class="action-btn cert" onclick="goToCert()"><span class="btn-icon">🏆</span> Generate Certificate</button>
         <button class="action-btn primary" onclick="window.location.href='student_dashboard.html'">→ Back to Dashboard</button>
     </div>`;
 
