@@ -25,7 +25,7 @@
         .card-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
         .logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px rgba(99,179,237,.35);animation:logo-float 3s ease-in-out infinite;}
         @keyframes logo-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(5deg)}}
-        .logo-name{font-family:'Syne',sans-serif;font-size:1em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .logo-name{font-family:'Syne',sans-serif;font-size:1em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text; background-clip:text;-webkit-text-fill-color:transparent;}
 
         /* Tabs */
         .tabs{display:flex;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:28px;gap:4px;}
@@ -142,7 +142,7 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+
 <script>
 /* CANVAS */
 const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
