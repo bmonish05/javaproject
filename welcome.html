@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome — Quiz Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #060a12;
+            --accent: #63b3ed;
+            --accent2: #9f7aea;
+            --gold: #f6ad55;
+            --text: #e8eaf0;
+            --muted: #6b7494;
+        }
+
+        html, body {
+            width: 100%; height: 100%;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* ── CANVAS BG ── */
+        #bgCanvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
+        /* ── NOISE OVERLAY ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            background-size: 200px;
+            pointer-events: none;
+            opacity: .55;
+        }
+
+        /* ── SHELL ── */
+        .shell {
+            position: relative; z-index: 2;
+            width: 100%; height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+            padding: 36px 24px 32px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            width: 100%; max-width: 1100px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: fade-down .7s ease both;
+        }
+        @keyframes fade-down { from { opacity:0; transform:translateY(-14px) } to { opacity:1; transform:translateY(0) } }
+
+        .logo {
+            display: flex; align-items: center; gap: 11px;
+        }
+        .logo-mark {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, #63b3ed, #9f7aea);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 0 18px rgba(99,179,237,.35);
+            animation: logo-float 3.5s ease-in-out infinite;
+        }
+        @keyframes logo-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        .logo-text {
+            font-family: 'Syne', sans-serif;
+            font-size: .95em; font-weight: 700;
+            letter-spacing: .04em;
+        }
+        .topbar-badge {
+            font-size: .76em; color: var(--muted);
+            border: 1px solid rgba(255,255,255,.07);
+            padding: 6px 14px; border-radius: 20px;
+            background: rgba(255,255,255,.03);
+            letter-spacing: .03em;
+        }
+
+        /* ── CENTER HERO ── */
+        .hero {
+            flex: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            gap: 0;
+        }
+
+        /* Glowing orb behind title */
+        .hero-glow {
+            position: absolute;
+            width: 520px; height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99,179,237,.07) 0%, rgba(159,122,234,.05) 40%, transparent 70%);
+            pointer-events: none;
+            animation: glow-pulse 4s ease-in-out infinite;
+        }
+        @keyframes glow-pulse {
+            0%,100%{ transform: scale(1); opacity: .7; }
+            50%{ transform: scale(1.12); opacity: 1; }
+        }
+
+        /* Rotating ring */
+        .hero-ring {
+            position: absolute;
+            width: 420px; height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(99,179,237,.08);
+            animation: ring-spin 22s linear infinite;
+        }
+        .hero-ring::before {
+            content: '';
+            position: absolute;
+            top: -3px; left: 50%;
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+            transform: translateX(-50%);
+        }
+        .hero-ring-2 {
+            position: absolute;
+            width: 340px; height: 340px;
+            border-radius: 50%;
+            border: 1px dashed rgba(159,122,234,.07);
+            animation: ring-spin 14s linear infinite reverse;
+        }
+        @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+        /* Trophy icon */
+        .hero-icon-wrap {
+            position: relative;
+            width: 110px; height: 110px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 36px;
+            animation: fade-up .8s .2s ease both;
+        }
+        .hero-icon-bg {
+            position: absolute; inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(99,179,237,.12), rgba(159,122,234,.08));
+            border: 1px solid rgba(99,179,237,.2);
+            box-shadow: 0 0 40px rgba(99,179,237,.15), inset 0 0 30px rgba(99,179,237,.04);
+        }
+        .hero-icon {
+            font-size: 3.2em;
+            position: relative; z-index: 1;
+            animation: trophy-bounce 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 0 12px rgba(246,173,85,.5));
+        }
+        @keyframes trophy-bounce {
+            0%,100%{ transform: translateY(0) rotate(-4deg) scale(1); }
+            40%{ transform: translateY(-8px) rotate(4deg) scale(1.08); }
+        }
+
+        /* WELCOME TO text */
+        .welcome-label {
+            font-family: 'DM Sans', sans-serif;
+            font-size: clamp(.75em, 1.4vw, .92em);
+            font-weight: 400;
+            letter-spacing: .35em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 14px;
+            animation: fade-up .7s .35s ease both;
+            opacity: 0;
+        }
+
+        /* QUIZ MASTER main title */
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.8em, 7vw, 6em);
+            font-weight: 700;
+            line-height: .95;
+            letter-spacing: .06em;
+            margin-bottom: 28px;
+            animation: fade-up .7s .5s ease both;
+            opacity: 0;
+            position: relative;
+        }
+        .hero-title .line1 {
+            display: block;
+            background: linear-gradient(135deg, #e8eaf0 0%, #63b3ed 50%, #9f7aea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-title .line2 {
+            display: block;
+            background: linear-gradient(135deg, #f6ad55 0%, #e8c86a 50%, #f6ad55 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gold-shift 3s ease-in-out infinite, fade-up .7s .5s ease both;
+            opacity: 0;
+        }
+        @keyframes gold-shift {
+            0%,100%{ background-position: 0% 50%; }
+            50%{ background-position: 100% 50%; }
+        }
+
+        /* Subtitle */
+        .hero-sub {
+            font-size: clamp(.85em, 1.6vw, 1.05em);
+            color: var(--muted);
+            max-width: 440px;
+            line-height: 1.75;
+            font-weight: 300;
+            margin-bottom: 52px;
+            animation: fade-up .7s .65s ease both;
+            opacity: 0;
+        }
+        .hero-sub strong { color: rgba(232,234,240,.7); font-weight: 500; }
+
+        /* Stats row */
+        .hero-stats {
+            display: flex; gap: 32px;
+            margin-bottom: 52px;
+            animation: fade-up .7s .78s ease both;
+            opacity: 0;
+        }
+        .stat-pill {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px;
+        }
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.55em; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-lbl {
+            font-size: .72em; color: var(--muted);
+            letter-spacing: .05em;
+        }
+        .stat-divider {
+            width: 1px; background: rgba(255,255,255,.08);
+            align-self: stretch; margin: 4px 0;
+        }
+
+        /* ── GO ON BUTTON ── */
+        .btn-wrap {
+            animation: fade-up .7s .9s ease both;
+            opacity: 0;
+        }
+        .go-btn {
+            position: relative;
+            display: inline-flex; align-items: center; gap: 12px;
+            padding: 18px 48px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #63b3ed, #9f7aea);
+            background-size: 200% 200%;
+            color: #060a12;
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05em; font-weight: 800;
+            letter-spacing: .06em;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+            box-shadow: 0 6px 30px rgba(99,179,237,.35), 0 2px 8px rgba(0,0,0,.3);
+            animation: btn-gradient 3s ease-in-out infinite;
+        }
+        @keyframes btn-gradient {
+            0%,100%{ background-position: 0% 50%; }
+            50%{ background-position: 100% 50%; }
+        }
+        .go-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 14px 50px rgba(99,179,237,.5), 0 4px 16px rgba(0,0,0,.4);
+        }
+        .go-btn:active { transform: translateY(-1px) scale(.99); }
+
+        /* Shimmer on button */
+        .go-btn::before {
+            content: '';
+            position: absolute; top: -50%; left: -60%;
+            width: 40%; height: 200%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,.28), transparent);
+            transform: skewX(-15deg);
+            animation: btn-shimmer 2.8s ease-in-out infinite;
+        }
+        @keyframes btn-shimmer {
+            0%{ left: -60%; }
+            55%,100%{ left: 130%; }
+        }
+
+        .go-btn-text { position: relative; z-index: 1; }
+        .go-btn-arrow {
+            position: relative; z-index: 1;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            background: rgba(6,10,18,.2);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: transform .3s ease;
+        }
+        .go-btn:hover .go-btn-arrow { transform: translateX(4px); }
+
+        /* Pulse ring around button */
+        .go-btn-pulse {
+            position: absolute; inset: -8px;
+            border-radius: 22px;
+            border: 1px solid rgba(99,179,237,.3);
+            animation: btn-pulse 2s ease-out infinite;
+            pointer-events: none;
+        }
+        @keyframes btn-pulse {
+            0%{ transform: scale(1); opacity: .6; }
+            100%{ transform: scale(1.12); opacity: 0; }
+        }
+
+        /* Ripple */
+        .ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(255,255,255,.2);
+            transform: scale(0);
+            animation: rip .6s linear;
+            pointer-events: none;
+        }
+        @keyframes rip { to { transform: scale(4); opacity: 0; } }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            width: 100%; max-width: 1100px;
+            display: flex; align-items: center; justify-content: center;
+            animation: fade-up .7s 1.1s ease both;
+            opacity: 0;
+        }
+        .footer-copy {
+            font-size: .75em;
+            color: rgba(107,116,148,.55);
+            letter-spacing: .04em;
+        }
+        .footer-copy span { color: rgba(107,116,148,.38); }
+
+        /* ── FLOATING PARTICLES that spell something fun ── */
+        .star-field {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: star-twinkle var(--d) var(--delay) ease-in-out infinite;
+        }
+        @keyframes star-twinkle {
+            0%,100%{ opacity: 0; transform: scale(0.5); }
+            50%{ opacity: var(--op); transform: scale(1); }
+        }
+
+        /* Scrolling text marquee at bottom */
+        .marquee-wrap {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1;
+            overflow: hidden;
+            height: 26px;
+            display: flex; align-items: center;
+            border-top: 1px solid rgba(255,255,255,.04);
+            background: rgba(6,10,18,.5);
+        }
+        .marquee-track {
+            display: flex; gap: 60px;
+            white-space: nowrap;
+            animation: marquee 30s linear infinite;
+        }
+        .marquee-item {
+            font-size: .65em;
+            letter-spacing: .12em;
+            color: rgba(107,116,148,.35);
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .marquee-dot { color: var(--accent); opacity: .4; }
+        @keyframes marquee { from{ transform: translateX(0) } to{ transform: translateX(-50%) } }
+
+        /* ── SIDE DECORATIONS ── */
+        .side-deco {
+            position: fixed;
+            top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column;
+            gap: 8px; z-index: 2;
+            opacity: .35;
+        }
+        .side-deco.left { left: 28px; align-items: flex-start; }
+        .side-deco.right { right: 28px; align-items: flex-end; }
+        .deco-line {
+            height: 1px; background: rgba(99,179,237,.4);
+            animation: deco-expand 1.5s ease both;
+        }
+        .deco-line:nth-child(1){ width: 32px; animation-delay: 1s; }
+        .deco-line:nth-child(2){ width: 18px; animation-delay: 1.15s; }
+        .deco-line:nth-child(3){ width: 24px; animation-delay: 1.3s; }
+        .deco-dot {
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--accent2);
+            animation: deco-expand 1.5s 1.45s ease both;
+        }
+        @keyframes deco-expand { from{ opacity:0; transform:scaleX(0) } to{ opacity:1; transform:scaleX(1) } }
+        .deco-label {
+            font-size: .6em; letter-spacing: .2em;
+            color: rgba(99,179,237,.5);
+            writing-mode: vertical-rl;
+            text-transform: uppercase;
+            margin-top: 10px;
+            animation: fade-up .7s 1.4s ease both;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- Star field -->
+<div class="star-field" id="starField"></div>
+
+<!-- Side decorations -->
+<div class="side-deco left">
+    <div class="deco-line"></div>
+    <div class="deco-line"></div>
+    <div class="deco-line"></div>
+    <div class="deco-dot"></div>
+    <div class="deco-label">EduPortal</div>
+</div>
+<div class="side-deco right">
+    <div class="deco-line"></div>
+    <div class="deco-line"></div>
+    <div class="deco-line"></div>
+    <div class="deco-dot"></div>
+    <div class="deco-label">2025–26</div>
+</div>
+
+<div class="shell">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="logo">
+            <div class="logo-mark">📚</div>
+            <div class="logo-text">EduPortal</div>
+        </div>
+        <div class="topbar-badge">Advanced Java · CS201</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <!-- Atmospheric rings -->
+        <div class="hero-glow"></div>
+        <div class="hero-ring"></div>
+        <div class="hero-ring-2"></div>
+
+        <!-- Trophy -->
+        <div class="hero-icon-wrap">
+            <div class="hero-icon-bg"></div>
+            <div class="hero-icon">🏆</div>
+        </div>
+
+        <!-- WELCOME TO -->
+        <div class="welcome-label">Welcome to</div>
+
+        <!-- QUIZ MASTER -->
+        <h1 class="hero-title">
+            <span class="line1">QUIZ</span>
+            <span class="line2">MASTER</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="hero-sub">
+            Test your knowledge across <strong>25 questions</strong> of Advanced Java.<br>
+            Earn your <strong>Certificate of Achievement</strong> and prove your mastery.
+        </p>
+
+        <!-- Stats -->
+        <div class="hero-stats">
+            <div class="stat-pill">
+                <div class="stat-num">25</div>
+                <div class="stat-lbl">Questions</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-pill">
+                <div class="stat-num">30<span style="font-size:.6em;color:var(--muted)">min</span></div>
+                <div class="stat-lbl">Time Limit</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-pill">
+                <div class="stat-num">A+</div>
+                <div class="stat-lbl">Top Grade</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-pill">
+                <div class="stat-num">🏅</div>
+                <div class="stat-lbl">Certificate</div>
+            </div>
+        </div>
+
+        <!-- GO ON BUTTON -->
+        <div class="btn-wrap" style="position:relative">
+            <div class="go-btn-pulse"></div>
+            <button class="go-btn" id="goBtn" onclick="goOn()">
+                <span class="go-btn-text">GO ON</span>
+                <span class="go-btn-arrow">→</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-copy">
+            © 2025–2026 QuizMaster. <span>All rights reserved.</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- Marquee -->
+<div class="marquee-wrap">
+    <div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<script>
+/* ── CANVAS PARTICLES ─────────────────────────────── */
+const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
+let W,H;
+const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
+resize(); window.addEventListener('resize',resize);
+
+class P{
+    constructor(){this.reset(true)}
+    reset(init){
+        this.x=Math.random()*W;
+        this.y=init?Math.random()*H:H+5;
+        this.vx=(Math.random()-.5)*.28;
+        this.vy=-(Math.random()*.35+.08);
+        this.r=Math.random()*1.3+.2;
+        this.life=Math.random()*.6+.2;
+        this.ml=this.life;
+        this.col=Math.random()>.5?'99,179,237':'159,122,234';
+    }
+    upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0013;if(this.life<=0||this.y<-8)this.reset(false);}
+    drw(){const a=(this.life/this.ml)*.6;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(${this.col},${a})`;ctx.fill();}
+}
+class Orb{
+    constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*220+100;this.vx=(Math.random()-.5)*.09;this.vy=(Math.random()-.5)*.09;this.col=Math.random()>.66?'99,179,237':Math.random()>.5?'159,122,234':'246,173,85';this.a=Math.random()*.022+.005;}
+    upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}
+    drw(){const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();}
+}
+
+const pts=Array.from({length:120},()=>new P());
+const orbs=Array.from({length:5},()=>new Orb());
+
+(function loop(){
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{o.upd();o.drw();});
+    pts.forEach(p=>{p.upd();p.drw();});
+    // Connection lines
+    for(let i=0;i<pts.length;i++){
+        for(let j=i+1;j<pts.length;j++){
+            const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+            if(d<80){const a=(1-d/80)*.06;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(99,179,237,${a})`;ctx.lineWidth=.5;ctx.stroke();}
+        }
+    }
+    requestAnimationFrame(loop);
+})();
+
+/* ── STAR FIELD ──────────────────────────────────── */
+const sf=document.getElementById('starField');
+for(let i=0;i<80;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    s.style.cssText=`
+        left:${Math.random()*100}%;
+        top:${Math.random()*100}%;
+        --d:${(Math.random()*3+2).toFixed(1)}s;
+        --delay:${(Math.random()*5).toFixed(1)}s;
+        --op:${(Math.random()*.5+.1).toFixed(2)};
+        width:${Math.random()>0.7?3:2}px;
+        height:${Math.random()>0.7?3:2}px;
+    `;
+    sf.appendChild(s);
+}
+
+/* ── MARQUEE ─────────────────────────────────────── */
+const items=['Advanced Java Programming','25 Questions','30 Minute Timer','Certificate of Achievement','EduPortal · CS201','Mr. Imran ulla khan','Test Your Knowledge','Prove Your Mastery'];
+const track=document.getElementById('marqueeTrack');
+// duplicate for seamless loop
+[...items,...items].forEach(txt=>{
+    const el=document.createElement('div');
+    el.className='marquee-item';
+    el.innerHTML=`${txt} <span class="marquee-dot">◆</span>`;
+    track.appendChild(el);
+});
+
+/* ── RIPPLE ──────────────────────────────────────── */
+document.getElementById('goBtn').addEventListener('click',function(e){
+    const r=this.getBoundingClientRect(),s=document.createElement('span');
+    s.className='ripple';
+    s.style.cssText=`width:60px;height:60px;left:${e.clientX-r.left-30}px;top:${e.clientY-r.top-30}px`;
+    this.appendChild(s);
+    setTimeout(()=>s.remove(),700);
+});
+
+/* ── GO ON ───────────────────────────────────────── */
+function goOn(){
+    const btn=document.getElementById('goBtn');
+    btn.innerHTML=`<span class="go-btn-text">Loading…</span><span class="go-btn-arrow" style="animation:spin .6s linear infinite">⟳</span>`;
+    btn.style.pointerEvents='none';
+    // Add exit animation
+    document.querySelector('.shell').style.transition='opacity .5s ease, transform .5s ease';
+    document.querySelector('.shell').style.opacity='0';
+    document.querySelector('.shell').style.transform='translateY(-16px)';
+    setTimeout(()=>window.location.href='assignment-quiz.html',520);
+}
+
+/* ── SPIN KEYFRAME (inline) ──────────────────────── */
+const styleEl=document.createElement('style');
+styleEl.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>
