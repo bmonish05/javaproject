@@ -770,14 +770,25 @@ function toast(msg,icon='✓'){
 }
 
 /* ── ACHIEVEMENTS & CERT MODAL ───────────────────── */
-let _currentCert=null; // tracks which cert is open in modal
+let _currentCert=null;
+let _currentUserId=null;
 
 function loadAchievements(userId){
-    const certs=JSON.parse(localStorage.getItem('certificates'))||{};
-    const myCerts=certs[userId]||[];
+    _currentUserId=userId;
+    const allCerts=JSON.parse(localStorage.getItem('certificates'))||{};
+
+    // Try exact match first, then case-insensitive fallback
+    let myCerts=allCerts[userId]||[];
+    if(myCerts.length===0){
+        // Try matching by any key that loosely matches userId
+        const matchKey=Object.keys(allCerts).find(k=>k.toLowerCase()===userId.toLowerCase());
+        if(matchKey) myCerts=allCerts[matchKey]||[];
+    }
+
     const grid=document.getElementById('certsGrid');
     const noCerts=document.getElementById('noCerts');
     if(!grid)return;
+
     if(myCerts.length===0){
         grid.style.display='none';
         noCerts.style.display='block';
@@ -810,11 +821,29 @@ function loadAchievements(userId){
     });
 }
 
+// Auto-refresh achievements when returning from certificate page
+window.addEventListener('storage', e=>{
+    if(e.key==='certificates' && _currentUserId) loadAchievements(_currentUserId);
+});
+// Also refresh when tab gets focus (coming back from certificate.html)
+window.addEventListener('focus', ()=>{
+    if(_currentUserId) loadAchievements(_currentUserId);
+});
+
+function _getMyCerts(userId){
+    const allCerts=JSON.parse(localStorage.getItem('certificates'))||{};
+    let list=allCerts[userId]||[];
+    if(list.length===0){
+        const k=Object.keys(allCerts).find(k=>k.toLowerCase()===userId.toLowerCase());
+        if(k) list=allCerts[k]||[];
+    }
+    return list;
+}
+
 function openCertModal(idx){
     const u=JSON.parse(localStorage.getItem('currentUser'));
     if(!u)return;
-    const certs=JSON.parse(localStorage.getItem('certificates'))||{};
-    const myCerts=certs[u.userId]||[];
+    const myCerts=_getMyCerts(u.userId);
     const c=myCerts[idx];
     if(!c)return;
     _currentCert=c;
@@ -857,8 +886,7 @@ function downloadCertFromModal(){
 function downloadCertDirect(idx){
     const u=JSON.parse(localStorage.getItem('currentUser'));
     if(!u)return;
-    const certs=JSON.parse(localStorage.getItem('certificates'))||{};
-    const c=(certs[u.userId]||[])[idx];
+    const c=_getMyCerts(u.userId)[idx];
     if(c) downloadCertData(c);
 }
 

@@ -92,28 +92,88 @@
         .cert-desc{font-size:clamp(7px,0.95vw,10px);color:#6a7a96;text-align:center;line-height:1.7;max-width:75%;margin-bottom:14px;}
 
         /* BOTTOM ROW */
-        .cert-bottom{display:flex;justify-content:space-between;align-items:flex-end;width:100%;padding:0 20px 32px;position:relative;z-index:5;margin-top:auto;}
+        .cert-bottom{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-end;
+            width:100%;
+            padding:0 clamp(14px,3.5vw,44px) clamp(16px,3vw,32px);
+            position:relative;
+            z-index:5;
+            margin-top:auto;
+        }
 
-        /* BADGE */
-        .cert-badge{display:flex;flex-direction:column;align-items:center;gap:4px;}
-        .cert-badge-ring{width:clamp(54px,8vw,80px);height:clamp(54px,8vw,80px);border-radius:50%;background:linear-gradient(135deg,#c8a84b,#e8c86a,#a0782a,#c8a84b);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 3px 12px rgba(200,168,75,.4);}
+        /* BADGE left side */
+        .cert-badge{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto;}
+        .cert-badge-ring{width:clamp(46px,7vw,72px);height:clamp(46px,7vw,72px);border-radius:50%;background:linear-gradient(135deg,#c8a84b,#e8c86a,#a0782a,#c8a84b);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 3px 12px rgba(200,168,75,.4);}
         .cert-badge-ring::before{content:'';position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,#1a3a6b,#0d2244);}
         .cert-badge-inner{position:relative;z-index:1;text-align:center;color:#e8c86a;}
-        .cert-badge-stars{font-size:clamp(6px,0.9vw,9px);letter-spacing:2px;margin-bottom:1px;}
-        .cert-badge-text{font-family:'Cinzel',serif;font-size:clamp(7px,1vw,10px);font-weight:700;line-height:1.1;}
-        .cert-badge-sub{font-size:clamp(5px,0.7vw,7px);letter-spacing:.1em;}
+        .cert-badge-stars{font-size:clamp(5px,0.75vw,8px);letter-spacing:2px;margin-bottom:1px;}
+        .cert-badge-text{font-family:'Cinzel',serif;font-size:clamp(6px,0.85vw,9px);font-weight:700;line-height:1.1;}
+        .cert-badge-sub{font-size:clamp(4px,0.55vw,6px);letter-spacing:.1em;}
+        .cert-laurel{width:clamp(50px,8vw,88px);height:clamp(50px,8vw,88px);display:flex;align-items:center;justify-content:center;}
+        .laurel-text{font-size:clamp(18px,3vw,36px);line-height:1;filter:drop-shadow(0 2px 4px rgba(200,168,75,.3));}
 
-        /* LAUREL WREATH using CSS */
-        .cert-laurel{position:relative;width:clamp(70px,11vw,110px);height:clamp(70px,11vw,110px);display:flex;align-items:center;justify-content:center;}
-        .laurel-text{font-size:clamp(22px,4vw,42px);line-height:1;filter:drop-shadow(0 2px 4px rgba(200,168,75,.3));}
+        /* DATE & SIGNATURE — two equal columns, perfectly aligned */
+        .cert-date-sig{
+            display:flex;
+            gap:clamp(24px,5vw,64px);
+            align-items:flex-end;
+            justify-content:center;
+            flex:1;
+            padding:0 clamp(8px,2vw,24px);
+        }
+        /* Each field: fixed-height content → line → label */
+        .cert-field{
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            width:clamp(100px,16vw,160px);
+        }
+        /* Fixed height so date and sig are always at same baseline */
+        .cert-field-content{
+            height:clamp(28px,5vw,50px);
+            display:flex;
+            align-items:flex-end;
+            justify-content:center;
+            width:100%;
+            padding-bottom:clamp(4px,0.7vw,8px);
+        }
+        .cert-field-value{
+            font-family:'Cinzel',serif;
+            font-size:clamp(7px,1vw,11px);
+            color:#1a3a6b;
+            letter-spacing:.08em;
+            font-weight:700;
+            text-align:center;
+            white-space:nowrap;
+            line-height:1.2;
+        }
+        .cert-sig-svg{
+            width:clamp(60px,11vw,110px);
+            display:block;
+        }
+        /* The line — gold accent in center */
+        .cert-field-line{
+            width:100%;
+            height:1.5px;
+            background:linear-gradient(90deg,transparent,#2a5298 20%,#c8a84b 50%,#2a5298 80%,transparent);
+            flex-shrink:0;
+        }
+        /* Label sits BELOW the line */
+        .cert-field-label{
+            font-family:'Cinzel',serif;
+            font-size:clamp(6px,0.9vw,9px);
+            letter-spacing:.22em;
+            color:#5a7aab;
+            margin-top:clamp(3px,0.5vw,6px);
+            font-weight:700;
+            text-align:center;
+            white-space:nowrap;
+        }
 
-        /* DATE & SIGNATURE */
-        .cert-date-sig{display:flex;gap:clamp(30px,8vw,80px);align-items:flex-end;}
-        .cert-field{text-align:center;}
-        .cert-field-label{font-family:'Cinzel',serif;font-size:clamp(7px,1vw,10px);letter-spacing:.2em;color:#2a5298;margin-bottom:4px;font-weight:600;}
-        .cert-field-line{width:clamp(70px,12vw,120px);height:1px;background:linear-gradient(90deg,transparent,#2a5298,transparent);margin-bottom:4px;}
-        .cert-field-value{font-size:clamp(7px,0.9vw,9px);color:#5a7aab;letter-spacing:.05em;}
-        .cert-sig-svg{width:clamp(50px,9vw,90px);margin-bottom:2px;}
+        /* Right spacer matches badge width */
+        .cert-bottom-spacer{flex:0 0 auto;width:clamp(46px,7vw,72px);}
 
         /* SEAL / WATERMARK */
         .cert-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.03;font-family:'Cinzel',serif;font-size:clamp(40px,8vw,90px);font-weight:700;color:#1a3a6b;letter-spacing:.3em;white-space:nowrap;pointer-events:none;z-index:3;user-select:none;}
@@ -235,7 +295,7 @@
                     <div class="cert-name-underline"></div>
 
                     <div class="cert-course-label">For successfully completing</div>
-                    <div class="cert-course">Advanced Java Programming · QuizMaster</div>
+                    <div class="cert-course">Advanced Java Programming · EduPortal</div>
 
                     <div class="cert-desc">
                         Having demonstrated exceptional understanding and mastery of Java concepts including
@@ -246,7 +306,7 @@
 
                 <!-- BOTTOM -->
                 <div class="cert-bottom">
-                    <!-- Badge / Seal -->
+                    <!-- Badge / Seal (left) -->
                     <div class="cert-badge">
                         <div class="cert-laurel">
                             <span class="laurel-text">🏅</span>
@@ -260,9 +320,35 @@
                         </div>
                     </div>
 
+                    <!-- Date & Signature (center) -->
+                    <div class="cert-date-sig">
 
-                    <!-- Right spacer -->
-                    <div style="width:clamp(54px,8vw,80px)"></div>
+                        <!-- DATE: value above line, label below -->
+                        <div class="cert-field">
+                            <div class="cert-field-content">
+                                <div class="cert-field-value" id="certDate">—</div>
+                            </div>
+                            <div class="cert-field-line"></div>
+                            <div class="cert-field-label">DATE</div>
+                        </div>
+
+                        <!-- SIGNATURE: svg above line, label below -->
+                        <div class="cert-field">
+                            <div class="cert-field-content">
+                                <svg class="cert-sig-svg" viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8,28 C18,8 28,32 43,18 C53,8 58,30 73,20 C83,13 88,26 103,16 C108,13 111,18 114,16"
+                                          fill="none" stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                          style="stroke-dasharray:220;stroke-dashoffset:220;animation:sig-draw 1.6s 0.8s ease forwards"/>
+                                </svg>
+                            </div>
+                            <div class="cert-field-line"></div>
+                            <div class="cert-field-label">SIGNATURE</div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right spacer mirrors badge width -->
+                    <div class="cert-bottom-spacer"></div>
                 </div>
 
             </div><!-- /certificate -->
@@ -298,54 +384,65 @@ const pts=Array.from({length:70},()=>new P()),orbs=Array.from({length:3},()=>new
 
 /* ── INIT CERTIFICATE ───────────────────────────── */
 window.addEventListener('load',()=>{
-    // Get user name from localStorage
+    // Build display name from currentUser + students
     const u=JSON.parse(localStorage.getItem('currentUser'));
     const students=JSON.parse(localStorage.getItem('students'))||{};
-    
-    // Build display name: use userId (or full name from students obj if available)
-    let displayName = 'Student';
-    if(u && u.userId){
-        displayName = u.userId;
-        // Try to get email to derive a nicer name
-        if(students[u.userId] && students[u.userId].email){
-            const emailName = students[u.userId].email.split('@')[0];
-            // Capitalize and format: john.doe -> John Doe
-            displayName = emailName
-                .replace(/[._-]/g,' ')
-                .replace(/\b\w/g, l=>l.toUpperCase());
+    let displayName='Student';
+    if(u&&u.userId){
+        displayName=u.userId;
+        if(students[u.userId]&&students[u.userId].email){
+            const emailName=students[u.userId].email.split('@')[0];
+            displayName=emailName.replace(/[._-]/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
         }
-        // If still looks like just an ID (e.g. STU001), show as-is but capitalize
-        if(/^[a-zA-Z]+\d+$/.test(displayName)){
-            displayName = u.userId;
-        }
+        if(/^[a-zA-Z]+\d+$/.test(displayName)) displayName=u.userId;
     }
-    
-    document.getElementById('certName').textContent = displayName;
+    document.getElementById('certName').textContent=displayName;
 
-    // Date
-    const now = new Date();
-    const dateStr = now.getFullYear()+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+String(now.getDate()).padStart(2,'0');
-    document.getElementById('certDate').textContent = dateStr;
+    // Always today's date — the exact moment the certificate page loads
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    const dateStr=`${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())}`;
+    document.getElementById('certDate').textContent=dateStr;
 
     // Quiz results
-    const res = JSON.parse(sessionStorage.getItem('quizResults'));
+    const res=JSON.parse(sessionStorage.getItem('quizResults'));
+    let grade='—', pct=0, score=0, total=25;
     if(res){
-        const {pct, score, total} = res;
-        const grade = pct>=90?'A+':pct>=80?'A':pct>=70?'B+':pct>=60?'B':'C';
-        document.getElementById('scoreDisplay').textContent = `${score}/${total} (${pct}%)`;
-        document.getElementById('gradeDisplay').textContent = grade;
-        document.getElementById('certRibbon').textContent = `${grade} · ${pct}%`;
-
-        // Color ribbon based on grade
-        const certEl = document.getElementById('certificate');
-        const ribbon = document.getElementById('certRibbon');
-        if(pct>=90){ribbon.style.background='linear-gradient(135deg,#c8a84b,#e8c86a)';}
-        else if(pct>=70){ribbon.style.background='linear-gradient(135deg,#63b3ed,#9f7aea)';}
-        else{ribbon.style.background='linear-gradient(135deg,#fb7185,#f97316)';}
+        pct=res.pct; score=res.score; total=res.total;
+        grade=pct>=90?'A+':pct>=80?'A':pct>=70?'B+':pct>=60?'B':'C';
+        document.getElementById('scoreDisplay').textContent=`${score}/${total} (${pct}%)`;
+        document.getElementById('gradeDisplay').textContent=grade;
+        document.getElementById('certRibbon').textContent=`${grade} · ${pct}%`;
+        const ribbon=document.getElementById('certRibbon');
+        if(pct>=90) ribbon.style.background='linear-gradient(135deg,#c8a84b,#e8c86a)';
+        else if(pct>=70) ribbon.style.background='linear-gradient(135deg,#63b3ed,#9f7aea)';
+        else ribbon.style.background='linear-gradient(135deg,#fb7185,#f97316)';
     } else {
-        document.getElementById('scoreDisplay').textContent = '—';
-        document.getElementById('gradeDisplay').textContent = '—';
-        document.getElementById('certRibbon').textContent = 'Achievement';
+        document.getElementById('scoreDisplay').textContent='—';
+        document.getElementById('gradeDisplay').textContent='—';
+        document.getElementById('certRibbon').textContent='Achievement';
+    }
+
+    // ── Save to localStorage ALWAYS when cert page is visited ──
+    if(u&&u.userId){
+        const allCerts=JSON.parse(localStorage.getItem('certificates'))||{};
+        if(!allCerts[u.userId]) allCerts[u.userId]=[];
+        const dup=allCerts[u.userId].find(c=>c.course==='Advance Java'&&c.date===dateStr);
+        if(!dup){
+            allCerts[u.userId].push({
+                course:'Advance Java',
+                title:'Advanced Java Programming',
+                date:dateStr,
+                score: res ? `${score}/${total}` : '—/25',
+                pct: res ? pct : 0,
+                grade: res ? grade : '—',
+                name:displayName
+            });
+        } else {
+            if(res){ dup.grade=grade; dup.pct=pct; dup.score=`${score}/${total}`; dup.name=displayName; }
+        }
+        localStorage.setItem('certificates',JSON.stringify(allCerts));
+        console.log('[EduPortal] Certificate saved for',u.userId,'→',allCerts[u.userId]);
     }
 });
 
@@ -551,7 +648,7 @@ async function downloadCert(){
     
     // Download
     const link=document.createElement('a');
-    link.download=`QuizMaster_Certificate_${certName.replace(/\s+/g,'_')}.png`;
+    link.download=`EduPortal_Certificate_${certName.replace(/\s+/g,'_')}.png`;
     link.href=canvas.toDataURL('image/png',1.0);
     link.click();
     showToast('Certificate downloaded!','✅');
