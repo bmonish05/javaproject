@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPortal — Certificate of Achievement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Great+Vibes&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#080c14;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#63b3ed;--accent2:#9f7aea;--accent3:#68d391;--accent4:#f6ad55;--text:#e8eaf0;--muted:#6b7494;}
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        html,body{width:100%;min-height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+        #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+        body::before{content:'';position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;opacity:.5;}
+
+        /* SHELL */
+        .shell{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;}
+
+        /* TOPBAR */
+        .topbar{height:60px;display:flex;align-items:center;padding:0 28px;border-bottom:1px solid var(--border);background:rgba(8,12,20,.6);backdrop-filter:blur(20px);gap:14px;flex-shrink:0;}
+        .logo-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#f6ad55,#ed8936);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 14px rgba(246,173,85,.3);animation:logo-float 3s ease-in-out infinite;}
+        @keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+        .top-title{font-family:'Syne',sans-serif;font-size:1em;font-weight:700;flex:1;}
+        .back-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.82em;font-weight:500;cursor:pointer;transition:all .2s;}
+        .back-btn:hover{color:var(--text);border-color:rgba(255,255,255,.14);}
+
+        /* CONTENT */
+        .content{flex:1;padding:36px 20px 48px;display:flex;flex-direction:column;align-items:center;gap:28px;}
+
+        /* PAGE HEADER */
+        .page-header{text-align:center;animation:fade-up .5s ease both;}
+        @keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .page-header h1{font-family:'Syne',sans-serif;font-size:1.6em;font-weight:800;margin-bottom:6px;}
+        .page-header h1 span{background:linear-gradient(90deg,#f6ad55,#ed8936);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .page-header p{font-size:.88em;color:var(--muted);}
+
+        /* SCORE BADGE */
+        .score-badge{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;background:rgba(246,173,85,.08);border:1px solid rgba(246,173,85,.2);border-radius:20px;font-size:.82em;color:#f6ad55;font-weight:600;animation:fade-up .5s .1s ease both;}
+        .score-badge span{font-family:'Syne',sans-serif;font-size:1.1em;font-weight:800;}
+
+        /* CERT WRAPPER */
+        .cert-wrap{width:100%;max-width:860px;animation:fade-up .6s .2s ease both;position:relative;}
+
+        /* ===================== CERTIFICATE ===================== */
+        .certificate{
+            width:100%;
+            aspect-ratio:1.414/1;
+            background:#fff;
+            border-radius:8px;
+            position:relative;
+            overflow:hidden;
+            box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
+            font-family:'DM Sans',sans-serif;
+            display:flex;
+            flex-direction:column;
+        }
+
+        /* TOP WAVE */
+        .cert-top-wave{position:absolute;top:0;left:0;right:0;height:140px;overflow:hidden;}
+        .cert-top-wave svg{position:absolute;top:0;left:0;width:100%;height:100%;}
+
+        /* BOTTOM WAVE */
+        .cert-bot-wave{position:absolute;bottom:0;left:0;right:0;height:100px;overflow:hidden;}
+        .cert-bot-wave svg{position:absolute;bottom:0;left:0;width:100%;height:100%;}
+
+        /* TOP-RIGHT CORNER ACCENT */
+        .cert-corner{position:absolute;top:0;right:0;width:200px;height:120px;overflow:hidden;}
+        .cert-corner::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:linear-gradient(225deg,#1a3a6b,#0a1f44);border-radius:50%;}
+
+        /* CERT BODY */
+        .cert-body{position:relative;z-index:5;flex:1;display:flex;flex-direction:column;align-items:center;padding:0 60px;padding-top:110px;}
+
+        /* TITLE */
+        .cert-title{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,52px);font-weight:700;letter-spacing:.25em;color:#1a3a6b;text-align:center;line-height:1;margin-bottom:4px;}
+        .cert-subtitle{font-family:'Cinzel',serif;font-size:clamp(10px,1.4vw,14px);letter-spacing:.3em;color:#2a5298;text-align:center;margin-bottom:20px;}
+
+        /* DIVIDER */
+        .cert-divider{width:70%;height:1px;background:linear-gradient(90deg,transparent,#2a5298 20%,#c8a84b 50%,#2a5298 80%,transparent);margin-bottom:16px;position:relative;}
+        .cert-divider::before{content:'❖';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:0 10px;color:#c8a84b;font-size:14px;}
+
+        /* PRESENTED TO */
+        .cert-presented{font-family:'DM Sans',sans-serif;font-size:clamp(7px,1.1vw,11px);letter-spacing:.25em;text-transform:uppercase;color:#5a7aab;text-align:center;margin-bottom:8px;}
+
+        /* RECIPIENT */
+        .cert-recipient{font-family:'Great Vibes',cursive;font-size:clamp(28px,5vw,58px);color:#1a3a6b;text-align:center;line-height:1.1;margin-bottom:6px;text-shadow:1px 2px 8px rgba(26,58,107,.12);}
+        .cert-name-underline{width:60%;height:1.5px;background:linear-gradient(90deg,transparent,#2a5298,transparent);margin:0 auto 12px;}
+
+        /* COURSE */
+        .cert-course-label{font-size:clamp(7px,1vw,10px);letter-spacing:.25em;text-transform:uppercase;color:#8a9ab8;text-align:center;margin-bottom:3px;}
+        .cert-course{font-family:'Cinzel',serif;font-size:clamp(10px,1.6vw,16px);font-weight:600;letter-spacing:.1em;color:#2a5298;text-align:center;margin-bottom:10px;}
+
+        /* DESCRIPTION */
+        .cert-desc{font-size:clamp(7px,0.95vw,10px);color:#6a7a96;text-align:center;line-height:1.7;max-width:75%;margin-bottom:14px;}
+
+        /* BOTTOM ROW */
+        .cert-bottom{display:flex;justify-content:space-between;align-items:flex-end;width:100%;padding:0 20px 32px;position:relative;z-index:5;margin-top:auto;}
+
+        /* BADGE */
+        .cert-badge{display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .cert-badge-ring{width:clamp(54px,8vw,80px);height:clamp(54px,8vw,80px);border-radius:50%;background:linear-gradient(135deg,#c8a84b,#e8c86a,#a0782a,#c8a84b);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 3px 12px rgba(200,168,75,.4);}
+        .cert-badge-ring::before{content:'';position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,#1a3a6b,#0d2244);}
+        .cert-badge-inner{position:relative;z-index:1;text-align:center;color:#e8c86a;}
+        .cert-badge-stars{font-size:clamp(6px,0.9vw,9px);letter-spacing:2px;margin-bottom:1px;}
+        .cert-badge-text{font-family:'Cinzel',serif;font-size:clamp(7px,1vw,10px);font-weight:700;line-height:1.1;}
+        .cert-badge-sub{font-size:clamp(5px,0.7vw,7px);letter-spacing:.1em;}
+
+        /* LAUREL WREATH using CSS */
+        .cert-laurel{position:relative;width:clamp(70px,11vw,110px);height:clamp(70px,11vw,110px);display:flex;align-items:center;justify-content:center;}
+        .laurel-text{font-size:clamp(22px,4vw,42px);line-height:1;filter:drop-shadow(0 2px 4px rgba(200,168,75,.3));}
+
+        /* DATE & SIGNATURE */
+        .cert-date-sig{display:flex;gap:clamp(30px,8vw,80px);align-items:flex-end;}
+        .cert-field{text-align:center;}
+        .cert-field-label{font-family:'Cinzel',serif;font-size:clamp(7px,1vw,10px);letter-spacing:.2em;color:#2a5298;margin-bottom:4px;font-weight:600;}
+        .cert-field-line{width:clamp(70px,12vw,120px);height:1px;background:linear-gradient(90deg,transparent,#2a5298,transparent);margin-bottom:4px;}
+        .cert-field-value{font-size:clamp(7px,0.9vw,9px);color:#5a7aab;letter-spacing:.05em;}
+        .cert-sig-svg{width:clamp(50px,9vw,90px);margin-bottom:2px;}
+
+        /* SEAL / WATERMARK */
+        .cert-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.03;font-family:'Cinzel',serif;font-size:clamp(40px,8vw,90px);font-weight:700;color:#1a3a6b;letter-spacing:.3em;white-space:nowrap;pointer-events:none;z-index:3;user-select:none;}
+
+        /* SCORE RIBBON */
+        .cert-ribbon{position:absolute;top:20px;right:0;background:linear-gradient(135deg,#c8a84b,#e8c86a);color:#0a1f44;font-family:'Cinzel',serif;font-size:clamp(7px,.9vw,10px);font-weight:700;padding:4px 16px 4px 10px;letter-spacing:.1em;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,8px 50%);z-index:10;}
+
+        /* ===================== CONTROLS ===================== */
+        .cert-controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fade-up .5s .4s ease both;}
+        .ctrl-btn{display:flex;align-items:center;gap:8px;padding:12px 26px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88em;font-weight:600;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+        .ctrl-btn:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);transform:translateY(-2px);}
+        .ctrl-btn.gold{background:linear-gradient(135deg,#f6ad55,#ed8936);border-color:transparent;color:#080c14;font-family:'Syne',sans-serif;font-weight:800;box-shadow:0 4px 20px rgba(246,173,85,.3);}
+        .ctrl-btn.gold:hover{box-shadow:0 8px 30px rgba(246,173,85,.4);}
+        .ctrl-btn.blue{background:linear-gradient(135deg,#63b3ed,#9f7aea);border-color:transparent;color:#080c14;font-family:'Syne',sans-serif;font-weight:800;box-shadow:0 4px 20px rgba(99,179,237,.3);}
+        .ctrl-btn.blue:hover{box-shadow:0 8px 30px rgba(99,179,237,.4);}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(10,15,25,.95);border:1px solid rgba(246,173,85,.25);border-radius:12px;padding:11px 22px;display:flex;align-items:center;gap:10px;font-size:.86em;font-weight:500;opacity:0;transition:all .3s;z-index:999;backdrop-filter:blur(20px);white-space:nowrap;}
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+        /* PRINT STYLES */
+        @media print{
+            body{background:#fff !important;}
+            #bgCanvas,body::before,.topbar,.page-header,.score-badge,.cert-controls,.toast{display:none !important;}
+            .content{padding:0 !important;gap:0 !important;}
+            .cert-wrap{max-width:100% !important;}
+            .certificate{box-shadow:none !important;border-radius:0 !important;aspect-ratio:auto !important;height:100vh !important;}
+        }
+
+        /* RIPPLE */
+        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.15);transform:scale(0);animation:rip .6s linear;pointer-events:none;}
+        @keyframes rip{to{transform:scale(4);opacity:0}}
+    </style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="shell">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="logo-mark">🏆</div>
+        <div class="top-title">Certificate of Achievement</div>
+        <button class="back-btn" onclick="window.location.href='quiz-results.html'">← Back to Results</button>
+    </div>
+
+    <div class="content">
+
+        <div class="page-header">
+            <h1>Your <span>Certificate</span> is Ready</h1>
+            <p>Congratulations on completing the Advance Java Quiz</p>
+        </div>
+
+        <div class="score-badge" id="scoreBadge">
+            🎓 Score: <span id="scoreDisplay">—</span> &nbsp;·&nbsp; Grade: <span id="gradeDisplay">—</span>
+        </div>
+
+        <!-- ===== THE CERTIFICATE ===== -->
+        <div class="cert-wrap">
+            <div class="certificate" id="certificate">
+
+                <!-- Top wave -->
+                <div class="cert-top-wave">
+                    <svg viewBox="0 0 860 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#0d2244"/>
+                                <stop offset="50%" stop-color="#1a3a6b"/>
+                                <stop offset="100%" stop-color="#0d2244"/>
+                            </linearGradient>
+                            <linearGradient id="tg2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#1e4d8c"/>
+                                <stop offset="60%" stop-color="#2a6bb5"/>
+                                <stop offset="100%" stop-color="#1a3a6b"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Main dark bg -->
+                        <rect width="860" height="140" fill="url(#tg1)"/>
+                        <!-- Wave 1 - lighter blue -->
+                        <path d="M0,140 L0,60 Q100,20 200,55 Q320,90 430,45 Q540,0 650,40 Q760,80 860,30 L860,140 Z" fill="url(#tg2)" opacity="0.8"/>
+                        <!-- Wave 2 - accent highlight -->
+                        <path d="M0,140 L0,90 Q120,50 250,80 Q380,110 500,65 Q620,20 750,60 Q810,78 860,55 L860,140 Z" fill="#2a5298" opacity="0.5"/>
+                        <!-- Shine line -->
+                        <path d="M0,140 L0,125 Q215,95 430,115 Q645,135 860,100 L860,140 Z" fill="rgba(99,179,237,0.15)"/>
+                    </svg>
+                </div>
+
+                <!-- Bottom wave -->
+                <div class="cert-bot-wave">
+                    <svg viewBox="0 0 860 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#0d2244"/>
+                                <stop offset="50%" stop-color="#1a3a6b"/>
+                                <stop offset="100%" stop-color="#0d2244"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="860" height="100" fill="url(#bg1)" y="0"/>
+                        <path d="M0,0 L0,45 Q120,80 250,50 Q380,20 500,65 Q620,100 750,55 Q810,35 860,50 L860,0 Z" fill="#1a3a6b" opacity="0.6"/>
+                        <path d="M0,0 L0,65 Q150,40 300,60 Q450,80 600,45 Q720,20 860,55 L860,0 Z" fill="#2a5298" opacity="0.3"/>
+                    </svg>
+                </div>
+
+                <!-- Watermark -->
+                <div class="cert-watermark">EDUPORTAL</div>
+
+                <!-- Score ribbon -->
+                <div class="cert-ribbon" id="certRibbon">A+ · 100%</div>
+
+                <!-- BODY -->
+                <div class="cert-body">
+                    <div class="cert-title">CERTIFICATE</div>
+                    <div class="cert-subtitle">OF ACHIEVEMENT</div>
+
+                    <div class="cert-divider"></div>
+
+                    <div class="cert-presented">This Certificate is Proudly Presented to</div>
+
+                    <div class="cert-recipient" id="certName">Name Surname</div>
+                    <div class="cert-name-underline"></div>
+
+                    <div class="cert-course-label">For successfully completing</div>
+                    <div class="cert-course">Advanced Java Programming · EduPortal</div>
+
+                    <div class="cert-desc">
+                        Having demonstrated exceptional understanding and mastery of Java concepts including
+                        Object-Oriented Programming, Collections, Multithreading, Java 8 features,
+                        JDBC, Spring Framework, and Design Patterns.
+                    </div>
+                </div>
+
+                <!-- BOTTOM -->
+                <div class="cert-bottom">
+                    <!-- Badge / Seal -->
+                    <div class="cert-badge">
+                        <div class="cert-laurel">
+                            <span class="laurel-text">🏅</span>
+                        </div>
+                        <div class="cert-badge-ring">
+                            <div class="cert-badge-inner">
+                                <div class="cert-badge-stars">★ ★ ★</div>
+                                <div class="cert-badge-text">BEST<br>AWARD</div>
+                                <div class="cert-badge-sub">EDUPORTAL</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date & Signature -->
+                    <div class="cert-date-sig">
+                        <div class="cert-field">
+                            <div class="cert-field-label">DATE</div>
+                            <div class="cert-field-line"></div>
+                            <div class="cert-field-value" id="certDate">2024/01/01</div>
+                        </div>
+                        <div class="cert-field">
+                            <div class="cert-field-label">SIGNATURE</div>
+                            <div class="cert-field-line"></div>
+                            <svg class="cert-sig-svg" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10,30 C20,10 30,35 45,20 C55,10 60,32 75,22 C85,15 90,28 105,18 C110,15 112,20 115,18" 
+                                      fill="none" stroke="#1a3a6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                      style="stroke-dasharray:200;stroke-dashoffset:200;animation:sig-draw 1.5s 1s ease forwards"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Right spacer -->
+                    <div style="width:clamp(54px,8vw,80px)"></div>
+                </div>
+
+            </div><!-- /certificate -->
+        </div><!-- /cert-wrap -->
+
+        <!-- CONTROLS -->
+        <div class="cert-controls">
+            <button class="ctrl-btn" onclick="window.location.href='quiz-results.html'">← Back to Results</button>
+            <button class="ctrl-btn blue" onclick="printCert()">🖨️ Print Certificate</button>
+            <button class="ctrl-btn gold" onclick="downloadCert()">⬇ Download PNG</button>
+            <button class="ctrl-btn" onclick="window.location.href='student_dashboard.html'">🏠 Dashboard</button>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /shell -->
+
+<div class="toast" id="toast"><span id="tIcon">✓</span>&nbsp;<span id="tMsg">Done</span></div>
+
+<style>
+@keyframes sig-draw{to{stroke-dashoffset:0}}
+</style>
+
+<script>
+/* ── CANVAS ─────────────────────────────────────── */
+const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
+let W,H;
+const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
+resize();window.addEventListener('resize',resize);
+class P{constructor(){this.reset(true)}reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:H+5;this.vx=(Math.random()-.5)*.25;this.vy=-(Math.random()*.3+.08);this.r=Math.random()*1.2+.2;this.life=Math.random()*.6+.2;this.ml=this.life;this.col=Math.random()>.5?'246,173,85':'237,137,54';}upd(){this.x+=this.vx;this.y+=this.vy;this.life-=.0012;if(this.life<=0||this.y<-8)this.reset(false);}drw(){const a=(this.life/this.ml)*.5;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(${this.col},${a})`;ctx.fill();}}
+class Orb{constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*200+100;this.vx=(Math.random()-.5)*.08;this.vy=(Math.random()-.5)*.08;this.col=Math.random()>.5?'246,173,85':'200,168,75';this.a=Math.random()*.02+.006;}upd(){this.x+=this.vx;this.y+=this.vy;if(this.x<-this.r)this.x=W+this.r;if(this.x>W+this.r)this.x=-this.r;if(this.y<-this.r)this.y=H+this.r;if(this.y>H+this.r)this.y=-this.r;}drw(){const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,`rgba(${this.col},${this.a})`);g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();}}
+const pts=Array.from({length:70},()=>new P()),orbs=Array.from({length:3},()=>new Orb());
+(function loop(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{o.upd();o.drw();});pts.forEach(p=>{p.upd();p.drw();});requestAnimationFrame(loop);})();
+
+/* ── INIT CERTIFICATE ───────────────────────────── */
+window.addEventListener('load',()=>{
+    // Get user name from localStorage
+    const u=JSON.parse(localStorage.getItem('currentUser'));
+    const students=JSON.parse(localStorage.getItem('students'))||{};
+    
+    // Build display name: use userId (or full name from students obj if available)
+    let displayName = 'Student';
+    if(u && u.userId){
+        displayName = u.userId;
+        // Try to get email to derive a nicer name
+        if(students[u.userId] && students[u.userId].email){
+            const emailName = students[u.userId].email.split('@')[0];
+            // Capitalize and format: john.doe -> John Doe
+            displayName = emailName
+                .replace(/[._-]/g,' ')
+                .replace(/\b\w/g, l=>l.toUpperCase());
+        }
+        // If still looks like just an ID (e.g. STU001), show as-is but capitalize
+        if(/^[a-zA-Z]+\d+$/.test(displayName)){
+            displayName = u.userId;
+        }
+    }
+    
+    document.getElementById('certName').textContent = displayName;
+
+    // Date
+    const now = new Date();
+    const dateStr = now.getFullYear()+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+String(now.getDate()).padStart(2,'0');
+    document.getElementById('certDate').textContent = dateStr;
+
+    // Quiz results
+    const res = JSON.parse(sessionStorage.getItem('quizResults'));
+    if(res){
+        const {pct, score, total} = res;
+        const grade = pct>=90?'A+':pct>=80?'A':pct>=70?'B+':pct>=60?'B':'C';
+        document.getElementById('scoreDisplay').textContent = `${score}/${total} (${pct}%)`;
+        document.getElementById('gradeDisplay').textContent = grade;
+        document.getElementById('certRibbon').textContent = `${grade} · ${pct}%`;
+
+        // Color ribbon based on grade
+        const certEl = document.getElementById('certificate');
+        const ribbon = document.getElementById('certRibbon');
+        if(pct>=90){ribbon.style.background='linear-gradient(135deg,#c8a84b,#e8c86a)';}
+        else if(pct>=70){ribbon.style.background='linear-gradient(135deg,#63b3ed,#9f7aea)';}
+        else{ribbon.style.background='linear-gradient(135deg,#fb7185,#f97316)';}
+    } else {
+        document.getElementById('scoreDisplay').textContent = '—';
+        document.getElementById('gradeDisplay').textContent = '—';
+        document.getElementById('certRibbon').textContent = 'Achievement';
+    }
+});
+
+/* ── TOAST ─────────────────────────────────────── */
+function showToast(msg, icon='✓'){
+    const t=document.getElementById('toast');
+    document.getElementById('tMsg').textContent=msg;
+    document.getElementById('tIcon').textContent=icon;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ── PRINT ──────────────────────────────────────── */
+function printCert(){
+    showToast('Opening print dialog…','🖨️');
+    setTimeout(()=>window.print(),400);
+}
+
+/* ── DOWNLOAD PNG ───────────────────────────────── */
+async function downloadCert(){
+    showToast('Preparing download…','⬇');
+    
+    const cert = document.getElementById('certificate');
+    const rect = cert.getBoundingClientRect();
+    
+    // Use html2canvas-like approach with Canvas API
+    // We'll draw the certificate onto a canvas for download
+    const scale = 2; // 2x for high DPI
+    const cw = rect.width * scale;
+    const ch = rect.height * scale;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = cw;
+    canvas.height = ch;
+    const c = canvas.getContext('2d');
+    c.scale(scale, scale);
+    
+    const w = rect.width;
+    const h = rect.height;
+    
+    // Background
+    c.fillStyle = '#ffffff';
+    c.fillRect(0, 0, w, h);
+    
+    // Top dark area
+    const tg = c.createLinearGradient(0,0,w,0);
+    tg.addColorStop(0,'#0d2244'); tg.addColorStop(0.5,'#1a3a6b'); tg.addColorStop(1,'#0d2244');
+    c.fillStyle = tg;
+    c.fillRect(0, 0, w, 140 * (h/600));
+    
+    // Top waves
+    const topH = 140*(h/600);
+    c.save();
+    c.beginPath();
+    c.moveTo(0,topH);
+    c.lineTo(0,topH*0.43);
+    c.quadraticCurveTo(w*0.116,topH*0.14,w*0.233,topH*0.39);
+    c.quadraticCurveTo(w*0.372,topH*0.64,w*0.5,topH*0.32);
+    c.quadraticCurveTo(w*0.628,topH*0,w*0.756,topH*0.29);
+    c.quadraticCurveTo(w*0.884,topH*0.57,w,topH*0.21);
+    c.lineTo(w,topH);
+    c.closePath();
+    const tg2=c.createLinearGradient(0,0,w,0);
+    tg2.addColorStop(0,'#1e4d8c'); tg2.addColorStop(0.6,'#2a6bb5'); tg2.addColorStop(1,'#1a3a6b');
+    c.fillStyle=tg2; c.globalAlpha=0.8; c.fill(); c.globalAlpha=1; c.restore();
+    
+    // Bottom waves
+    const botY = h - 100*(h/600);
+    const botH = 100*(h/600);
+    c.save();
+    const bg=c.createLinearGradient(0,0,w,0);
+    bg.addColorStop(0,'#0d2244'); bg.addColorStop(0.5,'#1a3a6b'); bg.addColorStop(1,'#0d2244');
+    c.fillStyle=bg; c.fillRect(0,botY,w,botH);
+    c.beginPath();
+    c.moveTo(0,botY); c.lineTo(0,botY+botH*0.45);
+    c.quadraticCurveTo(w*0.14,botY+botH*0.8,w*0.29,botY+botH*0.5);
+    c.quadraticCurveTo(w*0.44,botY+botH*0.2,w*0.58,botY+botH*0.65);
+    c.quadraticCurveTo(w*0.72,botY+botH,w*0.87,botY+botH*0.55);
+    c.quadraticCurveTo(w*0.94,botY+botH*0.35,w,botY+botH*0.5);
+    c.lineTo(w,botY); c.closePath();
+    c.fillStyle='#1a3a6b'; c.globalAlpha=0.6; c.fill(); c.globalAlpha=1; c.restore();
+    
+    // Watermark
+    c.save();
+    c.globalAlpha=0.03; c.fillStyle='#1a3a6b';
+    c.font=`bold ${w*0.1}px Cinzel,serif`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('EDUPORTAL', w/2, h/2); c.globalAlpha=1; c.restore();
+    
+    const certName = document.getElementById('certName').textContent;
+    const certDate = document.getElementById('certDate').textContent;
+    const grade = document.getElementById('certRibbon').textContent;
+    
+    // CERTIFICATE title
+    c.fillStyle='#1a3a6b';
+    c.font=`700 ${w*0.063}px Cinzel,serif`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.letterSpacing='0.25em';
+    c.fillText('CERTIFICATE', w/2, h*0.22);
+    
+    c.font=`400 ${w*0.017}px Cinzel,serif`;
+    c.fillStyle='#2a5298';
+    c.fillText('OF ACHIEVEMENT', w/2, h*0.29);
+    
+    // Divider line
+    c.save();
+    const dg=c.createLinearGradient(w*0.15,0,w*0.85,0);
+    dg.addColorStop(0,'transparent'); dg.addColorStop(0.2,'#2a5298');
+    dg.addColorStop(0.5,'#c8a84b'); dg.addColorStop(0.8,'#2a5298'); dg.addColorStop(1,'transparent');
+    c.strokeStyle=dg; c.lineWidth=1; c.beginPath();
+    c.moveTo(w*0.15,h*0.34); c.lineTo(w*0.85,h*0.34); c.stroke();
+    c.fillStyle='#c8a84b'; c.font=`${w*0.018}px serif`;
+    c.fillText('❖', w/2, h*0.34); c.restore();
+    
+    // Presented to
+    c.fillStyle='#5a7aab';
+    c.font=`400 ${w*0.013}px DM Sans,sans-serif`;
+    c.textAlign='center';
+    c.fillText('THIS CERTIFICATE IS PROUDLY PRESENTED TO', w/2, h*0.40);
+    
+    // Recipient Name
+    c.fillStyle='#1a3a6b';
+    c.font=`${w*0.07}px "Great Vibes",cursive`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(certName, w/2, h*0.50);
+    
+    // Name underline
+    c.save();
+    const ng=c.createLinearGradient(w*0.2,0,w*0.8,0);
+    ng.addColorStop(0,'transparent'); ng.addColorStop(0.5,'#2a5298'); ng.addColorStop(1,'transparent');
+    c.strokeStyle=ng; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.2,h*0.555); c.lineTo(w*0.8,h*0.555); c.stroke(); c.restore();
+    
+    // Course
+    c.fillStyle='#8a9ab8';
+    c.font=`400 ${w*0.012}px DM Sans,sans-serif`;
+    c.fillText('FOR SUCCESSFULLY COMPLETING', w/2, h*0.60);
+    
+    c.fillStyle='#2a5298';
+    c.font=`600 ${w*0.02}px Cinzel,serif`;
+    c.fillText('Advanced Java Programming · EduPortal', w/2, h*0.645);
+    
+    // Description
+    c.fillStyle='#6a7a96';
+    c.font=`300 ${w*0.011}px DM Sans,sans-serif`;
+    const desc='Having demonstrated exceptional understanding and mastery of Java concepts including OOP, Collections, Multithreading, Java 8+, JDBC, Spring Framework, and Design Patterns.';
+    wrapText(c, desc, w/2, h*0.69, w*0.6, w*0.013);
+    
+    // DATE
+    const bY = h - botH*0.4;
+    c.fillStyle='#2a5298';
+    c.font=`600 ${w*0.013}px Cinzel,serif`;
+    c.textAlign='left';
+    c.fillText('DATE', w*0.32, bY - 18);
+    
+    c.save();
+    const dlg=c.createLinearGradient(w*0.28,0,w*0.44,0);
+    dlg.addColorStop(0,'transparent'); dlg.addColorStop(0.5,'#2a5298'); dlg.addColorStop(1,'transparent');
+    c.strokeStyle=dlg; c.lineWidth=1;
+    c.beginPath(); c.moveTo(w*0.28,bY-12); c.lineTo(w*0.44,bY-12); c.stroke(); c.restore();
+    
+    c.fillStyle='#5a7aab';
+    c.font=`300 ${w*0.011}px DM Sans,sans-serif`;
+    c.fillText(certDate, w*0.32, bY);
+    
+    // SIGNATURE label
+    c.fillStyle='#2a5298';
+    c.font=`600 ${w*0.013}px Cinzel,serif`;
+    c.textAlign='right';
+    c.fillText('SIGNATURE', w*0.72, bY-18);
+    
+    c.save();
+    const slg=c.createLinearGradient(w*0.56,0,w*0.72,0);
+    slg.addColorStop(0,'transparent'); slg.addColorStop(0.5,'#2a5298'); slg.addColorStop(1,'transparent');
+    c.strokeStyle=slg; c.lineWidth=1;
+    c.beginPath(); c.moveTo(w*0.56,bY-12); c.lineTo(w*0.72,bY-12); c.stroke(); c.restore();
+    
+    // Signature drawing
+    c.save();
+    c.strokeStyle='#1a3a6b'; c.lineWidth=1.5; c.lineCap='round'; c.lineJoin='round';
+    c.beginPath();
+    c.moveTo(w*0.58,bY-4);
+    c.bezierCurveTo(w*0.60,bY-14,w*0.62,bY+2,w*0.635,bY-6);
+    c.bezierCurveTo(w*0.648,bY-13,w*0.655,bY+1,w*0.668,bY-5);
+    c.bezierCurveTo(w*0.679,bY-12,w*0.685,bY,w*0.698,bY-6);
+    c.bezierCurveTo(w*0.71,bY-10,w*0.715,bY-2,w*0.72,bY-4);
+    c.stroke(); c.restore();
+    
+    // Grade ribbon
+    c.save();
+    c.fillStyle='#c8a84b';
+    c.beginPath();
+    c.moveTo(w*0.82,0); c.lineTo(w,0); c.lineTo(w,28*(h/600)); c.lineTo(w*0.78,28*(h/600)); c.lineTo(w*0.82,14*(h/600)); c.closePath();
+    c.fill();
+    c.fillStyle='#0a1f44'; c.font=`700 ${w*0.013}px Cinzel,serif`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(grade, w*0.9, 14*(h/600)); c.restore();
+    
+    // Badge / medal emoji
+    c.font=`${w*0.055}px serif`;
+    c.textAlign='left'; c.textBaseline='middle';
+    c.fillText('🏅', w*0.09, h-botH*0.65);
+    
+    // Download
+    const link=document.createElement('a');
+    link.download=`EduPortal_Certificate_${certName.replace(/\s+/g,'_')}.png`;
+    link.href=canvas.toDataURL('image/png',1.0);
+    link.click();
+    showToast('Certificate downloaded!','✅');
+}
+
+function wrapText(ctx2, text, x, y, maxW, lineH){
+    const words=text.split(' ');
+    let line='';
+    ctx2.textAlign='center';
+    words.forEach((w,n)=>{
+        const test=line+w+' ';
+        if(ctx2.measureText(test).width>maxW&&n>0){
+            ctx2.fillText(line,x,y);
+            line=w+' '; y+=lineH*1.5;
+        } else { line=test; }
+    });
+    ctx2.fillText(line,x,y);
+}
+
+/* ── RIPPLE ──────────────────────────────────────── */
+document.querySelectorAll('.ctrl-btn,.back-btn').forEach(el=>{
+    el.addEventListener('click',function(e){
+        const r=this.getBoundingClientRect(),s=document.createElement('span');
+        s.className='ripple'; s.style.cssText=`width:60px;height:60px;left:${e.clientX-r.left-30}px;top:${e.clientY-r.top-30}px`;
+        this.appendChild(s); setTimeout(()=>s.remove(),700);
+    });
+});
+</script>
+</body>
+</html>
