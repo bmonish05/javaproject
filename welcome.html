@@ -25,12 +25,10 @@
             overflow: hidden;
         }
 
-        /* ── CANVAS BG ── */
         #bgCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
 
-        /* ── NOISE OVERLAY ── */
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: 1;
@@ -40,7 +38,6 @@
             opacity: .55;
         }
 
-        /* ── SHELL ── */
         .shell {
             position: relative; z-index: 2;
             width: 100%; height: 100vh;
@@ -49,7 +46,6 @@
             padding: 36px 24px 32px;
         }
 
-        /* ── TOP BAR ── */
         .topbar {
             width: 100%; max-width: 1100px;
             display: flex; align-items: center; justify-content: space-between;
@@ -82,7 +78,6 @@
             letter-spacing: .03em;
         }
 
-        /* ── CENTER HERO ── */
         .hero {
             flex: 1;
             display: flex; flex-direction: column;
@@ -91,7 +86,6 @@
             gap: 0;
         }
 
-        /* Glowing orb behind title */
         .hero-glow {
             position: absolute;
             width: 520px; height: 520px;
@@ -105,7 +99,6 @@
             50%{ transform: scale(1.12); opacity: 1; }
         }
 
-        /* Rotating ring */
         .hero-ring {
             position: absolute;
             width: 420px; height: 420px;
@@ -132,7 +125,6 @@
         }
         @keyframes ring-spin { to { transform: rotate(360deg); } }
 
-        /* Trophy icon */
         .hero-icon-wrap {
             position: relative;
             width: 110px; height: 110px;
@@ -158,7 +150,6 @@
             40%{ transform: translateY(-8px) rotate(4deg) scale(1.08); }
         }
 
-        /* WELCOME TO text */
         .welcome-label {
             font-family: 'DM Sans', sans-serif;
             font-size: clamp(.75em, 1.4vw, .92em);
@@ -171,7 +162,6 @@
             opacity: 0;
         }
 
-        /* QUIZ MASTER main title */
         .hero-title {
             font-family: 'Cinzel', serif;
             font-size: clamp(2.8em, 7vw, 6em);
@@ -205,7 +195,6 @@
             50%{ background-position: 100% 50%; }
         }
 
-        /* Subtitle */
         .hero-sub {
             font-size: clamp(.85em, 1.6vw, 1.05em);
             color: var(--muted);
@@ -218,10 +207,9 @@
         }
         .hero-sub strong { color: rgba(232,234,240,.7); font-weight: 500; }
 
-        /* Stats row */
         .hero-stats {
             display: flex; gap: 32px;
-            margin-bottom: 28px;
+            margin-bottom: 36px;
             animation: fade-up .7s .78s ease both;
             opacity: 0;
         }
@@ -246,82 +234,42 @@
             align-self: stretch; margin: 4px 0;
         }
 
-        /* ── GO ON BUTTON ── */
+        /* ── NEUMORPHIC BUTTON (from Uiverse.io by ke1221) ── */
         .btn-wrap {
             animation: fade-up .7s .9s ease both;
             opacity: 0;
         }
-        .go-btn {
-            position: relative;
-            display: inline-flex; align-items: center; gap: 9px;
-            padding: 12px 28px;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, #63b3ed, #9f7aea);
-            background-size: 200% 200%;
-            color: #060a12;
-            font-family: 'Syne', sans-serif;
-            font-size: .88em; font-weight: 800;
-            letter-spacing: .06em;
+
+        .neu-btn {
+            color: #090909;
+            padding: 0.7em 1.7em;
+            font-size: 18px;
+            border-radius: 0.5em;
+            background: #e8e8e8;
             cursor: pointer;
+            border: 1px solid #e8e8e8;
+            transition: all 0.3s;
+            box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            letter-spacing: .08em;
+            position: relative;
             overflow: hidden;
-            transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
-            box-shadow: 0 4px 20px rgba(99,179,237,.3), 0 2px 8px rgba(0,0,0,.25);
-            animation: btn-gradient 3s ease-in-out infinite;
         }
-        @keyframes btn-gradient {
-            0%,100%{ background-position: 0% 50%; }
-            50%{ background-position: 100% 50%; }
+        .neu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 8px 8px 16px #c5c5c5, -8px -8px 16px #ffffff;
         }
-        .go-btn:hover {
-            transform: translateY(-3px) scale(1.04);
-            box-shadow: 0 8px 28px rgba(99,179,237,.45), 0 3px 10px rgba(0,0,0,.3);
-        }
-        .go-btn:active { transform: translateY(-1px) scale(.99); }
-
-        /* Shimmer on button */
-        .go-btn::before {
-            content: '';
-            position: absolute; top: -50%; left: -60%;
-            width: 40%; height: 200%;
-            background: linear-gradient(105deg, transparent, rgba(255,255,255,.28), transparent);
-            transform: skewX(-15deg);
-            animation: btn-shimmer 2.8s ease-in-out infinite;
-        }
-        @keyframes btn-shimmer {
-            0%{ left: -60%; }
-            55%,100%{ left: 130%; }
-        }
-
-        .go-btn-text { position: relative; z-index: 1; }
-        .go-btn-arrow {
-            position: relative; z-index: 1;
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 22px; height: 22px;
-            background: rgba(6,10,18,.2);
-            border-radius: 6px;
-            font-size: .88em;
-            transition: transform .3s ease;
-        }
-        .go-btn:hover .go-btn-arrow { transform: translateX(4px); }
-
-        /* Pulse ring around button */
-        .go-btn-pulse {
-            position: absolute; inset: -8px;
-            border-radius: 22px;
-            border: 1px solid rgba(99,179,237,.3);
-            animation: btn-pulse 2s ease-out infinite;
-            pointer-events: none;
-        }
-        @keyframes btn-pulse {
-            0%{ transform: scale(1); opacity: .6; }
-            100%{ transform: scale(1.12); opacity: 0; }
+        .neu-btn:active {
+            color: #666;
+            box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+            transform: translateY(0);
         }
 
         /* Ripple */
         .ripple {
             position: absolute; border-radius: 50%;
-            background: rgba(255,255,255,.2);
+            background: rgba(0,0,0,.1);
             transform: scale(0);
             animation: rip .6s linear;
             pointer-events: none;
@@ -333,7 +281,6 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── FOOTER ── */
         .footer {
             width: 100%; max-width: 1100px;
             display: flex; align-items: center; justify-content: center;
@@ -347,7 +294,6 @@
         }
         .footer-copy span { color: rgba(107,116,148,.38); }
 
-        /* ── FLOATING PARTICLES that spell something fun ── */
         .star-field {
             position: fixed; inset: 0; z-index: 1; pointer-events: none;
             overflow: hidden;
@@ -365,7 +311,6 @@
             50%{ opacity: var(--op); transform: scale(1); }
         }
 
-        /* Scrolling text marquee at bottom */
         .marquee-wrap {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 1;
             overflow: hidden;
@@ -389,7 +334,6 @@
         .marquee-dot { color: var(--accent); opacity: .4; }
         @keyframes marquee { from{ transform: translateX(0) } to{ transform: translateX(-50%) } }
 
-        /* ── SIDE DECORATIONS ── */
         .side-deco {
             position: fixed;
             top: 50%; transform: translateY(-50%);
@@ -421,16 +365,16 @@
             animation: fade-up .7s 1.4s ease both;
             opacity: 0;
         }
+
+        @keyframes spin { to { transform: rotate(360deg) } }
     </style>
 </head>
 <body>
 
 <canvas id="bgCanvas"></canvas>
 
-<!-- Star field -->
 <div class="star-field" id="starField"></div>
 
-<!-- Side decorations -->
 <div class="side-deco left">
     <div class="deco-line"></div>
     <div class="deco-line"></div>
@@ -459,33 +403,27 @@
 
     <!-- HERO -->
     <div class="hero">
-        <!-- Atmospheric rings -->
         <div class="hero-glow"></div>
         <div class="hero-ring"></div>
         <div class="hero-ring-2"></div>
 
-        <!-- Trophy -->
         <div class="hero-icon-wrap">
             <div class="hero-icon-bg"></div>
             <div class="hero-icon">🏆</div>
         </div>
 
-        <!-- WELCOME TO -->
         <div class="welcome-label">Welcome to</div>
 
-        <!-- QUIZ MASTER -->
         <h1 class="hero-title">
             <span class="line1">QUIZ</span>
             <span class="line2">MASTER</span>
         </h1>
 
-        <!-- Subtitle -->
         <p class="hero-sub">
             Test your knowledge across <strong>25 questions</strong> of Advanced Java.<br>
             Earn your <strong>Certificate of Achievement</strong> and prove your mastery.
         </p>
 
-        <!-- Stats -->
         <div class="hero-stats">
             <div class="stat-pill">
                 <div class="stat-num">25</div>
@@ -508,13 +446,9 @@
             </div>
         </div>
 
-        <!-- GO ON BUTTON -->
-        <div class="btn-wrap" style="position:relative">
-            <div class="go-btn-pulse"></div>
-            <button class="go-btn" id="goBtn" onclick="goOn()">
-                <span class="go-btn-text">GO ON</span>
-                <span class="go-btn-arrow">→</span>
-            </button>
+        <!-- NEUMORPHIC BUTTON -->
+        <div class="btn-wrap">
+            <button class="neu-btn" id="goBtn" onclick="goOn()">Click me</button>
         </div>
 
     </div>
@@ -534,7 +468,7 @@
 </div>
 
 <script>
-/* ── CANVAS PARTICLES ─────────────────────────────── */
+/* ── CANVAS PARTICLES ── */
 const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
 let W,H;
 const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;};
@@ -568,7 +502,6 @@ const orbs=Array.from({length:5},()=>new Orb());
     ctx.clearRect(0,0,W,H);
     orbs.forEach(o=>{o.upd();o.drw();});
     pts.forEach(p=>{p.upd();p.drw();});
-    // Connection lines
     for(let i=0;i<pts.length;i++){
         for(let j=i+1;j<pts.length;j++){
             const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
@@ -578,7 +511,7 @@ const orbs=Array.from({length:5},()=>new Orb());
     requestAnimationFrame(loop);
 })();
 
-/* ── STAR FIELD ──────────────────────────────────── */
+/* ── STAR FIELD ── */
 const sf=document.getElementById('starField');
 for(let i=0;i<80;i++){
     const s=document.createElement('div');
@@ -595,10 +528,9 @@ for(let i=0;i<80;i++){
     sf.appendChild(s);
 }
 
-/* ── MARQUEE ─────────────────────────────────────── */
+/* ── MARQUEE ── */
 const items=['Advanced Java Programming','25 Questions','30 Minute Timer','Certificate of Achievement','EduPortal · CS201','Mr. Imran ulla khan','Test Your Knowledge','Prove Your Mastery'];
 const track=document.getElementById('marqueeTrack');
-// duplicate for seamless loop
 [...items,...items].forEach(txt=>{
     const el=document.createElement('div');
     el.className='marquee-item';
@@ -606,7 +538,7 @@ const track=document.getElementById('marqueeTrack');
     track.appendChild(el);
 });
 
-/* ── RIPPLE ──────────────────────────────────────── */
+/* ── RIPPLE ── */
 document.getElementById('goBtn').addEventListener('click',function(e){
     const r=this.getBoundingClientRect(),s=document.createElement('span');
     s.className='ripple';
@@ -615,21 +547,18 @@ document.getElementById('goBtn').addEventListener('click',function(e){
     setTimeout(()=>s.remove(),700);
 });
 
-/* ── GO ON ───────────────────────────────────────── */
+/* ── GO ON ── */
 function goOn(){
     const btn=document.getElementById('goBtn');
-    btn.innerHTML=`<span class="go-btn-text">Loading…</span><span class="go-btn-arrow" style="animation:spin .6s linear infinite">⟳</span>`;
+    btn.textContent='Loading…';
     btn.style.pointerEvents='none';
+    btn.style.color='#666';
+    btn.style.boxShadow='inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff';
     document.querySelector('.shell').style.transition='opacity .5s ease, transform .5s ease';
     document.querySelector('.shell').style.opacity='0';
     document.querySelector('.shell').style.transform='translateY(-16px)';
     setTimeout(()=>window.location.href='student.html',520);
 }
-
-/* ── SPIN KEYFRAME (inline) ──────────────────────── */
-const styleEl=document.createElement('style');
-styleEl.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
-document.head.appendChild(styleEl);
 </script>
 </body>
 </html>
